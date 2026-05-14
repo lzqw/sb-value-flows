@@ -13,7 +13,7 @@ from utils.networks import ValueVectorField, ActorVectorField
 
 
 class PMValueFlowsAgent(flax.struct.PyTreeNode):
-    """Value Flows agent."""
+    """Posterior-Mixture Value Flows agent."""
 
     rng: Any
     network: Any
@@ -339,6 +339,37 @@ class PMValueFlowsAgent(flax.struct.PyTreeNode):
             noisy_actions = jnp.clip(noisy_actions, -1, 1)
 
         return noisy_actions
+
+    @partial(jax.jit, static_argnames=('num_candidates',))
+    def sample_action_candidates(self, observations, seed, num_candidates):
+        """Sample K flow-policy action candidates for each observation.
+
+        Args:
+            observations: Observations with shape [*batch_shape, *ob_dims].
+            seed: JAX random seed.
+            num_candidates: Number of action candidates K.
+
+        Returns:
+            actions_k: Flow actions with shape [*batch_shape, K, action_dim].
+            observations_k: Repeated observations with shape [*batch_shape, K, *ob_dims].
+        """
+        batch_shape = observations.shape[:-len(self.config['ob_dims'])]
+
+        action_noises = jax.random.normal(
+            seed,
+            (*batch_shape, num_candidates, self.config['action_dim']),
+        )
+
+        candidate_axis = len(batch_shape)
+        observations_k = jnp.expand_dims(observations, axis=candidate_axis)
+        observations_k = jnp.broadcast_to(
+            observations_k,
+            (*batch_shape, num_candidates, *self.config['ob_dims']),
+        )
+
+        actions_k = self.compute_flow_actions(action_noises, observations_k)
+
+        return actions_k, observations_k
 
     @partial(jax.jit, static_argnames=('policy_extraction'))
     def sample_actions(
