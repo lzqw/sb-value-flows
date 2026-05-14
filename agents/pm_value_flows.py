@@ -72,35 +72,121 @@ class PMValueFlowsAgent(flax.struct.PyTreeNode):
                      (vector_field2 - target_vector_field) ** 2).mean(axis=-1)
 
         # DCFM loss
-        noisy_next_returns1 = self.compute_flow_returns(
-            noises, batch['next_observations'], next_actions, end_times=times,
-            flow_network_name='target_critic_flow1')
-        noisy_next_returns2 = self.compute_flow_returns(
-            noises, batch['next_observations'], next_actions, end_times=times,
-            flow_network_name='target_critic_flow2')
-        if self.config['ret_agg'] == 'min':
-            noisy_next_returns = jnp.minimum(noisy_next_returns1, noisy_next_returns2)
-        else:
-            noisy_next_returns = (noisy_next_returns1 + noisy_next_returns2) / 2
-        noisy_returns = (
-            jnp.expand_dims(batch['rewards'], axis=-1) +
-            self.config['discount'] * jnp.expand_dims(batch['masks'], axis=-1) * noisy_next_returns
+        # Posterior-Mixture DCFM loss.
+        K = self.config['pm_num_continuations']
+
+        next_actions_k, next_obs_k = self.sample_action_candidates(
+            batch['next_observations'],
+            actor_rng,
+            K,
         )
-        vector_field1 = self.network.select('critic_flow1')(
-            noisy_returns, times, batch['observations'], batch['actions'], params=grad_params)
-        vector_field2 = self.network.select('critic_flow2')(
-            noisy_returns, times, batch['observations'], batch['actions'], params=grad_params)
-        target_vector_field1 = self.network.select('target_critic_flow1')(
-            noisy_next_returns, times, batch['next_observations'], next_actions)
-        target_vector_field2 = self.network.select('target_critic_flow2')(
-            noisy_next_returns, times, batch['next_observations'], next_actions)
+
+        # Use the first branch as the Bellman preimage anchor.
+        next_action_anchor = next_actions_k[:, 0]
+
+        z_pre1 = self.compute_flow_returns(
+            noises,
+            batch['next_observations'],
+            next_action_anchor,
+            end_times=times,
+            flow_network_name='target_critic_flow1',
+        )
+        z_pre2 = self.compute_flow_returns(
+            noises,
+            batch['next_observations'],
+            next_action_anchor,
+            end_times=times,
+            flow_network_name='target_critic_flow2',
+        )
+        if self.config['ret_agg'] == 'min':
+            z_pre = jnp.minimum(z_pre1, z_pre2)
+        else:
+            z_pre = (z_pre1 + z_pre2) / 2
+
+        noisy_returns = (
+            jnp.expand_dims(batch['rewards'], axis=-1)
+            + self.config['discount']
+            * jnp.expand_dims(batch['masks'], axis=-1)
+            * z_pre
+        )
+
+        z_pre_k = jnp.repeat(z_pre[:, None, :], K, axis=1)
+        times_k = jnp.repeat(times[:, None, :], K, axis=1)
+
+        target_vector_field1_k = self.network.select('target_critic_flow1')(
+            z_pre_k,
+            times_k,
+            next_obs_k,
+            next_actions_k,
+        )
+        target_vector_field2_k = self.network.select('target_critic_flow2')(
+            z_pre_k,
+            times_k,
+            next_obs_k,
+            next_actions_k,
+        )
 
         if self.config['ret_agg'] == 'min':
-            target_vector_field = jnp.minimum(target_vector_field1, target_vector_field2)
+            target_vector_field_k = jnp.minimum(
+                target_vector_field1_k,
+                target_vector_field2_k,
+            )
         else:
-            target_vector_field = (target_vector_field1 + target_vector_field2) / 2
-        dcfm_loss = ((vector_field1 - target_vector_field) ** 2 +
-                     (vector_field2 - target_vector_field) ** 2).mean(axis=-1)
+            target_vector_field_k = (
+                target_vector_field1_k + target_vector_field2_k
+            ) / 2
+
+        if self.config['pm_use_strict_gamma']:
+            gamma_mask = (
+                self.config['discount']
+                * jnp.expand_dims(batch['masks'], axis=-1)
+            )
+            target_vector_field_k = gamma_mask[:, None, :] * target_vector_field_k
+
+        pm_weights = jnp.ones((batch_size, K), dtype=target_vector_field_k.dtype) / K
+        pm_weights = jax.lax.stop_gradient(pm_weights)
+
+        target_vector_field = (
+            pm_weights[..., None] * target_vector_field_k
+        ).sum(axis=1)
+        target_vector_field = jax.lax.stop_gradient(target_vector_field)
+
+        vector_field1 = self.network.select('critic_flow1')(
+            noisy_returns,
+            times,
+            batch['observations'],
+            batch['actions'],
+            params=grad_params,
+        )
+        vector_field2 = self.network.select('critic_flow2')(
+            noisy_returns,
+            times,
+            batch['observations'],
+            batch['actions'],
+            params=grad_params,
+        )
+
+        dcfm_loss = (
+            (vector_field1 - target_vector_field) ** 2
+            + (vector_field2 - target_vector_field) ** 2
+        ).mean(axis=-1)
+
+        # PM diagnostics.
+        u_diff = target_vector_field_k - target_vector_field[:, None, :]
+        pm_u_num = (
+            pm_weights[..., None] * (u_diff ** 2)
+        ).sum(axis=1).mean(axis=-1)
+
+        pm_energy = (
+            pm_weights[..., None]
+            * 0.5
+            * (target_vector_field_k ** 2)
+        ).sum(axis=1).mean(axis=-1)
+
+        pm_ess = 1.0 / (jnp.sum(pm_weights ** 2, axis=1) + 1e-6)
+        pm_weight_entropy = -(
+            pm_weights * jnp.log(pm_weights + 1e-6)
+        ).sum(axis=1)
 
         critic_loss = (self.config['bcfm_lambda'] * bcfm_loss + self.config['dcfm_lambda'] * dcfm_loss)
         critic_loss = (weights * critic_loss).mean()
@@ -139,6 +225,14 @@ class PMValueFlowsAgent(flax.struct.PyTreeNode):
             'q_max': q.max(),
             'q_min': q.min(),
             'weight': weights.mean(),
+            'pm/ess': pm_ess.mean(),
+            'pm/ess_min': pm_ess.min(),
+            'pm/ess_max': pm_ess.max(),
+            'pm/weight_entropy': pm_weight_entropy.mean(),
+            'pm/weight_max': pm_weights.max(),
+            'pm/weight_min': pm_weights.min(),
+            'pm/u_num': pm_u_num.mean(),
+            'pm/energy': pm_energy.mean(),
         }
 
     def actor_loss(self, batch, grad_params, rng):
