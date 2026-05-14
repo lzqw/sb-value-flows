@@ -137,7 +137,7 @@ def main(_):
             if done:
                 obs, _ = env.reset()
             
-            if config['agent_name'] in ['value_flows']:
+            if config['agent_name'] in ['value_flows', 'pm_value_flows']:
                 action = agent.sample_actions(observations=obs, temperature=1, seed=expl_rng, policy_extraction='rpg')
             else:
                 action = agent.sample_actions(observations=obs, temperature=1, seed=expl_rng)
@@ -198,7 +198,7 @@ def main(_):
         # Evaluate agent.
         if FLAGS.eval_interval != 0 and (i == 1 or i % FLAGS.eval_interval == 0):
             eval_metrics = {}
-            if i > FLAGS.offline_steps and config['agent_name'] in ['value_flows']:
+            if i > FLAGS.offline_steps and config['agent_name'] in ['value_flows', 'pm_value_flows']:
                 eval_kwargs = dict(policy_extraction='rpg')
             else:
                 eval_kwargs = dict()
