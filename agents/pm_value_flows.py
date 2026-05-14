@@ -22,7 +22,7 @@ class PMValueFlowsAgent(flax.struct.PyTreeNode):
     def critic_loss(self, batch, grad_params, rng):
         """Compute the flow distributional critic loss."""
         batch_size = batch['actions'].shape[0]
-        rng, actor_rng, noise_rng, time_rng, q_rng, ret_rng = jax.random.split(rng, 6)
+        rng, actor_rng, pm_actor_rng, noise_rng, time_rng, q_rng, ret_rng = jax.random.split(rng, 7)
 
         # Sample next actions using rejection sampling
         next_actions = self.sample_actions(batch['next_observations'], actor_rng)
@@ -71,18 +71,17 @@ class PMValueFlowsAgent(flax.struct.PyTreeNode):
         bcfm_loss = ((vector_field1 - target_vector_field) ** 2 +
                      (vector_field2 - target_vector_field) ** 2).mean(axis=-1)
 
-        # DCFM loss
         # Posterior-Mixture DCFM loss.
         K = self.config['pm_num_continuations']
 
         next_actions_k, next_obs_k = self.sample_action_candidates(
             batch['next_observations'],
-            actor_rng,
+            pm_actor_rng,
             K,
         )
 
         # Use the first branch as the Bellman preimage anchor.
-        next_action_anchor = next_actions_k[:, 0]
+        next_action_anchor = next_actions_k[..., 0, :]
 
         z_pre1 = self.compute_flow_returns(
             noises,
