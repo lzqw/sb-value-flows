@@ -163,6 +163,8 @@ class PMValueFlowsAgent(flax.struct.PyTreeNode):
             )
             target_vector_field_k = gamma_mask[:, None, :] * target_vector_field_k
 
+        field_scale = jnp.zeros((batch_size, 1), dtype=target_vector_field_k.dtype)
+
         if self.config['pm_weight_type'] == 'kernel':
             z_anchor = jax.lax.stop_gradient(z_pre)
             z_candidate = jax.lax.stop_gradient(z_pre_k_all)
@@ -176,6 +178,23 @@ class PMValueFlowsAgent(flax.struct.PyTreeNode):
             h_u = self.config['pm_field_kernel_bandwidth']
             field_sq_dist = ((u_candidate - u_center) ** 2).mean(axis=-1)
             logits = -0.5 * field_sq_dist / (h_u ** 2 + 1e-6)
+            pm_weights = jax.nn.softmax(logits, axis=1)
+            sq_dist = field_sq_dist
+        elif self.config['pm_weight_type'] == 'field_kernel_norm':
+            u_candidate = jax.lax.stop_gradient(target_vector_field_k)
+            u_center = jax.lax.stop_gradient(u_candidate.mean(axis=1, keepdims=True))
+            field_sq_dist = ((u_candidate - u_center) ** 2).mean(axis=-1)
+
+            field_scale = jax.lax.stop_gradient(
+                field_sq_dist.mean(axis=1, keepdims=True)
+            )
+            field_scale = jnp.maximum(
+                field_scale,
+                self.config['pm_field_kernel_min_scale'],
+            )
+
+            temp = self.config['pm_field_kernel_norm_temp']
+            logits = -0.5 * field_sq_dist / (temp * field_scale + 1e-6)
             pm_weights = jax.nn.softmax(logits, axis=1)
             sq_dist = field_sq_dist
         else:
@@ -310,6 +329,11 @@ class PMValueFlowsAgent(flax.struct.PyTreeNode):
             'pm/kernel_sq_dist_max': sq_dist.max(),
             'pm/kernel_sq_dist_std': sq_dist.std(),
             'pm/kernel_logits_std': logits.std(),
+            'pm/field_kernel_scale': field_scale.mean(),
+            'pm/field_kernel_temp': jnp.asarray(
+                self.config['pm_field_kernel_norm_temp'],
+                dtype=target_vector_field_k.dtype,
+            ),
             'pm/target_vector_field_k_std': target_vector_field_k.squeeze(-1).std(),
             'pm/z_pre_k_std': z_pre_k_all.squeeze(-1).std(),
             'pm/action_candidate_std': next_actions_k.std(),
@@ -818,6 +842,8 @@ def get_config():
             pm_use_strict_gamma=False,
             pm_kernel_bandwidth=1.0,
             pm_field_kernel_bandwidth=1.0,
+            pm_field_kernel_norm_temp=1.0,
+            pm_field_kernel_min_scale=1e-6,
             pm_sigma0=1.0,
             pm_lambda_num=0.0,
             pm_lambda_ess=0.0,
