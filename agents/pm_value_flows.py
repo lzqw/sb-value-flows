@@ -344,10 +344,44 @@ class PMValueFlowsAgent(flax.struct.PyTreeNode):
             q = jnp.minimum(q1, q2)
         else:
             q = (q1 + q2) / 2
-        
-        q_loss = -q.mean()
+
+        actor_energy1 = self.compute_flow_energy(
+            q_noises,
+            batch['observations'],
+            actor_actions,
+            flow_network_name='critic_flow1',
+        ).squeeze(-1)
+        actor_energy2 = self.compute_flow_energy(
+            q_noises,
+            batch['observations'],
+            actor_actions,
+            flow_network_name='critic_flow2',
+        ).squeeze(-1)
+
+        actor_energy = (actor_energy1 + actor_energy2) / 2
+        actor_energy_sqrt = jnp.sqrt(jnp.maximum(actor_energy, 0.0) + 1e-6)
+        actor_disagree = jnp.abs(q1 - q2)
+
+        if self.config['pm_actor_normalize_geometry']:
+            actor_energy_penalty = actor_energy_sqrt / (
+                jax.lax.stop_gradient(actor_energy_sqrt.mean()) + 1e-6
+            )
+            actor_disagree_penalty = actor_disagree / (
+                jax.lax.stop_gradient(actor_disagree.mean()) + 1e-6
+            )
+        else:
+            actor_energy_penalty = actor_energy_sqrt
+            actor_disagree_penalty = actor_disagree
+
+        q_geo = (
+            q
+            - self.config['pm_actor_energy_coef'] * actor_energy_penalty
+            - self.config['pm_actor_disagree_coef'] * actor_disagree_penalty
+        )
+
+        q_loss = -q_geo.mean()
         if self.config['normalize_q_loss']:
-            lam = jax.lax.stop_gradient(1 / jnp.abs(q).mean())
+            lam = jax.lax.stop_gradient(1 / jnp.abs(q_geo).mean())
             q_loss = lam * q_loss
 
         actor_loss = bc_flow_loss + self.config['alpha'] * distill_loss + q_loss
@@ -362,6 +396,12 @@ class PMValueFlowsAgent(flax.struct.PyTreeNode):
             'distill_loss': distill_loss,
             'q_loss': q_loss,
             'q': q.mean(),
+            'q_geo': q_geo.mean(),
+            'actor_energy': actor_energy.mean(),
+            'actor_energy_sqrt': actor_energy_sqrt.mean(),
+            'actor_disagree': actor_disagree.mean(),
+            'actor_energy_penalty': actor_energy_penalty.mean(),
+            'actor_disagree_penalty': actor_disagree_penalty.mean(),
             'mse': mse,
         }
 
@@ -459,6 +499,63 @@ class PMValueFlowsAgent(flax.struct.PyTreeNode):
             return noisy_returns, noisy_jac_eps_prod
         else:
             return noisy_returns
+
+    @partial(jax.jit, static_argnames=('flow_network_name',))
+    def compute_flow_energy(
+        self,
+        noises,
+        observations,
+        actions,
+        init_times=None,
+        end_times=None,
+        flow_network_name='critic_flow1',
+    ):
+        """Estimate return-flow transport energy along the critic ODE path.
+
+        Returns:
+            energy with shape [*batch_shape, 1], approximating
+            integral_0^1 0.5 * ||u_t||^2 dt.
+        """
+        noisy_returns = noises
+        energy = jnp.zeros_like(noises)
+
+        if init_times is None:
+            init_times = jnp.zeros((*noisy_returns.shape[:-1], 1), dtype=noisy_returns.dtype)
+        if end_times is None:
+            end_times = jnp.ones((*noisy_returns.shape[:-1], 1), dtype=noisy_returns.dtype)
+
+        step_size = (end_times - init_times) / self.config['num_flow_steps']
+
+        def func(carry, i):
+            noisy_returns, energy = carry
+            times = i * step_size + init_times
+
+            vector_field = self.network.select(flow_network_name)(
+                noisy_returns,
+                times,
+                observations,
+                actions,
+            )
+
+            new_noisy_returns = noisy_returns + step_size * vector_field
+
+            if self.config['clip_flow_returns']:
+                new_noisy_returns = jnp.clip(
+                    new_noisy_returns,
+                    self.config['min_reward'] / (1 - self.config['discount']),
+                    self.config['max_reward'] / (1 - self.config['discount']),
+                )
+
+            new_energy = energy + 0.5 * (vector_field ** 2) * jnp.abs(step_size)
+            return (new_noisy_returns, new_energy), None
+
+        (_, energy), _ = jax.lax.scan(
+            func,
+            (noisy_returns, energy),
+            jnp.arange(self.config['num_flow_steps']),
+        )
+
+        return energy
 
     @jax.jit
     def compute_flow_actions(
@@ -711,6 +808,9 @@ def get_config():
             pm_lambda_ess=0.0,
             pm_lambda_energy=0.0,
             pm_normalize_reliability=True,
+            pm_actor_energy_coef=0.0,
+            pm_actor_disagree_coef=0.0,
+            pm_actor_normalize_geometry=True,
             ob_dims=ml_collections.config_dict.placeholder(list),  # Observation dimensions (will be set automatically).
             action_dim=ml_collections.config_dict.placeholder(int),  # Action dimension (will be set automatically).
             min_reward=ml_collections.config_dict.placeholder(float),  # Minimum reward (will be set automatically).
