@@ -111,6 +111,27 @@ class PMValueFlowsAgent(flax.struct.PyTreeNode):
 
         z_pre_k = jnp.repeat(z_pre[:, None, :], K, axis=1)
         times_k = jnp.repeat(times[:, None, :], K, axis=1)
+        noises_k = jnp.repeat(noises[:, None, :], K, axis=1)
+
+        z_pre1_k_all = self.compute_flow_returns(
+            noises_k,
+            next_obs_k,
+            next_actions_k,
+            end_times=times_k,
+            flow_network_name='target_critic_flow1',
+        )
+        z_pre2_k_all = self.compute_flow_returns(
+            noises_k,
+            next_obs_k,
+            next_actions_k,
+            end_times=times_k,
+            flow_network_name='target_critic_flow2',
+        )
+
+        if self.config['ret_agg'] == 'min':
+            z_pre_k_all = jnp.minimum(z_pre1_k_all, z_pre2_k_all)
+        else:
+            z_pre_k_all = (z_pre1_k_all + z_pre2_k_all) / 2
 
         target_vector_field1_k = self.network.select('target_critic_flow1')(
             z_pre_k,
@@ -142,7 +163,17 @@ class PMValueFlowsAgent(flax.struct.PyTreeNode):
             )
             target_vector_field_k = gamma_mask[:, None, :] * target_vector_field_k
 
-        pm_weights = jnp.ones((batch_size, K), dtype=target_vector_field_k.dtype) / K
+        if self.config['pm_weight_type'] == 'kernel':
+            z_anchor = jax.lax.stop_gradient(z_pre)
+            z_candidate = jax.lax.stop_gradient(z_pre_k_all)
+            h = self.config['pm_kernel_bandwidth']
+            sq_dist = ((z_candidate - z_anchor[:, None, :]) ** 2).mean(axis=-1)
+            logits = -0.5 * sq_dist / (h ** 2 + 1e-6)
+            pm_weights = jax.nn.softmax(logits, axis=1)
+        else:
+            sq_dist = jnp.zeros((batch_size, K), dtype=target_vector_field_k.dtype)
+            pm_weights = jnp.ones((batch_size, K), dtype=target_vector_field_k.dtype) / K
+
         pm_weights = jax.lax.stop_gradient(pm_weights)
 
         target_vector_field = (
@@ -232,6 +263,10 @@ class PMValueFlowsAgent(flax.struct.PyTreeNode):
             'pm/weight_min': pm_weights.min(),
             'pm/u_num': pm_u_num.mean(),
             'pm/energy': pm_energy.mean(),
+            'pm/kernel_sq_dist': sq_dist.mean(),
+            'pm/kernel_sq_dist_min': sq_dist.min(),
+            'pm/kernel_sq_dist_max': sq_dist.max(),
+            'pm/is_kernel': jnp.asarray(self.config['pm_weight_type'] == 'kernel', dtype=jnp.float32),
         }
 
     def actor_loss(self, batch, grad_params, rng):
