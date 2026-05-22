@@ -218,6 +218,31 @@ class PMValueFlowsAgent(flax.struct.PyTreeNode):
             pm_weights * jnp.log(pm_weights + 1e-6)
         ).sum(axis=1)
 
+        pm_ess_penalty = K / (pm_ess + 1e-6) - 1.0
+
+        if self.config['pm_normalize_reliability']:
+            pm_u_num_for_weight = pm_u_num / (jax.lax.stop_gradient(pm_u_num.mean()) + 1e-6)
+            pm_energy_for_weight = pm_energy / (jax.lax.stop_gradient(pm_energy.mean()) + 1e-6)
+            pm_ess_penalty_for_weight = pm_ess_penalty / (
+                jax.lax.stop_gradient(pm_ess_penalty.mean()) + 1e-6
+            )
+        else:
+            pm_u_num_for_weight = pm_u_num
+            pm_energy_for_weight = pm_energy
+            pm_ess_penalty_for_weight = pm_ess_penalty
+
+        pm_reliability_penalty = (
+            self.config['pm_lambda_num'] * pm_u_num_for_weight
+            + self.config['pm_lambda_energy'] * pm_energy_for_weight
+            + self.config['pm_lambda_ess'] * pm_ess_penalty_for_weight
+        )
+
+        pm_rel_weight = 1.0 / (1.0 + pm_reliability_penalty)
+        pm_rel_weight = jnp.clip(pm_rel_weight, 0.0, 1.0)
+        pm_rel_weight = jax.lax.stop_gradient(pm_rel_weight)
+
+        dcfm_loss = pm_rel_weight * dcfm_loss
+
         critic_loss = (self.config['bcfm_lambda'] * bcfm_loss + self.config['dcfm_lambda'] * dcfm_loss)
         critic_loss = (weights * critic_loss).mean()
 
@@ -259,6 +284,11 @@ class PMValueFlowsAgent(flax.struct.PyTreeNode):
             'pm/ess_min': pm_ess.min(),
             'pm/ess_max': pm_ess.max(),
             'pm/weight_entropy': pm_weight_entropy.mean(),
+            'pm/rel_weight': pm_rel_weight.mean(),
+            'pm/rel_weight_min': pm_rel_weight.min(),
+            'pm/rel_weight_max': pm_rel_weight.max(),
+            'pm/reliability_penalty': pm_reliability_penalty.mean(),
+            'pm/ess_penalty': pm_ess_penalty.mean(),
             'pm/weight_max': pm_weights.max(),
             'pm/weight_min': pm_weights.min(),
             'pm/u_num': pm_u_num.mean(),
