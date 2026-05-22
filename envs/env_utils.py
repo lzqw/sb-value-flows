@@ -10,6 +10,14 @@ from gymnasium.spaces import Box
 from utils.datasets import Dataset
 
 
+def add_default_reward_fields(dataset):
+    """Add reward fields for goal-conditioned OGBench datasets that omit fixed-task rewards."""
+    if 'rewards' not in dataset:
+        dataset['rewards'] = np.zeros_like(dataset['terminals'], dtype=np.float32)
+    if 'masks' not in dataset:
+        dataset['masks'] = 1.0 - dataset['terminals'].astype(np.float32)
+
+
 class EpisodeMonitor(gymnasium.Wrapper):
     """Environment wrapper to monitor episode statistics."""
 
@@ -100,12 +108,16 @@ def make_env_and_datasets(env_name, frame_stack=None, action_clip_eps=1e-5):
         A tuple of the environment, evaluation environment, training dataset, and validation dataset.
     """
 
-    if 'singletask' in env_name:
+    if 'singletask' in env_name or (
+        'antmaze' in env_name and 'diverse' not in env_name and 'play' not in env_name and 'umaze' not in env_name
+    ):
         # OGBench.
         env, train_dataset, val_dataset = ogbench.make_env_and_datasets(env_name)
         eval_env = ogbench.make_env_and_datasets(env_name, env_only=True)
         env = EpisodeMonitor(env, filter_regexes=['.*privileged.*', '.*proprio.*'])
         eval_env = EpisodeMonitor(eval_env, filter_regexes=['.*privileged.*', '.*proprio.*'])
+        add_default_reward_fields(train_dataset)
+        add_default_reward_fields(val_dataset)
         train_dataset = Dataset.create(**train_dataset)
         val_dataset = Dataset.create(**val_dataset)
     elif 'antmaze' in env_name and ('diverse' in env_name or 'play' in env_name or 'umaze' in env_name):
