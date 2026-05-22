@@ -170,8 +170,17 @@ class PMValueFlowsAgent(flax.struct.PyTreeNode):
             sq_dist = ((z_candidate - z_anchor[:, None, :]) ** 2).mean(axis=-1)
             logits = -0.5 * sq_dist / (h ** 2 + 1e-6)
             pm_weights = jax.nn.softmax(logits, axis=1)
+        elif self.config['pm_weight_type'] == 'field_kernel':
+            u_candidate = jax.lax.stop_gradient(target_vector_field_k)
+            u_center = jax.lax.stop_gradient(u_candidate.mean(axis=1, keepdims=True))
+            h_u = self.config['pm_field_kernel_bandwidth']
+            field_sq_dist = ((u_candidate - u_center) ** 2).mean(axis=-1)
+            logits = -0.5 * field_sq_dist / (h_u ** 2 + 1e-6)
+            pm_weights = jax.nn.softmax(logits, axis=1)
+            sq_dist = field_sq_dist
         else:
             sq_dist = jnp.zeros((batch_size, K), dtype=target_vector_field_k.dtype)
+            logits = jnp.zeros((batch_size, K), dtype=target_vector_field_k.dtype)
             pm_weights = jnp.ones((batch_size, K), dtype=target_vector_field_k.dtype) / K
 
         pm_weights = jax.lax.stop_gradient(pm_weights)
@@ -299,6 +308,11 @@ class PMValueFlowsAgent(flax.struct.PyTreeNode):
             'pm/kernel_sq_dist': sq_dist.mean(),
             'pm/kernel_sq_dist_min': sq_dist.min(),
             'pm/kernel_sq_dist_max': sq_dist.max(),
+            'pm/kernel_sq_dist_std': sq_dist.std(),
+            'pm/kernel_logits_std': logits.std(),
+            'pm/target_vector_field_k_std': target_vector_field_k.squeeze(-1).std(),
+            'pm/z_pre_k_std': z_pre_k_all.squeeze(-1).std(),
+            'pm/action_candidate_std': next_actions_k.std(),
             'pm/is_kernel': jnp.asarray(self.config['pm_weight_type'] == 'kernel', dtype=jnp.float32),
         }
 
@@ -803,6 +817,7 @@ def get_config():
             pm_weight_type='uniform',
             pm_use_strict_gamma=False,
             pm_kernel_bandwidth=1.0,
+            pm_field_kernel_bandwidth=1.0,
             pm_sigma0=1.0,
             pm_lambda_num=0.0,
             pm_lambda_ess=0.0,
