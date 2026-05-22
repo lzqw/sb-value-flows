@@ -200,6 +200,7 @@ class PMValueFlowsAgent(flax.struct.PyTreeNode):
             (vector_field1 - target_vector_field) ** 2
             + (vector_field2 - target_vector_field) ** 2
         ).mean(axis=-1)
+        dcfm_loss_raw = dcfm_loss
 
         # PM diagnostics.
         u_diff = target_vector_field_k - target_vector_field[:, None, :]
@@ -271,8 +272,10 @@ class PMValueFlowsAgent(flax.struct.PyTreeNode):
 
         return critic_loss, {
             'critic_loss': critic_loss,
-            'bcfm_loss': bcfm_loss,
-            'dcfm_loss': dcfm_loss,
+            'bcfm_loss': bcfm_loss.mean(),
+            'dcfm_loss': dcfm_loss.mean(),
+            'dcfm_loss_raw': dcfm_loss_raw.mean(),
+            'dcfm_loss_weighted': dcfm_loss.mean(),
             'q_mean': q.mean(),
             'q_std': q_stds.mean(),
             'q_std_max': q_stds.max(),
