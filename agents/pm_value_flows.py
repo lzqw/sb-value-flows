@@ -236,11 +236,21 @@ class PMValueFlowsAgent(flax.struct.PyTreeNode):
             pm_weights[..., None] * (u_diff ** 2)
         ).sum(axis=1).mean(axis=-1)
 
-        pm_energy = (
-            pm_weights[..., None]
-            * 0.5
-            * (target_vector_field_k ** 2)
-        ).sum(axis=1).mean(axis=-1)
+        energy_k = 0.5 * (target_vector_field_k ** 2).mean(axis=-1)
+        pm_energy_raw = (pm_weights * energy_k).sum(axis=1)
+
+        if self.config['pm_energy_residual_ref'] == 'median':
+            energy_ref = jax.lax.stop_gradient(jnp.median(energy_k, axis=1, keepdims=True))
+        else:
+            energy_ref = jax.lax.stop_gradient(jnp.mean(energy_k, axis=1, keepdims=True))
+
+        energy_residual_k = jax.nn.relu(energy_k - energy_ref)
+        pm_energy_residual = (pm_weights * energy_residual_k).sum(axis=1)
+
+        if self.config['pm_energy_reliability_mode'] == 'residual':
+            pm_energy_for_reliability = pm_energy_residual
+        else:
+            pm_energy_for_reliability = pm_energy_raw
 
         pm_ess = 1.0 / (jnp.sum(pm_weights ** 2, axis=1) + 1e-6)
         pm_weight_entropy = -(
@@ -251,13 +261,13 @@ class PMValueFlowsAgent(flax.struct.PyTreeNode):
 
         if self.config['pm_normalize_reliability']:
             pm_u_num_for_weight = pm_u_num / (jax.lax.stop_gradient(pm_u_num.mean()) + 1e-6)
-            pm_energy_for_weight = pm_energy / (jax.lax.stop_gradient(pm_energy.mean()) + 1e-6)
+            pm_energy_for_weight = pm_energy_for_reliability / (jax.lax.stop_gradient(pm_energy_for_reliability.mean()) + 1e-6)
             pm_ess_penalty_for_weight = pm_ess_penalty / (
                 jax.lax.stop_gradient(pm_ess_penalty.mean()) + 1e-6
             )
         else:
             pm_u_num_for_weight = pm_u_num
-            pm_energy_for_weight = pm_energy
+            pm_energy_for_weight = pm_energy_for_reliability
             pm_ess_penalty_for_weight = pm_ess_penalty
 
         pm_reliability_penalty = (
@@ -323,7 +333,15 @@ class PMValueFlowsAgent(flax.struct.PyTreeNode):
             'pm/weight_max': pm_weights.max(),
             'pm/weight_min': pm_weights.min(),
             'pm/u_num': pm_u_num.mean(),
-            'pm/energy': pm_energy.mean(),
+            'pm/energy': pm_energy_for_reliability.mean(),
+            'pm/energy_raw': pm_energy_raw.mean(),
+            'pm/energy_residual': pm_energy_residual.mean(),
+            'pm/energy_ref': energy_ref.mean(),
+            'pm/energy_for_reliability': pm_energy_for_reliability.mean(),
+            'pm/energy_residual_ratio': pm_energy_residual.mean() / (pm_energy_raw.mean() + 1e-6),
+            'pm/energy_reliability_is_residual': jnp.asarray(
+                self.config['pm_energy_reliability_mode'] == 'residual', dtype=jnp.float32
+            ),
             'pm/kernel_sq_dist': sq_dist.mean(),
             'pm/kernel_sq_dist_min': sq_dist.min(),
             'pm/kernel_sq_dist_max': sq_dist.max(),
@@ -397,18 +415,51 @@ class PMValueFlowsAgent(flax.struct.PyTreeNode):
         ).squeeze(-1)
 
         actor_energy = (actor_energy1 + actor_energy2) / 2
-        actor_energy_sqrt = jnp.sqrt(jnp.maximum(actor_energy, 0.0) + 1e-6)
+        actor_energy_raw = actor_energy
+        actor_energy_sqrt_raw = jnp.sqrt(jnp.maximum(actor_energy_raw, 0.0) + 1e-6)
+
+        data_energy = actor_energy_raw
+        data_energy_sqrt = actor_energy_sqrt_raw
+        if self.config['pm_actor_energy_mode'] == 'residual':
+            data_energy1 = self.compute_flow_energy(
+                q_noises,
+                batch['observations'],
+                batch['actions'],
+                flow_network_name='critic_flow1',
+            )
+            data_energy2 = self.compute_flow_energy(
+                q_noises,
+                batch['observations'],
+                batch['actions'],
+                flow_network_name='critic_flow2',
+            )
+            data_energy = ((data_energy1 + data_energy2) / 2).squeeze(-1)
+            data_energy_sqrt = jnp.sqrt(jnp.maximum(data_energy, 0.0) + 1e-6)
+
+        actor_energy_residual = jax.nn.relu(
+            actor_energy_sqrt_raw - jax.lax.stop_gradient(data_energy_sqrt)
+        )
+        if self.config['pm_actor_energy_mode'] == 'residual':
+            actor_energy_metric = actor_energy_residual
+        else:
+            actor_energy_metric = actor_energy_sqrt_raw
+
         actor_disagree = jnp.abs(q1 - q2)
 
         if self.config['pm_actor_normalize_geometry']:
-            actor_energy_penalty = actor_energy_sqrt / (
-                jax.lax.stop_gradient(actor_energy_sqrt.mean()) + 1e-6
-            )
+            if self.config['pm_actor_energy_mode'] == 'residual':
+                if self.config['pm_actor_energy_residual_norm'] == 'residual':
+                    denom = jax.lax.stop_gradient(actor_energy_residual.mean()) + 1e-6
+                else:
+                    denom = jax.lax.stop_gradient(data_energy_sqrt.mean()) + 1e-6
+            else:
+                denom = jax.lax.stop_gradient(actor_energy_sqrt_raw.mean()) + 1e-6
+            actor_energy_penalty = actor_energy_metric / denom
             actor_disagree_penalty = actor_disagree / (
                 jax.lax.stop_gradient(actor_disagree.mean()) + 1e-6
             )
         else:
-            actor_energy_penalty = actor_energy_sqrt
+            actor_energy_penalty = actor_energy_metric
             actor_disagree_penalty = actor_disagree
 
         q_geo = (
@@ -435,8 +486,16 @@ class PMValueFlowsAgent(flax.struct.PyTreeNode):
             'q_loss': q_loss,
             'q': q.mean(),
             'q_geo': q_geo.mean(),
-            'actor_energy': actor_energy.mean(),
-            'actor_energy_sqrt': actor_energy_sqrt.mean(),
+            'actor_energy': actor_energy_raw.mean(),
+            'actor_energy_sqrt': actor_energy_sqrt_raw.mean(),
+            'actor_energy_raw': actor_energy_raw.mean(),
+            'actor_data_energy': data_energy.mean(),
+            'actor_data_energy_sqrt': data_energy_sqrt.mean(),
+            'actor_energy_residual': actor_energy_residual.mean(),
+            'actor_energy_residual_ratio': actor_energy_residual.mean() / (actor_energy_sqrt_raw.mean() + 1e-6),
+            'actor_energy_mode_is_residual': jnp.asarray(
+                self.config['pm_actor_energy_mode'] == 'residual', dtype=jnp.float32
+            ),
             'actor_disagree': actor_disagree.mean(),
             'actor_energy_penalty': actor_energy_penalty.mean(),
             'actor_disagree_penalty': actor_disagree_penalty.mean(),
@@ -852,6 +911,10 @@ def get_config():
             pm_actor_energy_coef=0.0,
             pm_actor_disagree_coef=0.0,
             pm_actor_normalize_geometry=True,
+            pm_energy_reliability_mode='raw',
+            pm_energy_residual_ref='median',
+            pm_actor_energy_mode='raw',
+            pm_actor_energy_residual_norm='data',
             ob_dims=ml_collections.config_dict.placeholder(list),  # Observation dimensions (will be set automatically).
             action_dim=ml_collections.config_dict.placeholder(int),  # Action dimension (will be set automatically).
             min_reward=ml_collections.config_dict.placeholder(float),  # Minimum reward (will be set automatically).
