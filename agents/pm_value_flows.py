@@ -204,8 +204,39 @@ class PMValueFlowsAgent(flax.struct.PyTreeNode):
 
         pm_weights = jax.lax.stop_gradient(pm_weights)
 
+        bellman_targets_k = (
+            jnp.expand_dims(batch['rewards'], axis=-1)[:, None, :]
+            + self.config['discount']
+            * jnp.expand_dims(batch['masks'], axis=-1)[:, None, :]
+            * z_pre_k_all
+        )
+
+        energy_k = 0.5 * (target_vector_field_k ** 2).mean(axis=-1)
+        sb_base_weights = pm_weights
+        if self.config['pm_action_normalize'] == 'std':
+            action_mean_k = (sb_base_weights * energy_k).sum(axis=1, keepdims=True)
+            action_var_k = (
+                sb_base_weights * (energy_k - action_mean_k) ** 2
+            ).sum(axis=1, keepdims=True)
+            sb_action = (energy_k - action_mean_k) / (jnp.sqrt(action_var_k) + 1e-8)
+        else:
+            sb_action = energy_k
+
+        sb_logits = (
+            jnp.log(jax.lax.stop_gradient(sb_base_weights) + 1e-8)
+            - self.config['pm_sb_lambda'] * jax.lax.stop_gradient(sb_action)
+        )
+        sb_weights = jax.nn.softmax(sb_logits, axis=1)
+        sb_weights = jax.lax.stop_gradient(sb_weights)
+
+        target_weights = jnp.where(
+            self.config['pm_minimal_sb'],
+            sb_weights,
+            pm_weights,
+        )
+
         target_vector_field = (
-            pm_weights[..., None] * target_vector_field_k
+            target_weights[..., None] * target_vector_field_k
         ).sum(axis=1)
         target_vector_field = jax.lax.stop_gradient(target_vector_field)
 
@@ -236,7 +267,6 @@ class PMValueFlowsAgent(flax.struct.PyTreeNode):
             pm_weights[..., None] * (u_diff ** 2)
         ).sum(axis=1).mean(axis=-1)
 
-        energy_k = 0.5 * (target_vector_field_k ** 2).mean(axis=-1)
         pm_energy_raw = (pm_weights * energy_k).sum(axis=1)
 
         if self.config['pm_energy_residual_ref'] == 'median':
@@ -279,6 +309,10 @@ class PMValueFlowsAgent(flax.struct.PyTreeNode):
         pm_rel_weight = 1.0 / (1.0 + pm_reliability_penalty)
         pm_rel_weight = jnp.clip(pm_rel_weight, 0.0, 1.0)
         pm_rel_weight = jax.lax.stop_gradient(pm_rel_weight)
+
+        if self.config['pm_minimal_sb']:
+            pm_rel_weight = jnp.ones_like(pm_rel_weight)
+            pm_reliability_penalty = jnp.zeros_like(pm_reliability_penalty)
 
         dcfm_loss = pm_rel_weight * dcfm_loss
 
@@ -330,8 +364,8 @@ class PMValueFlowsAgent(flax.struct.PyTreeNode):
             'pm/rel_weight_max': pm_rel_weight.max(),
             'pm/reliability_penalty': pm_reliability_penalty.mean(),
             'pm/ess_penalty': pm_ess_penalty.mean(),
-            'pm/weight_max': pm_weights.max(),
-            'pm/weight_min': pm_weights.min(),
+            'pm/weight_max': target_weights.max(),
+            'pm/weight_min': target_weights.min(),
             'pm/u_num': pm_u_num.mean(),
             'pm/energy': pm_energy_for_reliability.mean(),
             'pm/energy_raw': pm_energy_raw.mean(),
@@ -356,6 +390,74 @@ class PMValueFlowsAgent(flax.struct.PyTreeNode):
             'pm/z_pre_k_std': z_pre_k_all.squeeze(-1).std(),
             'pm/action_candidate_std': next_actions_k.std(),
             'pm/is_kernel': jnp.asarray(self.config['pm_weight_type'] == 'kernel', dtype=jnp.float32),
+            'pm/minimal_sb': jnp.asarray(self.config['pm_minimal_sb'], dtype=jnp.float32),
+            'pm/raw_target_mean': (
+                pm_weights * jax.lax.stop_gradient(bellman_targets_k.squeeze(-1))
+            ).sum(axis=1).mean(),
+            'pm/projected_target_mean': (
+                sb_weights * jax.lax.stop_gradient(bellman_targets_k.squeeze(-1))
+            ).sum(axis=1).mean(),
+            'pm/proj_delta_mean': (
+                (
+                    pm_weights * jax.lax.stop_gradient(bellman_targets_k.squeeze(-1))
+                ).sum(axis=1)
+                - (
+                    sb_weights * jax.lax.stop_gradient(bellman_targets_k.squeeze(-1))
+                ).sum(axis=1)
+            ).mean(),
+            'pm/action_mean': jax.lax.stop_gradient(energy_k).mean(),
+            'pm/action_std': jax.lax.stop_gradient(energy_k).std(),
+            'pm/cov_y_action': (
+                pm_weights
+                * (
+                    jax.lax.stop_gradient(bellman_targets_k.squeeze(-1))
+                    - (
+                        pm_weights * jax.lax.stop_gradient(bellman_targets_k.squeeze(-1))
+                    ).sum(axis=1, keepdims=True)
+                )
+                * (
+                    jax.lax.stop_gradient(energy_k)
+                    - (pm_weights * jax.lax.stop_gradient(energy_k)).sum(axis=1, keepdims=True)
+                )
+            ).sum(axis=1).mean(),
+            'pm/corr_y_action': (
+                (
+                    pm_weights
+                    * (
+                        jax.lax.stop_gradient(bellman_targets_k.squeeze(-1))
+                        - (
+                            pm_weights * jax.lax.stop_gradient(bellman_targets_k.squeeze(-1))
+                        ).sum(axis=1, keepdims=True)
+                    )
+                    * (
+                        jax.lax.stop_gradient(energy_k)
+                        - (pm_weights * jax.lax.stop_gradient(energy_k)).sum(axis=1, keepdims=True)
+                    )
+                ).sum(axis=1)
+                / (
+                    jnp.sqrt(
+                        (
+                            pm_weights
+                            * (
+                                jax.lax.stop_gradient(bellman_targets_k.squeeze(-1))
+                                - (
+                                    pm_weights * jax.lax.stop_gradient(bellman_targets_k.squeeze(-1))
+                                ).sum(axis=1, keepdims=True)
+                            ) ** 2
+                        ).sum(axis=1)
+                        * (
+                            pm_weights
+                            * (
+                                jax.lax.stop_gradient(energy_k)
+                                - (
+                                    pm_weights * jax.lax.stop_gradient(energy_k)
+                                ).sum(axis=1, keepdims=True)
+                            ) ** 2
+                        ).sum(axis=1)
+                    )
+                    + 1e-8
+                )
+            ).mean(),
         }
 
     def actor_loss(self, batch, grad_params, rng):
@@ -462,10 +564,21 @@ class PMValueFlowsAgent(flax.struct.PyTreeNode):
             actor_energy_penalty = actor_energy_metric
             actor_disagree_penalty = actor_disagree
 
+        actor_energy_coef = jnp.where(
+            self.config['pm_minimal_sb'],
+            0.0,
+            self.config['pm_actor_energy_coef'],
+        )
+        actor_disagree_coef = jnp.where(
+            self.config['pm_minimal_sb'],
+            0.0,
+            self.config['pm_actor_disagree_coef'],
+        )
+
         q_geo = (
             q
-            - self.config['pm_actor_energy_coef'] * actor_energy_penalty
-            - self.config['pm_actor_disagree_coef'] * actor_disagree_penalty
+            - actor_energy_coef * actor_energy_penalty
+            - actor_disagree_coef * actor_disagree_penalty
         )
 
         q_loss = -q_geo.mean()
@@ -915,6 +1028,10 @@ def get_config():
             pm_energy_residual_ref='median',
             pm_actor_energy_mode='raw',
             pm_actor_energy_residual_norm='data',
+            pm_minimal_sb=False,
+            pm_sb_lambda=0.003,
+            pm_action_normalize='none',
+            pm_log_sb_diagnostics=True,
             ob_dims=ml_collections.config_dict.placeholder(list),  # Observation dimensions (will be set automatically).
             action_dim=ml_collections.config_dict.placeholder(int),  # Action dimension (will be set automatically).
             min_reward=ml_collections.config_dict.placeholder(float),  # Minimum reward (will be set automatically).
