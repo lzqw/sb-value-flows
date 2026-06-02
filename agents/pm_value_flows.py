@@ -204,6 +204,115 @@ class PMValueFlowsAgent(flax.struct.PyTreeNode):
 
         pm_weights = jax.lax.stop_gradient(pm_weights)
 
+        y_particles = (
+            batch['rewards'][:, None, None]
+            + self.config['discount']
+            * batch['masks'][:, None, None]
+            * z_pre_k_all
+        )
+        z0_particles = noises_k
+        sb_action = 0.5 * ((y_particles - z0_particles) ** 2).mean(axis=-1)
+        reliability = sb_action
+        flow_residual = jnp.zeros_like(sb_action)
+        disagree = jnp.zeros_like(sb_action)
+        typicality = jnp.ones_like(sb_action)
+        reliability_weight_max = pm_weights.max(axis=1)
+        reliability_ess = 1.0 / (jnp.sum(pm_weights ** 2, axis=1) + 1e-6)
+        vp_eta = jnp.zeros((batch_size,), dtype=pm_weights.dtype)
+        vp_active = jnp.zeros((batch_size,), dtype=pm_weights.dtype)
+        vp_floor = jnp.zeros((batch_size,), dtype=pm_weights.dtype)
+        vp_m_rel = jnp.zeros((batch_size,), dtype=pm_weights.dtype)
+        vp_m_final = jnp.zeros((batch_size,), dtype=pm_weights.dtype)
+
+        if self.config['pm_minimal_sb']:
+            y_sg = jax.lax.stop_gradient(y_particles)
+            z0_sg = jax.lax.stop_gradient(z0_particles)
+            u_sg = jax.lax.stop_gradient(y_sg - z0_sg)
+            obs_k = jnp.repeat(batch['observations'][:, None, ...], K, axis=1)
+            actions_k = jnp.repeat(batch['actions'][:, None, :], K, axis=1)
+            eps_t = jnp.ones_like(y_sg) * self.config['pm_sb_flow_residual_eps']
+            z_eps = (1.0 - eps_t) * z0_sg + eps_t * y_sg
+            v_target1 = self.network.select('target_critic_flow1')(
+                z_eps, eps_t, obs_k, actions_k
+            )
+            v_target2 = self.network.select('target_critic_flow2')(
+                z_eps, eps_t, obs_k, actions_k
+            )
+            v_bar = jax.lax.stop_gradient((v_target1 + v_target2) / 2)
+            flow_residual = jax.lax.stop_gradient(
+                0.5 * ((u_sg - v_bar) ** 2).mean(axis=-1)
+            )
+            disagree = jax.lax.stop_gradient(
+                ((v_target1 - v_target2) ** 2).mean(axis=-1)
+            )
+            disagree_hat = disagree / (disagree.mean(axis=1, keepdims=True) + self.config['pm_sb_reliability_eps'])
+            uncertainty = jnp.clip(
+                1.0 + self.config['pm_sb_disagree_beta'] * disagree_hat,
+                1.0,
+                self.config['pm_sb_disagree_umax'],
+            )
+            y_pairwise = y_sg[:, :, None, :] - y_sg[:, None, :, :]
+            pairwise_sq_dist = (y_pairwise ** 2).mean(axis=-1)
+            typicality = jax.lax.stop_gradient(
+                jnp.exp(
+                    -pairwise_sq_dist
+                    / (self.config['pm_sb_typicality_tau'] + self.config['pm_sb_reliability_eps'])
+                ).mean(axis=2)
+            )
+
+            if self.config['pm_sb_reliability_score'] == 'flow_residual':
+                reliability = flow_residual
+            elif self.config['pm_sb_reliability_score'] == 'flow_residual_disagree':
+                reliability = flow_residual * uncertainty
+            elif self.config['pm_sb_reliability_score'] == 'flow_residual_disagree_typicality':
+                reliability = flow_residual * uncertainty / (typicality + self.config['pm_sb_reliability_eps'])
+            else:
+                reliability = sb_action
+
+            reliability = jax.lax.stop_gradient(reliability)
+            if self.config['pm_sb_reliability_normalize'] == 'mean':
+                reliability = reliability / (reliability.mean(axis=1, keepdims=True) + self.config['pm_sb_reliability_eps'])
+            elif self.config['pm_sb_reliability_normalize'] == 'std':
+                reliability = reliability / (reliability.std(axis=1, keepdims=True) + self.config['pm_sb_reliability_eps'])
+            elif self.config['pm_sb_reliability_normalize'] == 'robust':
+                reliability_median = jnp.median(reliability, axis=1, keepdims=True)
+                reliability_mad = jnp.median(
+                    jnp.abs(reliability - reliability_median), axis=1, keepdims=True
+                )
+                reliability = reliability / (reliability_mad + self.config['pm_sb_reliability_eps'])
+            reliability = jax.lax.stop_gradient(reliability)
+
+            base_logits = jnp.log(pm_weights + self.config['pm_sb_reliability_eps'])
+            rel_logits = base_logits - self.config['pm_sb_lambda'] * reliability
+            rel_logits = rel_logits - jnp.max(rel_logits, axis=1, keepdims=True)
+            sb_weights = jax.nn.softmax(rel_logits, axis=1)
+            w_rel = sb_weights
+
+            if self.config['pm_sb_value_preserving']:
+                y_scalar = y_sg.mean(axis=-1)
+                m_b = (pm_weights * y_scalar).sum(axis=1)
+                sigma_b = jnp.sqrt(
+                    (pm_weights * (y_scalar - m_b[:, None]) ** 2).sum(axis=1)
+                    + self.config['pm_sb_reliability_eps']
+                )
+                vp_floor = m_b - self.config['pm_sb_vp_kappa'] * sigma_b
+                vp_m_rel = (w_rel * y_scalar).sum(axis=1)
+                var_rel = (w_rel * (y_scalar - vp_m_rel[:, None]) ** 2).sum(axis=1)
+                vp_eta = jnp.maximum(vp_floor - vp_m_rel, 0.0) / (
+                    var_rel + self.config['pm_sb_reliability_eps']
+                )
+                vp_eta = jnp.clip(vp_eta, 0.0, self.config['pm_sb_vp_eta_clip'])
+                vp_eta = jax.lax.stop_gradient(vp_eta)
+                vp_active = (vp_eta > 0.0).astype(pm_weights.dtype)
+                final_logits = rel_logits + vp_eta[:, None] * y_scalar
+                final_logits = final_logits - jnp.max(final_logits, axis=1, keepdims=True)
+                sb_weights = jax.nn.softmax(final_logits, axis=1)
+                vp_m_final = (sb_weights * y_scalar).sum(axis=1)
+
+            pm_weights = jax.lax.stop_gradient(sb_weights)
+            reliability_weight_max = pm_weights.max(axis=1)
+            reliability_ess = 1.0 / (jnp.sum(pm_weights ** 2, axis=1) + 1e-6)
+
         target_vector_field = (
             pm_weights[..., None] * target_vector_field_k
         ).sum(axis=1)
@@ -238,6 +347,17 @@ class PMValueFlowsAgent(flax.struct.PyTreeNode):
 
         energy_k = 0.5 * (target_vector_field_k ** 2).mean(axis=-1)
         pm_energy_raw = (pm_weights * energy_k).sum(axis=1)
+        y_for_diag = y_particles.mean(axis=-1)
+        y_centered = y_for_diag - y_for_diag.mean(axis=1, keepdims=True)
+        action_centered = sb_action - sb_action.mean(axis=1, keepdims=True)
+        cov_y_action = (y_centered * action_centered).mean(axis=1)
+        corr_y_action = cov_y_action / (
+            y_for_diag.std(axis=1) * sb_action.std(axis=1) + 1e-6
+        )
+        proj_delta_mean = (
+            (pm_weights * y_for_diag).sum(axis=1)
+            - (jnp.ones_like(pm_weights) / K * y_for_diag).sum(axis=1)
+        )
 
         if self.config['pm_energy_residual_ref'] == 'median':
             energy_ref = jax.lax.stop_gradient(jnp.median(energy_k, axis=1, keepdims=True))
@@ -332,6 +452,27 @@ class PMValueFlowsAgent(flax.struct.PyTreeNode):
             'pm/ess_penalty': pm_ess_penalty.mean(),
             'pm/weight_max': pm_weights.max(),
             'pm/weight_min': pm_weights.min(),
+            'pm/reliability_mean': reliability.mean(),
+            'pm/reliability_std': reliability.std(),
+            'pm/flow_residual_mean': flow_residual.mean(),
+            'pm/flow_residual_std': flow_residual.std(),
+            'pm/disagree_mean': disagree.mean(),
+            'pm/disagree_std': disagree.std(),
+            'pm/typicality_mean': typicality.mean(),
+            'pm/typicality_std': typicality.std(),
+            'pm/reliability_weight_max': reliability_weight_max.mean(),
+            'pm/reliability_ess': reliability_ess.mean(),
+            'pm/proj_delta_mean': proj_delta_mean.mean(),
+            'pm/cov_y_action': cov_y_action.mean(),
+            'pm/corr_y_action': corr_y_action.mean(),
+            'pm/vp_eta_mean': vp_eta.mean(),
+            'pm/vp_eta_max': vp_eta.max(),
+            'pm/vp_active_frac': vp_active.mean(),
+            'pm/vp_floor_mean': vp_floor.mean(),
+            'pm/vp_m_rel_mean': vp_m_rel.mean(),
+            'pm/vp_m_final_mean': vp_m_final.mean(),
+            'pm/action_mean': sb_action.mean(),
+            'pm/action_std': sb_action.std(),
             'pm/u_num': pm_u_num.mean(),
             'pm/energy': pm_energy_for_reliability.mean(),
             'pm/energy_raw': pm_energy_raw.mean(),
@@ -908,6 +1049,19 @@ def get_config():
             pm_lambda_ess=0.0,
             pm_lambda_energy=0.0,
             pm_normalize_reliability=True,
+            pm_minimal_sb=False,
+            pm_sb_lambda=0.0,
+            pm_sb_reliability_score='action',
+            pm_sb_flow_residual_eps=0.05,
+            pm_sb_disagree_beta=0.0,
+            pm_sb_disagree_umax=3.0,
+            pm_sb_typicality_tau=1.0,
+            pm_sb_reliability_eps=1e-6,
+            pm_sb_reliability_normalize='none',
+            pm_sb_value_preserving=False,
+            pm_sb_vp_kappa=0.5,
+            pm_sb_vp_eta_clip=10.0,
+            pm_log_sb_diagnostics=False,
             pm_actor_energy_coef=0.0,
             pm_actor_disagree_coef=0.0,
             pm_actor_normalize_geometry=True,
