@@ -202,8 +202,10 @@ class PMValueFlowsAgent(flax.struct.PyTreeNode):
             logits = jnp.zeros((batch_size, K), dtype=target_vector_field_k.dtype)
             pm_weights = jnp.ones((batch_size, K), dtype=target_vector_field_k.dtype) / K
 
-        pm_weights = jax.lax.stop_gradient(pm_weights)
+        base_weights = jax.lax.stop_gradient(pm_weights)
+        target_weights = base_weights
 
+        energy_k = 0.5 * (target_vector_field_k ** 2).mean(axis=-1)
         y_particles = (
             batch['rewards'][:, None, None]
             + self.config['discount']
@@ -211,61 +213,87 @@ class PMValueFlowsAgent(flax.struct.PyTreeNode):
             * z_pre_k_all
         )
         z0_particles = noises_k
-        sb_action = 0.5 * ((y_particles - z0_particles) ** 2).mean(axis=-1)
+        bellman_displacement = 0.5 * ((y_particles - z0_particles) ** 2).mean(axis=-1)
+        sb_action = energy_k
         reliability = sb_action
         flow_residual = jnp.zeros_like(sb_action)
         disagree = jnp.zeros_like(sb_action)
         typicality = jnp.ones_like(sb_action)
-        reliability_weight_max = pm_weights.max(axis=1)
-        reliability_ess = 1.0 / (jnp.sum(pm_weights ** 2, axis=1) + 1e-6)
-        vp_eta = jnp.zeros((batch_size,), dtype=pm_weights.dtype)
-        vp_active = jnp.zeros((batch_size,), dtype=pm_weights.dtype)
-        vp_floor = jnp.zeros((batch_size,), dtype=pm_weights.dtype)
-        vp_m_rel = jnp.zeros((batch_size,), dtype=pm_weights.dtype)
-        vp_m_final = jnp.zeros((batch_size,), dtype=pm_weights.dtype)
+        reliability_weight_max = target_weights.max(axis=1)
+        reliability_ess = 1.0 / (jnp.sum(target_weights ** 2, axis=1) + 1e-6)
+        vp_eta = jnp.zeros((batch_size,), dtype=target_weights.dtype)
+        vp_active = jnp.zeros((batch_size,), dtype=target_weights.dtype)
+        vp_floor = jnp.zeros((batch_size,), dtype=target_weights.dtype)
+        vp_m_rel = jnp.zeros((batch_size,), dtype=target_weights.dtype)
+        vp_m_final = jnp.zeros((batch_size,), dtype=target_weights.dtype)
 
         if self.config['pm_minimal_sb']:
+            reliability_score = self.config['pm_sb_reliability_score']
             y_sg = jax.lax.stop_gradient(y_particles)
-            z0_sg = jax.lax.stop_gradient(z0_particles)
-            u_sg = jax.lax.stop_gradient(y_sg - z0_sg)
-            obs_k = jnp.repeat(batch['observations'][:, None, ...], K, axis=1)
-            actions_k = jnp.repeat(batch['actions'][:, None, :], K, axis=1)
-            eps_t = jnp.ones_like(y_sg) * self.config['pm_sb_flow_residual_eps']
-            z_eps = (1.0 - eps_t) * z0_sg + eps_t * y_sg
-            v_target1 = self.network.select('target_critic_flow1')(
-                z_eps, eps_t, obs_k, actions_k
-            )
-            v_target2 = self.network.select('target_critic_flow2')(
-                z_eps, eps_t, obs_k, actions_k
-            )
-            v_bar = jax.lax.stop_gradient((v_target1 + v_target2) / 2)
-            flow_residual = jax.lax.stop_gradient(
-                0.5 * ((u_sg - v_bar) ** 2).mean(axis=-1)
-            )
-            disagree = jax.lax.stop_gradient(
-                ((v_target1 - v_target2) ** 2).mean(axis=-1)
-            )
-            disagree_hat = disagree / (disagree.mean(axis=1, keepdims=True) + self.config['pm_sb_reliability_eps'])
-            uncertainty = jnp.clip(
-                1.0 + self.config['pm_sb_disagree_beta'] * disagree_hat,
-                1.0,
-                self.config['pm_sb_disagree_umax'],
-            )
-            y_pairwise = y_sg[:, :, None, :] - y_sg[:, None, :, :]
-            pairwise_sq_dist = (y_pairwise ** 2).mean(axis=-1)
-            typicality = jax.lax.stop_gradient(
-                jnp.exp(
-                    -pairwise_sq_dist
-                    / (self.config['pm_sb_typicality_tau'] + self.config['pm_sb_reliability_eps'])
-                ).mean(axis=2)
-            )
 
-            if self.config['pm_sb_reliability_score'] == 'flow_residual':
+            if reliability_score in (
+                'flow_residual',
+                'flow_residual_disagree',
+                'flow_residual_disagree_typicality',
+            ):
+                z0_sg = jax.lax.stop_gradient(z0_particles)
+                u_sg = jax.lax.stop_gradient(y_sg - z0_sg)
+                obs_k = jnp.repeat(batch['observations'][:, None, ...], K, axis=1)
+                actions_k = jnp.repeat(batch['actions'][:, None, :], K, axis=1)
+                eps_t = jnp.ones_like(y_sg) * self.config['pm_sb_flow_residual_eps']
+                z_eps = (1.0 - eps_t) * z0_sg + eps_t * y_sg
+                v_target1 = self.network.select('target_critic_flow1')(
+                    z_eps, eps_t, obs_k, actions_k
+                )
+                v_target2 = self.network.select('target_critic_flow2')(
+                    z_eps, eps_t, obs_k, actions_k
+                )
+                v_bar = jax.lax.stop_gradient((v_target1 + v_target2) / 2)
+                flow_residual = jax.lax.stop_gradient(
+                    0.5 * ((u_sg - v_bar) ** 2).mean(axis=-1)
+                )
+                disagree = jax.lax.stop_gradient(
+                    ((v_target1 - v_target2) ** 2).mean(axis=-1)
+                )
+
+            uncertainty = jnp.ones_like(sb_action)
+            if reliability_score in (
+                'flow_residual_disagree',
+                'flow_residual_disagree_typicality',
+            ):
+                disagree_hat = disagree / (
+                    disagree.mean(axis=1, keepdims=True)
+                    + self.config['pm_sb_reliability_eps']
+                )
+                uncertainty = jnp.clip(
+                    1.0 + self.config['pm_sb_disagree_beta'] * disagree_hat,
+                    1.0,
+                    self.config['pm_sb_disagree_umax'],
+                )
+
+            if reliability_score == 'flow_residual_disagree_typicality':
+                y_pairwise = y_sg[:, :, None, :] - y_sg[:, None, :, :]
+                pairwise_sq_dist = (y_pairwise ** 2).mean(axis=-1)
+                typicality = jax.lax.stop_gradient(
+                    jnp.exp(
+                        -pairwise_sq_dist
+                        / (
+                            self.config['pm_sb_typicality_tau']
+                            + self.config['pm_sb_reliability_eps']
+                        )
+                    ).mean(axis=2)
+                )
+
+            if reliability_score == 'flow_residual':
                 reliability = flow_residual
-            elif self.config['pm_sb_reliability_score'] == 'flow_residual_disagree':
+            elif reliability_score == 'flow_residual_disagree':
                 reliability = flow_residual * uncertainty
-            elif self.config['pm_sb_reliability_score'] == 'flow_residual_disagree_typicality':
-                reliability = flow_residual * uncertainty / (typicality + self.config['pm_sb_reliability_eps'])
+            elif reliability_score == 'flow_residual_disagree_typicality':
+                reliability = flow_residual * uncertainty / (
+                    typicality + self.config['pm_sb_reliability_eps']
+                )
+            elif reliability_score == 'bellman_displacement':
+                reliability = bellman_displacement
             else:
                 reliability = sb_action
 
@@ -282,7 +310,7 @@ class PMValueFlowsAgent(flax.struct.PyTreeNode):
                 reliability = reliability / (reliability_mad + self.config['pm_sb_reliability_eps'])
             reliability = jax.lax.stop_gradient(reliability)
 
-            base_logits = jnp.log(pm_weights + self.config['pm_sb_reliability_eps'])
+            base_logits = jnp.log(base_weights + self.config['pm_sb_reliability_eps'])
             rel_logits = base_logits - self.config['pm_sb_lambda'] * reliability
             rel_logits = rel_logits - jnp.max(rel_logits, axis=1, keepdims=True)
             sb_weights = jax.nn.softmax(rel_logits, axis=1)
@@ -290,9 +318,9 @@ class PMValueFlowsAgent(flax.struct.PyTreeNode):
 
             if self.config['pm_sb_value_preserving']:
                 y_scalar = y_sg.mean(axis=-1)
-                m_b = (pm_weights * y_scalar).sum(axis=1)
+                m_b = (base_weights * y_scalar).sum(axis=1)
                 sigma_b = jnp.sqrt(
-                    (pm_weights * (y_scalar - m_b[:, None]) ** 2).sum(axis=1)
+                    (base_weights * (y_scalar - m_b[:, None]) ** 2).sum(axis=1)
                     + self.config['pm_sb_reliability_eps']
                 )
                 vp_floor = m_b - self.config['pm_sb_vp_kappa'] * sigma_b
@@ -303,18 +331,18 @@ class PMValueFlowsAgent(flax.struct.PyTreeNode):
                 )
                 vp_eta = jnp.clip(vp_eta, 0.0, self.config['pm_sb_vp_eta_clip'])
                 vp_eta = jax.lax.stop_gradient(vp_eta)
-                vp_active = (vp_eta > 0.0).astype(pm_weights.dtype)
+                vp_active = (vp_eta > 0.0).astype(base_weights.dtype)
                 final_logits = rel_logits + vp_eta[:, None] * y_scalar
                 final_logits = final_logits - jnp.max(final_logits, axis=1, keepdims=True)
                 sb_weights = jax.nn.softmax(final_logits, axis=1)
                 vp_m_final = (sb_weights * y_scalar).sum(axis=1)
 
-            pm_weights = jax.lax.stop_gradient(sb_weights)
-            reliability_weight_max = pm_weights.max(axis=1)
-            reliability_ess = 1.0 / (jnp.sum(pm_weights ** 2, axis=1) + 1e-6)
+            target_weights = jax.lax.stop_gradient(sb_weights)
+            reliability_weight_max = target_weights.max(axis=1)
+            reliability_ess = 1.0 / (jnp.sum(target_weights ** 2, axis=1) + 1e-6)
 
         target_vector_field = (
-            pm_weights[..., None] * target_vector_field_k
+            target_weights[..., None] * target_vector_field_k
         ).sum(axis=1)
         target_vector_field = jax.lax.stop_gradient(target_vector_field)
 
@@ -342,11 +370,12 @@ class PMValueFlowsAgent(flax.struct.PyTreeNode):
         # PM diagnostics.
         u_diff = target_vector_field_k - target_vector_field[:, None, :]
         pm_u_num = (
-            pm_weights[..., None] * (u_diff ** 2)
+            target_weights[..., None] * (u_diff ** 2)
         ).sum(axis=1).mean(axis=-1)
 
-        energy_k = 0.5 * (target_vector_field_k ** 2).mean(axis=-1)
-        pm_energy_raw = (pm_weights * energy_k).sum(axis=1)
+        pm_energy_base = (base_weights * energy_k).sum(axis=1)
+        pm_energy_projected = (target_weights * energy_k).sum(axis=1)
+        pm_energy_raw = pm_energy_projected
         y_for_diag = y_particles.mean(axis=-1)
         y_centered = y_for_diag - y_for_diag.mean(axis=1, keepdims=True)
         action_centered = sb_action - sb_action.mean(axis=1, keepdims=True)
@@ -354,10 +383,9 @@ class PMValueFlowsAgent(flax.struct.PyTreeNode):
         corr_y_action = cov_y_action / (
             y_for_diag.std(axis=1) * sb_action.std(axis=1) + 1e-6
         )
-        proj_delta_mean = (
-            (pm_weights * y_for_diag).sum(axis=1)
-            - (jnp.ones_like(pm_weights) / K * y_for_diag).sum(axis=1)
-        )
+        raw_target_mean = (base_weights * y_for_diag).sum(axis=1)
+        projected_target_mean = (target_weights * y_for_diag).sum(axis=1)
+        proj_delta_mean = raw_target_mean - projected_target_mean
 
         if self.config['pm_energy_residual_ref'] == 'median':
             energy_ref = jax.lax.stop_gradient(jnp.median(energy_k, axis=1, keepdims=True))
@@ -365,16 +393,20 @@ class PMValueFlowsAgent(flax.struct.PyTreeNode):
             energy_ref = jax.lax.stop_gradient(jnp.mean(energy_k, axis=1, keepdims=True))
 
         energy_residual_k = jax.nn.relu(energy_k - energy_ref)
-        pm_energy_residual = (pm_weights * energy_residual_k).sum(axis=1)
+        pm_energy_residual = (target_weights * energy_residual_k).sum(axis=1)
 
         if self.config['pm_energy_reliability_mode'] == 'residual':
             pm_energy_for_reliability = pm_energy_residual
         else:
             pm_energy_for_reliability = pm_energy_raw
 
-        pm_ess = 1.0 / (jnp.sum(pm_weights ** 2, axis=1) + 1e-6)
+        pm_base_ess = 1.0 / (jnp.sum(base_weights ** 2, axis=1) + 1e-6)
+        pm_ess = 1.0 / (jnp.sum(target_weights ** 2, axis=1) + 1e-6)
+        pm_base_weight_entropy = -(
+            base_weights * jnp.log(base_weights + 1e-6)
+        ).sum(axis=1)
         pm_weight_entropy = -(
-            pm_weights * jnp.log(pm_weights + 1e-6)
+            target_weights * jnp.log(target_weights + 1e-6)
         ).sum(axis=1)
 
         pm_ess_penalty = K / (pm_ess + 1e-6) - 1.0
@@ -450,8 +482,16 @@ class PMValueFlowsAgent(flax.struct.PyTreeNode):
             'pm/rel_weight_max': pm_rel_weight.max(),
             'pm/reliability_penalty': pm_reliability_penalty.mean(),
             'pm/ess_penalty': pm_ess_penalty.mean(),
-            'pm/weight_max': pm_weights.max(),
-            'pm/weight_min': pm_weights.min(),
+            'pm/weight_max': target_weights.max(),
+            'pm/weight_min': target_weights.min(),
+            'pm/base_weight_max': base_weights.max(),
+            'pm/base_weight_min': base_weights.min(),
+            'pm/base_ess': pm_base_ess.mean(),
+            'pm/base_weight_entropy': pm_base_weight_entropy.mean(),
+            'pm/projected_weight_max': target_weights.max(),
+            'pm/projected_weight_min': target_weights.min(),
+            'pm/projected_ess': pm_ess.mean(),
+            'pm/projected_weight_entropy': pm_weight_entropy.mean(),
             'pm/reliability_mean': reliability.mean(),
             'pm/reliability_std': reliability.std(),
             'pm/flow_residual_mean': flow_residual.mean(),
@@ -462,6 +502,8 @@ class PMValueFlowsAgent(flax.struct.PyTreeNode):
             'pm/typicality_std': typicality.std(),
             'pm/reliability_weight_max': reliability_weight_max.mean(),
             'pm/reliability_ess': reliability_ess.mean(),
+            'pm/raw_target_mean': raw_target_mean.mean(),
+            'pm/projected_target_mean': projected_target_mean.mean(),
             'pm/proj_delta_mean': proj_delta_mean.mean(),
             'pm/cov_y_action': cov_y_action.mean(),
             'pm/corr_y_action': corr_y_action.mean(),
@@ -476,6 +518,8 @@ class PMValueFlowsAgent(flax.struct.PyTreeNode):
             'pm/u_num': pm_u_num.mean(),
             'pm/energy': pm_energy_for_reliability.mean(),
             'pm/energy_raw': pm_energy_raw.mean(),
+            'pm/energy_base': pm_energy_base.mean(),
+            'pm/energy_projected': pm_energy_projected.mean(),
             'pm/energy_residual': pm_energy_residual.mean(),
             'pm/energy_ref': energy_ref.mean(),
             'pm/energy_for_reliability': pm_energy_for_reliability.mean(),
