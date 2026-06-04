@@ -2,4 +2,4 @@
 
 This file tracks task-level baselines from the Value Flows paper and the current server runs for the SB / reliability-calibrated experiments.
 
-**Important protocol note.** The paper numbers below are task-level Value Flows results from the full table, reported in percent success. Current server results are mostly single-task or best-seed diagnostic runs, so they should not be treated
+**Protocol note.** The paper numbers below are task-level Value Flows results from the full offline evaluation table, reported in percent success. Current server results are diagnostic results unless otherwise noted. Best-seed 5-task sweeps and 3-seed single-task runs are not
