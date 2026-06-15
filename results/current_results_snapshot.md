@@ -6,10 +6,10 @@ Updated from single4090 local registry.
 
 ### Overall
 
-- Registry runs: 82
-- Completed registry runs: 81
+- Registry runs: 83
+- Completed registry runs: 82
 - Partial registry runs: 1
-- Stage A 300k screening runs: 66 / 66 completed
+- Stage A 300k screening runs: 67 / 67 completed
 - Stage B 1M confirmation runs: 15 / 15 completed
 - Historical inventory: 193 eval.csv, 188 completed, 5 partial
 
