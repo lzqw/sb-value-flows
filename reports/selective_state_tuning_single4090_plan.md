@@ -1,6 +1,6 @@
 # Selective State Tuning Single4090 Plan
 
-Generated: 2026-06-15 20:11:15
+Generated: 2026-06-15 21:26:10
 Dry run: False
 
 ## Guardrails
@@ -18,7 +18,7 @@ Dry run: False
 - exp dir: /root/autodl-tmp/sb-value-flows-runs/selective_state_tuning_single4090/exp
 - repo report: /root/sb-value-flows/reports/selective_state_tuning_single4090_plan.md
 - status report: /root/autodl-tmp/sb-value-flows-runs/selective_state_tuning_single4090/reports/selective_state_tuning_status.md
-- registry runs: 82
+- registry runs: 83
 - state baselines: 25
 - state scoreboard tasks: 25
 - stable mode: stable mode unavailable: no pm_sb_stable/pm_stable/stable_mode/sb_stable flag found
@@ -37,7 +37,7 @@ Dry run: False
 
 | priority | env | VF baseline | best 300k | best 1M mean | conclusion | action | Stage A pending | Stage B pending | Stage B note |
 |---|---|---:|---:|---:|---|---|---:|---:|---|
-| P1 immediate 300k screening | puzzle-4x4-play-singletask-task1-v0 | 0.36 | 0.5 |  | No completed 1M result | pending | 4 | 0 | waiting: complete Stage A screening pool first |
+| P1 immediate 300k screening | puzzle-4x4-play-singletask-task1-v0 | 0.36 | 0.5 |  | No completed 1M result | pending | 3 | 0 | waiting: complete Stage A screening pool first |
 | P1 immediate 300k screening | puzzle-4x4-play-singletask-task3-v0 | 0.3 |  |  | No completed 1M result | pending | 7 | 0 | waiting: complete Stage A screening pool first |
 | P1 immediate 300k screening | puzzle-3x3-play-singletask-task5-v0 | 0.58 |  |  | No completed 1M result | pending | 7 | 0 | waiting: complete Stage A screening pool first |
 | P2 optional 1M confirmation | cube-double-play-singletask-task5-v0 | 0.69 |  |  | No completed 1M result | pending | 0 | 1 |  |
@@ -82,7 +82,6 @@ Dry run: False
 
 | env | config | seed | target_steps | reason |
 |---|---|---:|---:|---|
-| puzzle-4x4-play-singletask-task1-v0 | A1_action_std_lam0p001 | 2 | 300000 | missing completed Stage A 300k final row in immediate selective queue |
 | puzzle-4x4-play-singletask-task1-v0 | A2_action_std_lam0p003 | 2 | 300000 | missing completed Stage A 300k final row in immediate selective queue |
 | puzzle-4x4-play-singletask-task1-v0 | R2_residual_disagree_lam0p001 | 2 | 300000 | missing completed Stage A 300k final row in immediate selective queue |
 | puzzle-4x4-play-singletask-task1-v0 | R3_residual_disagree_typicality_lam0p001 | 2 | 300000 | missing completed Stage A 300k final row in immediate selective queue |
@@ -109,73 +108,73 @@ Dry run: False
 
 ## Next 10 Commands
 
-### 1. stageA_300k puzzle-4x4-play-singletask-task1-v0 A1_action_std_lam0p001 seed2
-
-```bash
-CUDA_VISIBLE_DEVICES=0 MUJOCO_GL=egl PYOPENGL_PLATFORM=egl SDL_VIDEODRIVER=dummy OGBENCH_DATA_DIR=/root/.ogbench/data XDG_CACHE_HOME=/root/autodl-tmp/sb-value-flows-runs/selective_state_tuning_single4090/cache XLA_PYTHON_CLIENT_PREALLOCATE=true XLA_PYTHON_CLIENT_MEM_FRACTION=0.90 /root/miniconda3/bin/conda run -n value-flows python main.py --env_name=puzzle-4x4-play-singletask-task1-v0 --seed=2 --save_dir=/root/autodl-tmp/sb-value-flows-runs/selective_state_tuning_single4090/exp --wandb_run_group=stageA_300k_puzzle_4x4_task1_A1_action_std_lam0p001_seed2 --enable_wandb=0 --offline_steps=300000 --online_steps=0 --eval_interval=50000 --eval_episodes=10 --log_interval=25000 --save_interval=999999999 --agent=agents/pm_value_flows.py --agent.bcfm_lambda=3 --agent.confidence_weight_temp=100 --agent.q_agg=min --agent.pm_minimal_sb=true --agent.pm_weight_type=field_kernel_norm --agent.pm_num_continuations=4 --agent.pm_field_kernel_norm_temp=0.3 --agent.pm_field_kernel_min_scale=1e-6 --agent.pm_actor_energy_coef=0.0 --agent.pm_actor_disagree_coef=0.0 --agent.pm_log_sb_diagnostics=true --agent.pm_sb_reliability_score=action --agent.pm_sb_lambda=0.001 --agent.pm_sb_reliability_normalize=std --agent.pm_sb_value_preserving=false
-```
-
-### 2. stageA_300k puzzle-4x4-play-singletask-task1-v0 A2_action_std_lam0p003 seed2
+### 1. stageA_300k puzzle-4x4-play-singletask-task1-v0 A2_action_std_lam0p003 seed2
 
 ```bash
 CUDA_VISIBLE_DEVICES=0 MUJOCO_GL=egl PYOPENGL_PLATFORM=egl SDL_VIDEODRIVER=dummy OGBENCH_DATA_DIR=/root/.ogbench/data XDG_CACHE_HOME=/root/autodl-tmp/sb-value-flows-runs/selective_state_tuning_single4090/cache XLA_PYTHON_CLIENT_PREALLOCATE=true XLA_PYTHON_CLIENT_MEM_FRACTION=0.90 /root/miniconda3/bin/conda run -n value-flows python main.py --env_name=puzzle-4x4-play-singletask-task1-v0 --seed=2 --save_dir=/root/autodl-tmp/sb-value-flows-runs/selective_state_tuning_single4090/exp --wandb_run_group=stageA_300k_puzzle_4x4_task1_A2_action_std_lam0p003_seed2 --enable_wandb=0 --offline_steps=300000 --online_steps=0 --eval_interval=50000 --eval_episodes=10 --log_interval=25000 --save_interval=999999999 --agent=agents/pm_value_flows.py --agent.bcfm_lambda=3 --agent.confidence_weight_temp=100 --agent.q_agg=min --agent.pm_minimal_sb=true --agent.pm_weight_type=field_kernel_norm --agent.pm_num_continuations=4 --agent.pm_field_kernel_norm_temp=0.3 --agent.pm_field_kernel_min_scale=1e-6 --agent.pm_actor_energy_coef=0.0 --agent.pm_actor_disagree_coef=0.0 --agent.pm_log_sb_diagnostics=true --agent.pm_sb_reliability_score=action --agent.pm_sb_lambda=0.003 --agent.pm_sb_reliability_normalize=std --agent.pm_sb_value_preserving=false
 ```
 
-### 3. stageA_300k puzzle-4x4-play-singletask-task1-v0 R2_residual_disagree_lam0p001 seed2
+### 2. stageA_300k puzzle-4x4-play-singletask-task1-v0 R2_residual_disagree_lam0p001 seed2
 
 ```bash
 CUDA_VISIBLE_DEVICES=0 MUJOCO_GL=egl PYOPENGL_PLATFORM=egl SDL_VIDEODRIVER=dummy OGBENCH_DATA_DIR=/root/.ogbench/data XDG_CACHE_HOME=/root/autodl-tmp/sb-value-flows-runs/selective_state_tuning_single4090/cache XLA_PYTHON_CLIENT_PREALLOCATE=true XLA_PYTHON_CLIENT_MEM_FRACTION=0.90 /root/miniconda3/bin/conda run -n value-flows python main.py --env_name=puzzle-4x4-play-singletask-task1-v0 --seed=2 --save_dir=/root/autodl-tmp/sb-value-flows-runs/selective_state_tuning_single4090/exp --wandb_run_group=stageA_300k_puzzle_4x4_task1_R2_residual_disagree_lam0p001_seed2 --enable_wandb=0 --offline_steps=300000 --online_steps=0 --eval_interval=50000 --eval_episodes=10 --log_interval=25000 --save_interval=999999999 --agent=agents/pm_value_flows.py --agent.bcfm_lambda=3 --agent.confidence_weight_temp=100 --agent.q_agg=min --agent.pm_minimal_sb=true --agent.pm_weight_type=field_kernel_norm --agent.pm_num_continuations=4 --agent.pm_field_kernel_norm_temp=0.3 --agent.pm_field_kernel_min_scale=1e-6 --agent.pm_actor_energy_coef=0.0 --agent.pm_actor_disagree_coef=0.0 --agent.pm_log_sb_diagnostics=true --agent.pm_sb_reliability_score=flow_residual_disagree --agent.pm_sb_lambda=0.001 --agent.pm_sb_reliability_normalize=std --agent.pm_sb_flow_residual_eps=0.05 --agent.pm_sb_disagree_beta=0.5 --agent.pm_sb_disagree_umax=3.0 --agent.pm_sb_value_preserving=false
 ```
 
-### 4. stageA_300k puzzle-4x4-play-singletask-task1-v0 R3_residual_disagree_typicality_lam0p001 seed2
+### 3. stageA_300k puzzle-4x4-play-singletask-task1-v0 R3_residual_disagree_typicality_lam0p001 seed2
 
 ```bash
 CUDA_VISIBLE_DEVICES=0 MUJOCO_GL=egl PYOPENGL_PLATFORM=egl SDL_VIDEODRIVER=dummy OGBENCH_DATA_DIR=/root/.ogbench/data XDG_CACHE_HOME=/root/autodl-tmp/sb-value-flows-runs/selective_state_tuning_single4090/cache XLA_PYTHON_CLIENT_PREALLOCATE=true XLA_PYTHON_CLIENT_MEM_FRACTION=0.90 /root/miniconda3/bin/conda run -n value-flows python main.py --env_name=puzzle-4x4-play-singletask-task1-v0 --seed=2 --save_dir=/root/autodl-tmp/sb-value-flows-runs/selective_state_tuning_single4090/exp --wandb_run_group=stageA_300k_puzzle_4x4_task1_R3_residual_disagree_typicality_lam0p001_seed2 --enable_wandb=0 --offline_steps=300000 --online_steps=0 --eval_interval=50000 --eval_episodes=10 --log_interval=25000 --save_interval=999999999 --agent=agents/pm_value_flows.py --agent.bcfm_lambda=3 --agent.confidence_weight_temp=100 --agent.q_agg=min --agent.pm_minimal_sb=true --agent.pm_weight_type=field_kernel_norm --agent.pm_num_continuations=4 --agent.pm_field_kernel_norm_temp=0.3 --agent.pm_field_kernel_min_scale=1e-6 --agent.pm_actor_energy_coef=0.0 --agent.pm_actor_disagree_coef=0.0 --agent.pm_log_sb_diagnostics=true --agent.pm_sb_reliability_score=flow_residual_disagree_typicality --agent.pm_sb_lambda=0.001 --agent.pm_sb_reliability_normalize=std --agent.pm_sb_flow_residual_eps=0.05 --agent.pm_sb_disagree_beta=0.5 --agent.pm_sb_disagree_umax=3.0 --agent.pm_sb_typicality_tau=1.0 --agent.pm_sb_value_preserving=false
 ```
 
-### 5. stageA_300k puzzle-4x4-play-singletask-task3-v0 P0_particle seed2
+### 4. stageA_300k puzzle-4x4-play-singletask-task3-v0 P0_particle seed2
 
 ```bash
 CUDA_VISIBLE_DEVICES=0 MUJOCO_GL=egl PYOPENGL_PLATFORM=egl SDL_VIDEODRIVER=dummy OGBENCH_DATA_DIR=/root/.ogbench/data XDG_CACHE_HOME=/root/autodl-tmp/sb-value-flows-runs/selective_state_tuning_single4090/cache XLA_PYTHON_CLIENT_PREALLOCATE=true XLA_PYTHON_CLIENT_MEM_FRACTION=0.90 /root/miniconda3/bin/conda run -n value-flows python main.py --env_name=puzzle-4x4-play-singletask-task3-v0 --seed=2 --save_dir=/root/autodl-tmp/sb-value-flows-runs/selective_state_tuning_single4090/exp --wandb_run_group=stageA_300k_puzzle_4x4_task3_P0_particle_seed2 --enable_wandb=0 --offline_steps=300000 --online_steps=0 --eval_interval=50000 --eval_episodes=10 --log_interval=25000 --save_interval=999999999 --agent=agents/pm_value_flows.py --agent.bcfm_lambda=3 --agent.confidence_weight_temp=100 --agent.q_agg=min --agent.pm_minimal_sb=true --agent.pm_weight_type=field_kernel_norm --agent.pm_num_continuations=4 --agent.pm_field_kernel_norm_temp=0.3 --agent.pm_field_kernel_min_scale=1e-6 --agent.pm_actor_energy_coef=0.0 --agent.pm_actor_disagree_coef=0.0 --agent.pm_log_sb_diagnostics=true --agent.pm_sb_reliability_score=action --agent.pm_sb_lambda=0.0 --agent.pm_sb_reliability_normalize=none --agent.pm_sb_value_preserving=false
 ```
 
-### 6. stageA_300k puzzle-4x4-play-singletask-task3-v0 MinimalSB_lam0p003 seed2
+### 5. stageA_300k puzzle-4x4-play-singletask-task3-v0 MinimalSB_lam0p003 seed2
 
 ```bash
 CUDA_VISIBLE_DEVICES=0 MUJOCO_GL=egl PYOPENGL_PLATFORM=egl SDL_VIDEODRIVER=dummy OGBENCH_DATA_DIR=/root/.ogbench/data XDG_CACHE_HOME=/root/autodl-tmp/sb-value-flows-runs/selective_state_tuning_single4090/cache XLA_PYTHON_CLIENT_PREALLOCATE=true XLA_PYTHON_CLIENT_MEM_FRACTION=0.90 /root/miniconda3/bin/conda run -n value-flows python main.py --env_name=puzzle-4x4-play-singletask-task3-v0 --seed=2 --save_dir=/root/autodl-tmp/sb-value-flows-runs/selective_state_tuning_single4090/exp --wandb_run_group=stageA_300k_puzzle_4x4_task3_MinimalSB_lam0p003_seed2 --enable_wandb=0 --offline_steps=300000 --online_steps=0 --eval_interval=50000 --eval_episodes=10 --log_interval=25000 --save_interval=999999999 --agent=agents/pm_value_flows.py --agent.bcfm_lambda=3 --agent.confidence_weight_temp=100 --agent.q_agg=min --agent.pm_minimal_sb=true --agent.pm_weight_type=field_kernel_norm --agent.pm_num_continuations=4 --agent.pm_field_kernel_norm_temp=0.3 --agent.pm_field_kernel_min_scale=1e-6 --agent.pm_actor_energy_coef=0.0 --agent.pm_actor_disagree_coef=0.0 --agent.pm_log_sb_diagnostics=true --agent.pm_sb_reliability_score=action --agent.pm_sb_lambda=0.003 --agent.pm_sb_reliability_normalize=none --agent.pm_sb_value_preserving=false
 ```
 
-### 7. stageA_300k puzzle-4x4-play-singletask-task3-v0 MinimalSB_lam0p001 seed2
+### 6. stageA_300k puzzle-4x4-play-singletask-task3-v0 MinimalSB_lam0p001 seed2
 
 ```bash
 CUDA_VISIBLE_DEVICES=0 MUJOCO_GL=egl PYOPENGL_PLATFORM=egl SDL_VIDEODRIVER=dummy OGBENCH_DATA_DIR=/root/.ogbench/data XDG_CACHE_HOME=/root/autodl-tmp/sb-value-flows-runs/selective_state_tuning_single4090/cache XLA_PYTHON_CLIENT_PREALLOCATE=true XLA_PYTHON_CLIENT_MEM_FRACTION=0.90 /root/miniconda3/bin/conda run -n value-flows python main.py --env_name=puzzle-4x4-play-singletask-task3-v0 --seed=2 --save_dir=/root/autodl-tmp/sb-value-flows-runs/selective_state_tuning_single4090/exp --wandb_run_group=stageA_300k_puzzle_4x4_task3_MinimalSB_lam0p001_seed2 --enable_wandb=0 --offline_steps=300000 --online_steps=0 --eval_interval=50000 --eval_episodes=10 --log_interval=25000 --save_interval=999999999 --agent=agents/pm_value_flows.py --agent.bcfm_lambda=3 --agent.confidence_weight_temp=100 --agent.q_agg=min --agent.pm_minimal_sb=true --agent.pm_weight_type=field_kernel_norm --agent.pm_num_continuations=4 --agent.pm_field_kernel_norm_temp=0.3 --agent.pm_field_kernel_min_scale=1e-6 --agent.pm_actor_energy_coef=0.0 --agent.pm_actor_disagree_coef=0.0 --agent.pm_log_sb_diagnostics=true --agent.pm_sb_reliability_score=action --agent.pm_sb_lambda=0.001 --agent.pm_sb_reliability_normalize=none --agent.pm_sb_value_preserving=false
 ```
 
-### 8. stageA_300k puzzle-4x4-play-singletask-task3-v0 A1_action_std_lam0p001 seed2
+### 7. stageA_300k puzzle-4x4-play-singletask-task3-v0 A1_action_std_lam0p001 seed2
 
 ```bash
 CUDA_VISIBLE_DEVICES=0 MUJOCO_GL=egl PYOPENGL_PLATFORM=egl SDL_VIDEODRIVER=dummy OGBENCH_DATA_DIR=/root/.ogbench/data XDG_CACHE_HOME=/root/autodl-tmp/sb-value-flows-runs/selective_state_tuning_single4090/cache XLA_PYTHON_CLIENT_PREALLOCATE=true XLA_PYTHON_CLIENT_MEM_FRACTION=0.90 /root/miniconda3/bin/conda run -n value-flows python main.py --env_name=puzzle-4x4-play-singletask-task3-v0 --seed=2 --save_dir=/root/autodl-tmp/sb-value-flows-runs/selective_state_tuning_single4090/exp --wandb_run_group=stageA_300k_puzzle_4x4_task3_A1_action_std_lam0p001_seed2 --enable_wandb=0 --offline_steps=300000 --online_steps=0 --eval_interval=50000 --eval_episodes=10 --log_interval=25000 --save_interval=999999999 --agent=agents/pm_value_flows.py --agent.bcfm_lambda=3 --agent.confidence_weight_temp=100 --agent.q_agg=min --agent.pm_minimal_sb=true --agent.pm_weight_type=field_kernel_norm --agent.pm_num_continuations=4 --agent.pm_field_kernel_norm_temp=0.3 --agent.pm_field_kernel_min_scale=1e-6 --agent.pm_actor_energy_coef=0.0 --agent.pm_actor_disagree_coef=0.0 --agent.pm_log_sb_diagnostics=true --agent.pm_sb_reliability_score=action --agent.pm_sb_lambda=0.001 --agent.pm_sb_reliability_normalize=std --agent.pm_sb_value_preserving=false
 ```
 
-### 9. stageA_300k puzzle-4x4-play-singletask-task3-v0 A2_action_std_lam0p003 seed2
+### 8. stageA_300k puzzle-4x4-play-singletask-task3-v0 A2_action_std_lam0p003 seed2
 
 ```bash
 CUDA_VISIBLE_DEVICES=0 MUJOCO_GL=egl PYOPENGL_PLATFORM=egl SDL_VIDEODRIVER=dummy OGBENCH_DATA_DIR=/root/.ogbench/data XDG_CACHE_HOME=/root/autodl-tmp/sb-value-flows-runs/selective_state_tuning_single4090/cache XLA_PYTHON_CLIENT_PREALLOCATE=true XLA_PYTHON_CLIENT_MEM_FRACTION=0.90 /root/miniconda3/bin/conda run -n value-flows python main.py --env_name=puzzle-4x4-play-singletask-task3-v0 --seed=2 --save_dir=/root/autodl-tmp/sb-value-flows-runs/selective_state_tuning_single4090/exp --wandb_run_group=stageA_300k_puzzle_4x4_task3_A2_action_std_lam0p003_seed2 --enable_wandb=0 --offline_steps=300000 --online_steps=0 --eval_interval=50000 --eval_episodes=10 --log_interval=25000 --save_interval=999999999 --agent=agents/pm_value_flows.py --agent.bcfm_lambda=3 --agent.confidence_weight_temp=100 --agent.q_agg=min --agent.pm_minimal_sb=true --agent.pm_weight_type=field_kernel_norm --agent.pm_num_continuations=4 --agent.pm_field_kernel_norm_temp=0.3 --agent.pm_field_kernel_min_scale=1e-6 --agent.pm_actor_energy_coef=0.0 --agent.pm_actor_disagree_coef=0.0 --agent.pm_log_sb_diagnostics=true --agent.pm_sb_reliability_score=action --agent.pm_sb_lambda=0.003 --agent.pm_sb_reliability_normalize=std --agent.pm_sb_value_preserving=false
 ```
 
-### 10. stageA_300k puzzle-4x4-play-singletask-task3-v0 R2_residual_disagree_lam0p001 seed2
+### 9. stageA_300k puzzle-4x4-play-singletask-task3-v0 R2_residual_disagree_lam0p001 seed2
 
 ```bash
 CUDA_VISIBLE_DEVICES=0 MUJOCO_GL=egl PYOPENGL_PLATFORM=egl SDL_VIDEODRIVER=dummy OGBENCH_DATA_DIR=/root/.ogbench/data XDG_CACHE_HOME=/root/autodl-tmp/sb-value-flows-runs/selective_state_tuning_single4090/cache XLA_PYTHON_CLIENT_PREALLOCATE=true XLA_PYTHON_CLIENT_MEM_FRACTION=0.90 /root/miniconda3/bin/conda run -n value-flows python main.py --env_name=puzzle-4x4-play-singletask-task3-v0 --seed=2 --save_dir=/root/autodl-tmp/sb-value-flows-runs/selective_state_tuning_single4090/exp --wandb_run_group=stageA_300k_puzzle_4x4_task3_R2_residual_disagree_lam0p001_seed2 --enable_wandb=0 --offline_steps=300000 --online_steps=0 --eval_interval=50000 --eval_episodes=10 --log_interval=25000 --save_interval=999999999 --agent=agents/pm_value_flows.py --agent.bcfm_lambda=3 --agent.confidence_weight_temp=100 --agent.q_agg=min --agent.pm_minimal_sb=true --agent.pm_weight_type=field_kernel_norm --agent.pm_num_continuations=4 --agent.pm_field_kernel_norm_temp=0.3 --agent.pm_field_kernel_min_scale=1e-6 --agent.pm_actor_energy_coef=0.0 --agent.pm_actor_disagree_coef=0.0 --agent.pm_log_sb_diagnostics=true --agent.pm_sb_reliability_score=flow_residual_disagree --agent.pm_sb_lambda=0.001 --agent.pm_sb_reliability_normalize=std --agent.pm_sb_flow_residual_eps=0.05 --agent.pm_sb_disagree_beta=0.5 --agent.pm_sb_disagree_umax=3.0 --agent.pm_sb_value_preserving=false
+```
+
+### 10. stageA_300k puzzle-4x4-play-singletask-task3-v0 R3_residual_disagree_typicality_lam0p001 seed2
+
+```bash
+CUDA_VISIBLE_DEVICES=0 MUJOCO_GL=egl PYOPENGL_PLATFORM=egl SDL_VIDEODRIVER=dummy OGBENCH_DATA_DIR=/root/.ogbench/data XDG_CACHE_HOME=/root/autodl-tmp/sb-value-flows-runs/selective_state_tuning_single4090/cache XLA_PYTHON_CLIENT_PREALLOCATE=true XLA_PYTHON_CLIENT_MEM_FRACTION=0.90 /root/miniconda3/bin/conda run -n value-flows python main.py --env_name=puzzle-4x4-play-singletask-task3-v0 --seed=2 --save_dir=/root/autodl-tmp/sb-value-flows-runs/selective_state_tuning_single4090/exp --wandb_run_group=stageA_300k_puzzle_4x4_task3_R3_residual_disagree_typicality_lam0p001_seed2 --enable_wandb=0 --offline_steps=300000 --online_steps=0 --eval_interval=50000 --eval_episodes=10 --log_interval=25000 --save_interval=999999999 --agent=agents/pm_value_flows.py --agent.bcfm_lambda=3 --agent.confidence_weight_temp=100 --agent.q_agg=min --agent.pm_minimal_sb=true --agent.pm_weight_type=field_kernel_norm --agent.pm_num_continuations=4 --agent.pm_field_kernel_norm_temp=0.3 --agent.pm_field_kernel_min_scale=1e-6 --agent.pm_actor_energy_coef=0.0 --agent.pm_actor_disagree_coef=0.0 --agent.pm_log_sb_diagnostics=true --agent.pm_sb_reliability_score=flow_residual_disagree_typicality --agent.pm_sb_lambda=0.001 --agent.pm_sb_reliability_normalize=std --agent.pm_sb_flow_residual_eps=0.05 --agent.pm_sb_disagree_beta=0.5 --agent.pm_sb_disagree_umax=3.0 --agent.pm_sb_typicality_tau=1.0 --agent.pm_sb_value_preserving=false
 ```
 
 ## Counts
 
 - candidate tasks: 9
 - skipped tasks: 16
-- pending Stage A runs: 18
+- pending Stage A runs: 17
 - pending Stage B runs: 1
-- total pending runs: 19
+- total pending runs: 18
 
 ## Suggested Launch Order
 
