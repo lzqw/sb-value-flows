@@ -150,10 +150,12 @@ DEFAULT_BASELINES = [
 ]
 
 CONFIG_NAMES = [
-    "R3_residual_disagree_typicality_lam0p001",
-    "R2_residual_disagree_lam0p001",
+    "R3_flow_residual_disagree_typicality_std_lam0p001",
+    "R2_flow_residual_disagree_std_lam0p001",
     "A2_action_std_lam0p003",
     "A1_action_std_lam0p001",
+    "R3_residual_disagree_typicality_lam0p001",
+    "R2_residual_disagree_lam0p001",
     "MinimalSB_lam0p001",
     "MinimalSB_lam0p0003",
     "P0_particle",
@@ -293,7 +295,7 @@ def method_group(config_name: str) -> str:
 
 def parse_stage_env_config_seed(run_group: str, default_stage: str) -> dict[str, Any]:
     result: dict[str, Any] = {"stage": default_stage if default_stage != "auto" else "UNKNOWN", "env": "UNKNOWN", "config_name": "UNKNOWN", "seed": ""}
-    match = re.match(r"(.+)_seed(\d+)$", run_group)
+    match = re.match(r"(.+)_seed(\d+)(?:_.+)?$", run_group)
     if not match:
         return result
     prefix, seed = match.groups()
@@ -306,6 +308,11 @@ def parse_stage_env_config_seed(run_group: str, default_stage: str) -> dict[str,
         "visual_v6_stageA_300k",
         "visual_v6_stageB_1m",
         "visual_v7_matched_1m",
+        "domain_smoke",
+        "stageA",
+        "stageB",
+        "domain",
+        "smoke",
     ]
     stage = None
     rest = prefix
@@ -319,13 +326,21 @@ def parse_stage_env_config_seed(run_group: str, default_stage: str) -> dict[str,
     if stage is not None:
         result["stage"] = stage
 
-    for config_name in CONFIG_NAMES:
+    env_match = re.search(r"((?:visual-)?[A-Za-z0-9x]+(?:-[A-Za-z0-9x]+)*-singletask-task\d+-v\d+)", rest)
+    env_from_rest = env_match.group(1) if env_match else ""
+
+    for config_name in sorted(CONFIG_NAMES, key=len, reverse=True):
         suffix = "_" + config_name
         if rest.endswith(suffix):
-            env_short = rest[: -len(suffix)]
-            result["env"] = env_short_to_full(env_short)
             result["config_name"] = config_name
+            if env_from_rest:
+                result["env"] = env_from_rest
+            else:
+                env_short = rest[: -len(suffix)]
+                result["env"] = env_short_to_full(env_short)
             return result
+    if env_from_rest:
+        result["env"] = env_from_rest
     return result
 
 
@@ -491,7 +506,7 @@ def collect_scan_rows(args: argparse.Namespace, baselines: dict[tuple[str, str],
                 config_name = parsed_from_wandb["config_name"]
             if not seed:
                 seed = str(parsed_from_wandb["seed"])
-        if args.stage != "auto" and (stage == "UNKNOWN" or stage.startswith("visual_")):
+        if args.stage != "auto":
             stage = args.stage
 
         domain, task_id = derive_domain_task(env)
