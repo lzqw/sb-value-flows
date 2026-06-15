@@ -175,13 +175,28 @@ STEP_COLUMNS = ["step", "env_step", "gradient_step", "training/step"]
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--scan_base", required=True)
-    parser.add_argument("--server", required=True)
-    parser.add_argument("--machine_tag", required=True)
-    parser.add_argument("--modality", required=True)
+    parser.add_argument("--scan_base", default="")
+    parser.add_argument("--server", default="")
+    parser.add_argument("--machine_tag", default="")
+    parser.add_argument("--modality", default="")
     parser.add_argument("--stage", default="auto")
     parser.add_argument("--output_dir", default="results")
     parser.add_argument("--commit", default="false")
+    parser.add_argument(
+        "--local_backup_base",
+        default="",
+        help="Optional local backup root. When set, local_backup_path is local_backup_base plus the run_dir path relative to scan_base.",
+    )
+    parser.add_argument(
+        "--local_backup_map",
+        default="",
+        help="Optional CSV with run_id/local_backup_path, eval_csv/local_backup_path, or run_dir/local_backup_path columns.",
+    )
+    parser.add_argument(
+        "--update_local_backup_only",
+        default="false",
+        help="If true, update existing registry local_backup_path values from --local_backup_map without scanning eval.csv files.",
+    )
     return parser.parse_args()
 
 
@@ -429,6 +444,17 @@ def path_string(path: Path | None) -> str:
     return str(path.resolve()) if path is not None and path.exists() else ""
 
 
+def derived_local_backup_path(local_backup_base: str, scan_base: Path, run_dir: Path) -> str:
+    if not local_backup_base:
+        return ""
+    base = Path(local_backup_base)
+    try:
+        rel = run_dir.resolve().relative_to(scan_base.resolve())
+    except ValueError:
+        rel = Path(run_dir.name)
+    return str((base / rel).resolve())
+
+
 def merge_baselines(path: Path) -> list[dict[str, str]]:
     rows = read_csv(path)
     by_key: dict[tuple[str, str], dict[str, str]] = {}
@@ -531,6 +557,8 @@ def collect_scan_rows(args: argparse.Namespace, baselines: dict[tuple[str, str],
         vf_mean = float_value(vf_row.get("valueflow_success_mean"))
         delta = success_final - vf_mean if success_final is not None and vf_mean is not None else None
         base_run_id = f"{args.server}__{stage}__{env}__{config_name}__seed{seed}__{target_steps}"
+        run_git_branch = str(flags.get("git_branch") or command.get("git_branch") or git_branch)
+        run_git_head = str(flags.get("git_head") or flags.get("git_commit") or command.get("git_head") or command.get("git_commit") or git_head)
         notes = read_error
         if status_txt is not None:
             notes = (notes + "; " if notes else "") + status_txt.read_text(errors="replace").strip().replace("\n", " ")[:200]
@@ -568,9 +596,9 @@ def collect_scan_rows(args: argparse.Namespace, baselines: dict[tuple[str, str],
                 "command_txt": path_string(command_txt),
                 "run_dir": str(run_dir.resolve()),
                 "output_base": str(scan_base.resolve()),
-                "local_backup_path": "",
-                "git_branch": git_branch,
-                "git_head": git_head,
+                "local_backup_path": derived_local_backup_path(args.local_backup_base, scan_base, run_dir),
+                "git_branch": run_git_branch,
+                "git_head": run_git_head,
                 "timestamp_start": parse_timestamp_from_run_dir(run_dir),
                 "timestamp_update": timestamp_update,
                 "notes": notes,
@@ -592,11 +620,50 @@ def merge_experiment_runs(path: Path, scanned_rows: list[dict[str, Any]]) -> lis
     existing = read_csv(path)
     by_id = {row.get("run_id", ""): row for row in existing if row.get("run_id")}
     for row in scanned_rows:
+        old = by_id.get(row["run_id"], {})
+        if not row.get("local_backup_path") and old.get("local_backup_path"):
+            row["local_backup_path"] = old["local_backup_path"]
         by_id[row["run_id"]] = {field: row.get(field, "") for field in EXPERIMENT_FIELDS}
     rows = list(by_id.values())
     rows.sort(key=lambda r: (r.get("server", ""), r.get("stage", ""), r.get("env", ""), r.get("config_name", ""), r.get("seed", ""), r.get("timestamp_start", ""), r.get("run_id", "")))
     write_csv(path, EXPERIMENT_FIELDS, rows)
     return rows
+
+
+def apply_local_backup_map(experiment_rows: list[dict[str, Any]], map_path: str) -> int:
+    if not map_path:
+        return 0
+    path = Path(map_path)
+    if not path.exists():
+        raise FileNotFoundError(f"local backup map not found: {map_path}")
+    with path.open(newline="") as f:
+        map_rows = list(csv.DictReader(f))
+
+    by_run_id = {}
+    by_eval_csv = {}
+    by_run_dir = {}
+    for row in map_rows:
+        backup = row.get("local_backup_path", "")
+        if not backup:
+            continue
+        if row.get("run_id"):
+            by_run_id[row["run_id"]] = backup
+        if row.get("eval_csv"):
+            by_eval_csv[row["eval_csv"]] = backup
+        if row.get("run_dir"):
+            by_run_dir[row["run_dir"]] = backup
+
+    updated = 0
+    timestamp_update = now_string()
+    for row in experiment_rows:
+        backup = by_run_id.get(row.get("run_id", ""))
+        backup = backup or by_eval_csv.get(row.get("eval_csv", ""))
+        backup = backup or by_run_dir.get(row.get("run_dir", ""))
+        if backup and row.get("local_backup_path") != backup:
+            row["local_backup_path"] = backup
+            row["timestamp_update"] = timestamp_update
+            updated += 1
+    return updated
 
 
 def write_curve_index(path: Path, experiment_rows: list[dict[str, Any]]) -> None:
@@ -794,6 +861,7 @@ def markdown_table(rows: list[list[str]], headers: list[str]) -> str:
 
 def write_scoreboard_md(path: Path, scoreboard_rows: list[dict[str, Any]]) -> None:
     headers = ["env", "VF baseline", "best 300k", "best 1M mean +/- std", "config", "seeds", "delta", "run ids", "eval paths"]
+    stage_a_headers = ["env", "VF baseline", "best 300k", "config", "seed", "delta", "run id", "eval path"]
 
     def f(row: dict[str, Any], name: str) -> float | None:
         return float_value(row.get(name, ""))
@@ -801,19 +869,36 @@ def write_scoreboard_md(path: Path, scoreboard_rows: list[dict[str, Any]]) -> No
     strong = []
     weak = []
     failed = []
+    stage_a_only = []
     for row in scoreboard_rows:
         vf = f(row, "valueflow_success_mean")
         mean = f(row, "best_1m_success_mean")
         std = f(row, "best_1m_success_std") or 0.0
         best_300k = f(row, "best_300k_success")
-        if vf is None or mean is None:
+        if vf is None:
+            continue
+        if mean is None:
+            if best_300k is not None:
+                stage_a_only.append(row)
             continue
         if mean > vf and mean - vf > 0.05 and std <= 0.15:
             strong.append(row)
         elif mean > vf:
             weak.append(row)
-        elif best_300k is not None and best_300k >= vf:
+        elif best_300k is not None:
             failed.append(row)
+
+    def stage_a_row(row: dict[str, Any]) -> list[str]:
+        return [
+            row.get("env", ""),
+            row.get("valueflow_success_mean", ""),
+            row.get("best_300k_success", ""),
+            row.get("best_300k_config", ""),
+            row.get("best_300k_seed", ""),
+            row.get("best_300k_delta", ""),
+            row.get("best_300k_run_id", ""),
+            short_paths(row.get("best_300k_eval_csv", "")),
+        ]
 
     lines = [
         "# Task Scoreboard",
@@ -836,9 +921,15 @@ def write_scoreboard_md(path: Path, scoreboard_rows: list[dict[str, Any]]) -> No
         "",
         "## Failed / False Positives",
         "",
-        "300k screening looked competitive, but completed 1M final success is below the Value Flow baseline.",
+        "Completed 1M final success is below the Value Flow baseline after a Stage A selection or confirmation attempt.",
         "",
         markdown_table([md_row(r) for r in failed], headers) if failed else "_None._",
+        "",
+        "## Stage-A Only / No 1M Confirmation",
+        "",
+        "Tasks with completed 300k screening results but no completed 1M confirmation in the registry.",
+        "",
+        markdown_table([stage_a_row(r) for r in stage_a_only], stage_a_headers) if stage_a_only else "_None._",
         "",
     ]
     path.write_text("\n".join(lines) + "\n")
@@ -871,8 +962,21 @@ def main() -> int:
 
     baseline_rows = merge_baselines(baseline_path)
     baselines = baseline_lookup(baseline_rows)
-    scanned_rows = collect_scan_rows(args, baselines)
-    experiment_rows = merge_experiment_runs(experiment_path, scanned_rows)
+    update_backup_only = args.update_local_backup_only.lower() in {"true", "1", "yes"}
+    if update_backup_only:
+        if not args.local_backup_map:
+            raise SystemExit("--update_local_backup_only requires --local_backup_map")
+        scanned_rows = []
+        experiment_rows = read_csv(experiment_path)
+    else:
+        missing = [name for name in ("scan_base", "server", "machine_tag", "modality") if not getattr(args, name)]
+        if missing:
+            raise SystemExit("missing required scan arguments: " + ", ".join(missing))
+        scanned_rows = collect_scan_rows(args, baselines)
+        experiment_rows = merge_experiment_runs(experiment_path, scanned_rows)
+    backup_updates = apply_local_backup_map(experiment_rows, args.local_backup_map)
+    if backup_updates:
+        write_csv(experiment_path, EXPERIMENT_FIELDS, experiment_rows)
     write_curve_index(curve_path, experiment_rows)
     scoreboard_rows = build_scoreboard(experiment_rows, baseline_rows)
     write_csv(scoreboard_path, SCOREBOARD_FIELDS, scoreboard_rows)
@@ -880,6 +984,7 @@ def main() -> int:
     maybe_commit(args.commit, output_dir)
 
     print(f"scanned_eval_csv={len(scanned_rows)}")
+    print(f"local_backup_updates={backup_updates}")
     print(f"experiment_runs={len(experiment_rows)}")
     print(f"scoreboard_tasks={len(scoreboard_rows)}")
     print(f"output_dir={output_dir.resolve()}")

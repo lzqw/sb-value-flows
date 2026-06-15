@@ -49,3 +49,33 @@ python scripts/update_results_registry.py \
 ## Plotting
 
 Use `results/eval_curves_index.csv` to find raw curve files. The full curve is intentionally left in the original `eval.csv`; this registry stores only metadata and paths.
+
+## Local Backup Paths
+
+`local_backup_path` can be filled during a scan by mapping each remote run directory under `--scan_base` into a local backup root:
+
+```bash
+python scripts/update_results_registry.py \
+  --scan_base exp/bad_task_repair_single4090 \
+  --server single4090 \
+  --machine_tag seeta-codex \
+  --modality state \
+  --stage auto \
+  --output_dir results \
+  --local_backup_base /home/lzqw/sb_value_flows_remote_results/single4090 \
+  --commit false
+```
+
+It can also be updated later without rescanning eval files by passing a CSV map with `local_backup_path` and at least one of `run_id`, `eval_csv`, or `run_dir`:
+
+```bash
+python scripts/update_results_registry.py \
+  --output_dir results \
+  --local_backup_map /path/to/local_backup_map.csv \
+  --update_local_backup_only true \
+  --commit false
+```
+
+## Git Revision Fields
+
+`git_branch` and `git_head` are run metadata fields. They may come from a run's saved config or command metadata, and existing rows keep the value recorded when that run was scanned. They are therefore not guaranteed to match the repository's current `HEAD` after later registry updates.
