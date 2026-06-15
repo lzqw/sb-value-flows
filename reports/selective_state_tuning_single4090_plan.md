@@ -1,7 +1,7 @@
 # Selective State Tuning Single4090 Plan
 
-Generated: 2026-06-15 11:58:09
-Dry run: True
+Generated: 2026-06-15 16:25:47
+Dry run: False
 
 ## Guardrails
 

@@ -1,6 +1,6 @@
 # Task Scoreboard
 
-Last update: 2026-06-15 14:49:11
+Last update: 2026-06-15 17:40:17
 
 All comparisons use completed final eval rows. Peak success and best-in-run values are retained in CSV for diagnostics, but they do not replace final success.
 
@@ -40,4 +40,5 @@ Tasks with completed 300k screening results but no completed 1M confirmation in 
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | cube-triple-play-singletask-task3-v0 | 0.07 | 0.1 | A1_action_std_lam0p001 | 2 | 0.03 | single4090__stageA_300k__cube-triple-play-singletask-task3-v0__A1_action_std_lam0p001__seed2__300000 | bad_task_repair_single4090/stageA_300k_cube_triple_task3_A1_action_std_lam0p001_seed2/sd002_20260611_111742/eval.csv |
 | puzzle-3x3-play-singletask-task3-v0 | 0.97 | 0.2 | P0_particle | 2 | -0.77 | single4090__stageA_300k__puzzle-3x3-play-singletask-task3-v0__P0_particle__seed2__300000 | bad_task_repair_single4090/stageA_300k_puzzle_3x3_task3_P0_particle_seed2/sd002_20260608_100720/eval.csv |
+| puzzle-4x4-play-singletask-task1-v0 | 0.36 | 0.5 | P0_particle | 2 | 0.14 | single4090__stageA_300k__puzzle-4x4-play-singletask-task1-v0__P0_particle__seed2__300000 | exp/stageA_300k_puzzle_4x4_task1_P0_particle_seed2/sd002_20260615_162552/eval.csv |
 

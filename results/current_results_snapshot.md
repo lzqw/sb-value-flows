@@ -6,10 +6,10 @@ Updated from single4090 local registry.
 
 ### Overall
 
-- Registry runs: 79
-- Completed registry runs: 78
+- Registry runs: 80
+- Completed registry runs: 79
 - Partial registry runs: 1
-- Stage A 300k screening runs: 63 / 63 completed
+- Stage A 300k screening runs: 64 / 64 completed
 - Stage B 1M confirmation runs: 15 / 15 completed
 - Historical inventory: 193 eval.csv, 188 completed, 5 partial
 
@@ -94,7 +94,7 @@ Stable-hold queue:
 | puzzle-3x3-play-singletask-task3-v0 | 0.97 | 0.2 | P0_particle | - | - | - | No completed 1M result |
 | puzzle-3x3-play-singletask-task4-v0 | 0.84 | - | - | - | - | - | No completed 1M result |
 | puzzle-3x3-play-singletask-task5-v0 | 0.58 | - | - | - | - | - | No completed 1M result |
-| puzzle-4x4-play-singletask-task1-v0 | 0.36 | - | - | - | - | - | No completed 1M result |
+| puzzle-4x4-play-singletask-task1-v0 | 0.36 | 0.5 | P0_particle | - | - | - | No completed 1M result |
 | puzzle-4x4-play-singletask-task2-v0 | 0.27 | 0.2 | A2_action_std_lam0p003 | 0.333333 | 0.208167 | MinimalSB_lam0p001 | Weak or seed-unstable positive |
 | puzzle-4x4-play-singletask-task3-v0 | 0.3 | - | - | - | - | - | No completed 1M result |
 | puzzle-4x4-play-singletask-task4-v0 | 0.28 | 0.5 | R3_residual_disagree_typicality_lam0p001 | 0.1 | 0 | R3_residual_disagree_typicality_lam0p001 | 300k signal did not hold at 1M |
