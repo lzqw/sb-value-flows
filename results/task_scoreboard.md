@@ -1,6 +1,6 @@
 # Task Scoreboard
 
-Last update: 2026-06-16 09:36:23
+Last update: 2026-06-17 01:44:48
 
 All comparisons use completed final eval rows. Peak success and best-in-run values are retained in CSV for diagnostics, but they do not replace final success.
 
@@ -40,6 +40,7 @@ Tasks with completed 300k screening results but no completed 1M confirmation in 
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | cube-triple-play-singletask-task3-v0 | 0.07 | 0.1 | A1_action_std_lam0p001 | 2 | 0.03 | single4090__stageA_300k__cube-triple-play-singletask-task3-v0__A1_action_std_lam0p001__seed2__300000 | bad_task_repair_single4090/stageA_300k_cube_triple_task3_A1_action_std_lam0p001_seed2/sd002_20260611_111742/eval.csv |
 | puzzle-3x3-play-singletask-task3-v0 | 0.97 | 0.2 | P0_particle | 2 | -0.77 | single4090__stageA_300k__puzzle-3x3-play-singletask-task3-v0__P0_particle__seed2__300000 | bad_task_repair_single4090/stageA_300k_puzzle_3x3_task3_P0_particle_seed2/sd002_20260608_100720/eval.csv |
+| puzzle-3x3-play-singletask-task5-v0 | 0.58 | 0.4 | A1_action_std_lam0p001 | 2 | -0.18 | single4090__stageA_300k__puzzle-3x3-play-singletask-task5-v0__A1_action_std_lam0p001__seed2__300000 | exp/stageA_300k_puzzle_3x3_task5_A1_action_std_lam0p001_seed2/sd002_20260616_204333/eval.csv |
 | puzzle-4x4-play-singletask-task1-v0 | 0.36 | 0.5 | A2_action_std_lam0p003 | 2 | 0.14 | single4090__stageA_300k__puzzle-4x4-play-singletask-task1-v0__A2_action_std_lam0p003__seed2__300000 | exp/stageA_300k_puzzle_4x4_task1_A2_action_std_lam0p003_seed2/sd002_20260615_212615/eval.csv |
-| puzzle-4x4-play-singletask-task3-v0 | 0.3 | 0.2 | P0_particle | 2 | -0.1 | single4090__stageA_300k__puzzle-4x4-play-singletask-task3-v0__P0_particle__seed2__300000 | exp/stageA_300k_puzzle_4x4_task3_P0_particle_seed2/sd002_20260616_011303/eval.csv |
+| puzzle-4x4-play-singletask-task3-v0 | 0.3 | 0.5 | R2_residual_disagree_lam0p001 | 2 | 0.2 | single4090__stageA_300k__puzzle-4x4-play-singletask-task3-v0__R2_residual_disagree_lam0p001__seed2__300000 | exp/stageA_300k_puzzle_4x4_task3_R2_residual_disagree_lam0p001_seed2/sd002_20260616_142426/eval.csv |
 
