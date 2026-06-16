@@ -110,3 +110,55 @@ Stable-hold queue:
 - `/root/sb-value-flows/results/task_scoreboard.csv`
 - `/root/sb-value-flows/results/historical_experiment_inventory.csv`
 - `/root/sb-value-flows/reports/selective_state_tuning_single4090_plan.md`
+
+## Single4090 Interrupted / Selective State Results
+
+- Found single4090-related eval.csv: 176
+- COMPLETED: 173
+- PARTIAL: 2
+- INTERRUPTED: 1
+- FAILED: 0
+- Registry rows after update: 89
+
+New selective 300k results:
+
+| run | final | best | status |
+|---|---:|---:|---|
+| puzzle-4x4 task1 / P0 | 0.5 | 0.5 | completed |
+| puzzle-4x4 task1 / A2 | 0.5 | 0.5 | completed |
+| puzzle-4x4 task1 / A1 | 0.4 | 0.4 | completed |
+| puzzle-4x4 task1 / Min003 | 0.3 | 0.4 | completed |
+| puzzle-4x4 task1 / Min001 | 0.3 | 0.4 | completed |
+| puzzle-4x4 task1 / R3 | 0.3 | 0.4 | completed |
+| puzzle-4x4 task1 / R2 | 0.2 | 0.5 | completed |
+| puzzle-4x4 task3 / P0 | 0.2 | 0.6 | completed |
+| puzzle-4x4 task3 / Min003 | 0.1 | 0.4 | completed |
+| puzzle-4x4 task3 / Min001 | 0.0 | 0.0 | interrupted at 100k |
+
+Final values above use the last eval.csv row only. Best values are diagnostic and do not replace final success.
+
+## 4090D Interrupted Visual Results
+
+- Found 4090D-related eval.csv: 241
+- COMPLETED: 227
+- PARTIAL_OR_INTERRUPTED: 4
+- UNKNOWN_TARGET: 10
+- FAILED: 0
+- visual v7 eval.csv: 10
+- visual v7 completed: 6
+- visual v7 partial/interrupted: 4
+
+visual-antmaze-medium R2 completed 5-task final mean:
+
+```text
+(0.20 + 0.02 + 0.32 + 0.40 + 0.12) / 5 = 0.212
+```
+
+visual-antmaze-medium R2 best-in-run mean:
+
+```text
+(0.78 + 0.82 + 0.80 + 0.86 + 0.70) / 5 = 0.792
+```
+
+Conclusion:
+visual v7 shows strong early learning but severe late-training collapse. These results are diagnostic, not final-performance positives.
