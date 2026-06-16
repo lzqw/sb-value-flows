@@ -118,6 +118,11 @@ def main(_):
     eval_logger = CsvLogger(os.path.join(FLAGS.save_dir, 'eval.csv'))
     first_time = time.time()
     last_time = time.time()
+    best_eval_success = -float('inf')
+    best_eval_return = None
+    best_eval_step = 0
+    save_eval_checkpoints = bool(config.get('save_eval_checkpoints', False))
+    checkpoint_root = os.path.join(FLAGS.save_dir, 'checkpoints')
     
     rng = jax.random.PRNGKey(FLAGS.seed)
     expl_metrics = dict()
@@ -129,7 +134,10 @@ def main(_):
             if config['agent_name'] in ['rebrac']:
                 agent, update_info = agent.update(batch, full_update=(i % config['actor_freq'] == 0))
             else:
-                agent, update_info = agent.update(batch)
+                if config['agent_name'] == 'pm_value_flows':
+                    agent, update_info = agent.update(batch, step=i)
+                else:
+                    agent, update_info = agent.update(batch)
         else:
             # Online fine-tuning.
             rng, expl_rng = jax.random.split(rng)
@@ -217,6 +225,27 @@ def main(_):
                 video = get_wandb_video(renders=renders)
                 eval_metrics['video'] = video
 
+            eval_success = eval_metrics.get('evaluation/success')
+            eval_return = eval_metrics.get('evaluation/return')
+            if eval_success is not None:
+                eval_success_float = float(eval_success)
+                if eval_success_float >= best_eval_success:
+                    best_eval_success = eval_success_float
+                    best_eval_return = None if eval_return is None else float(eval_return)
+                    best_eval_step = i
+                eval_metrics['evaluation/success_best_so_far'] = best_eval_success
+                eval_metrics['evaluation/best_step'] = best_eval_step
+                eval_metrics['evaluation/drop_from_best'] = eval_success_float - best_eval_success
+
+            if save_eval_checkpoints:
+                eval_checkpoint_dir = os.path.join(checkpoint_root, 'eval')
+                best_checkpoint_dir = os.path.join(checkpoint_root, 'best_eval')
+                os.makedirs(eval_checkpoint_dir, exist_ok=True)
+                os.makedirs(best_checkpoint_dir, exist_ok=True)
+                save_agent(agent, eval_checkpoint_dir, i)
+                if eval_success is not None and best_eval_step == i:
+                    save_agent(agent, best_checkpoint_dir, i)
+
             if FLAGS.enable_wandb:
                 wandb.log(eval_metrics, step=i)
             eval_logger.log(eval_metrics, step=i)
@@ -224,6 +253,11 @@ def main(_):
         # Save agent.
         if i % FLAGS.save_interval == 0:
             save_agent(agent, FLAGS.save_dir, i)
+
+    if save_eval_checkpoints:
+        final_checkpoint_dir = os.path.join(checkpoint_root, 'final')
+        os.makedirs(final_checkpoint_dir, exist_ok=True)
+        save_agent(agent, final_checkpoint_dir, FLAGS.offline_steps + FLAGS.online_steps)
 
     train_logger.close()
     eval_logger.close()

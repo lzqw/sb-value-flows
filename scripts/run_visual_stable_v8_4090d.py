@@ -108,9 +108,9 @@ def command_for(env: str) -> list[str]:
         f"--env_name={env}",
         f"--save_dir={run_dir}",
         f"--wandb_run_group={name}",
-        f"--agent.checkpoint_dir={ckpt_dir}",
         *BASE_FLAGS,
         *COMMON_FLAGS,
+        f"--agent.checkpoint_dir={ckpt_dir}",
         *R2_FLAGS,
         *STABLE_FLAGS,
     ]

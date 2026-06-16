@@ -357,10 +357,12 @@ class ValueFlowsAgent(flax.struct.PyTreeNode):
                 (*observations.shape[: -len(self.config['ob_dims'])],
                 self.config['num_samples'], self.config['action_dim'])
             )
-            n_observations = jnp.repeat(
-                jnp.expand_dims(observations, -2),
-                self.config['num_samples'],
-                axis=-2,
+            batch_shape = observations.shape[: -len(self.config['ob_dims'])]
+            candidate_axis = len(batch_shape)
+            n_observations = jnp.expand_dims(observations, axis=candidate_axis)
+            n_observations = jnp.broadcast_to(
+                n_observations,
+                (*batch_shape, self.config['num_samples'], *self.config['ob_dims']),
             )
             flow_actions = self.compute_flow_actions(actor_noises, n_observations)
             

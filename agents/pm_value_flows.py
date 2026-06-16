@@ -312,6 +312,12 @@ class PMValueFlowsAgent(flax.struct.PyTreeNode):
 
             base_logits = jnp.log(base_weights + self.config['pm_sb_reliability_eps'])
             rel_logits = base_logits - self.config['pm_sb_lambda'] * reliability
+            if self.config['pm_sb_weight_logit_clip'] >= 0.0:
+                rel_logits = jnp.clip(
+                    rel_logits,
+                    -self.config['pm_sb_weight_logit_clip'],
+                    self.config['pm_sb_weight_logit_clip'],
+                )
             rel_logits = rel_logits - jnp.max(rel_logits, axis=1, keepdims=True)
             sb_weights = jax.nn.softmax(rel_logits, axis=1)
             w_rel = sb_weights
@@ -333,9 +339,24 @@ class PMValueFlowsAgent(flax.struct.PyTreeNode):
                 vp_eta = jax.lax.stop_gradient(vp_eta)
                 vp_active = (vp_eta > 0.0).astype(base_weights.dtype)
                 final_logits = rel_logits + vp_eta[:, None] * y_scalar
+                if self.config['pm_sb_weight_logit_clip'] >= 0.0:
+                    final_logits = jnp.clip(
+                        final_logits,
+                        -self.config['pm_sb_weight_logit_clip'],
+                        self.config['pm_sb_weight_logit_clip'],
+                    )
                 final_logits = final_logits - jnp.max(final_logits, axis=1, keepdims=True)
                 sb_weights = jax.nn.softmax(final_logits, axis=1)
                 vp_m_final = (sb_weights * y_scalar).sum(axis=1)
+
+            if self.config['pm_sb_weight_uniform_mix'] > 0.0:
+                mix = self.config['pm_sb_weight_uniform_mix']
+                sb_weights = (1.0 - mix) * sb_weights + mix / K
+            if self.config['pm_sb_weight_max'] >= 0.0:
+                sb_weights = jnp.minimum(sb_weights, self.config['pm_sb_weight_max'])
+                sb_weights = sb_weights / (
+                    sb_weights.sum(axis=1, keepdims=True) + self.config['pm_sb_reliability_eps']
+                )
 
             target_weights = jax.lax.stop_gradient(sb_weights)
             reliability_weight_max = target_weights.max(axis=1)
@@ -502,6 +523,10 @@ class PMValueFlowsAgent(flax.struct.PyTreeNode):
             'pm/typicality_std': typicality.std(),
             'pm/reliability_weight_max': reliability_weight_max.mean(),
             'pm/reliability_ess': reliability_ess.mean(),
+            'stable/sb_weight_mean': target_weights.mean(),
+            'stable/sb_weight_std': target_weights.std(),
+            'stable/sb_weight_max': target_weights.max(),
+            'stable/sb_weight_top10_mass': jnp.sort(target_weights, axis=1)[:, -min(10, K):].sum(axis=1).mean(),
             'pm/raw_target_mean': raw_target_mean.mean(),
             'pm/projected_target_mean': projected_target_mean.mean(),
             'pm/proj_delta_mean': proj_delta_mean.mean(),
@@ -543,7 +568,7 @@ class PMValueFlowsAgent(flax.struct.PyTreeNode):
             'pm/is_kernel': jnp.asarray(self.config['pm_weight_type'] == 'kernel', dtype=jnp.float32),
         }
 
-    def actor_loss(self, batch, grad_params, rng):
+    def actor_loss(self, batch, grad_params, rng, step=0):
         """Compute the BC flow actor loss."""
         batch_size, action_dim = batch['actions'].shape
         rng, x_rng, t_rng, actor_rng, q_rng = jax.random.split(rng, 5)
@@ -658,7 +683,27 @@ class PMValueFlowsAgent(flax.struct.PyTreeNode):
             lam = jax.lax.stop_gradient(1 / jnp.abs(q_geo).mean())
             q_loss = lam * q_loss
 
-        actor_loss = bc_flow_loss + self.config['alpha'] * distill_loss + q_loss
+        actor_anchor_active = (
+            self.config['visual_stable_mode']
+            and self.config['actor_ema_anchor_coef'] > 0.0
+            and self.config['actor_ema_anchor_start_step'] >= 0
+        )
+        actor_anchor_gate = jnp.asarray(0.0, dtype=actor_actions.dtype)
+        if actor_anchor_active:
+            actor_anchor_gate = jnp.where(
+                step >= self.config['actor_ema_anchor_start_step'],
+                jnp.asarray(1.0, dtype=actor_actions.dtype),
+                jnp.asarray(0.0, dtype=actor_actions.dtype),
+            )
+        # Minimal v8 runtime check: behavior-anchor approximation. A true EMA
+        # actor teacher requires extending train state and remains a follow-up.
+        actor_anchor_loss = jnp.mean((actor_actions - batch['actions']) ** 2)
+        actor_loss = (
+            bc_flow_loss
+            + self.config['alpha'] * distill_loss
+            + q_loss
+            + actor_anchor_gate * self.config['actor_ema_anchor_coef'] * actor_anchor_loss
+        )
 
         # Additional metrics for logging.
         actions = self.sample_actions(batch['observations'], seed=rng)
@@ -666,6 +711,8 @@ class PMValueFlowsAgent(flax.struct.PyTreeNode):
 
         return actor_loss, {
             'actor_loss': actor_loss,
+            'actor_anchor_loss': actor_anchor_loss,
+            'actor_anchor_gate': actor_anchor_gate,
             'bc_flow_loss': bc_flow_loss,
             'distill_loss': distill_loss,
             'q_loss': q_loss,
@@ -688,7 +735,7 @@ class PMValueFlowsAgent(flax.struct.PyTreeNode):
         }
 
     @jax.jit
-    def total_loss(self, batch, grad_params, rng=None):
+    def total_loss(self, batch, grad_params, rng=None, step=0):
         """Compute the total loss."""
         info = {}
         rng = rng if rng is not None else self.rng
@@ -698,33 +745,118 @@ class PMValueFlowsAgent(flax.struct.PyTreeNode):
         for k, v in critic_info.items():
             info[f'critic/{k}'] = v
 
-        actor_loss, actor_info = self.actor_loss(batch, grad_params, actor_rng)
+        actor_loss, actor_info = self.actor_loss(batch, grad_params, actor_rng, step=step)
         for k, v in actor_info.items():
             info[f'actor/{k}'] = v
 
-        loss = critic_loss + actor_loss
+        actor_lr_mult = jnp.asarray(1.0, dtype=actor_loss.dtype)
+        critic_lr_mult = jnp.asarray(1.0, dtype=critic_loss.dtype)
+        if self.config['visual_stable_mode']:
+            if self.config['visual_actor_lr_decay_after_step'] >= 0:
+                actor_lr_mult = jnp.where(
+                    step >= self.config['visual_actor_lr_decay_after_step'],
+                    self.config['visual_actor_lr_decay_mult'],
+                    actor_lr_mult,
+                )
+            if self.config['visual_critic_lr_decay_after_step'] >= 0:
+                critic_lr_mult = jnp.where(
+                    step >= self.config['visual_critic_lr_decay_after_step'],
+                    self.config['visual_critic_lr_decay_mult'],
+                    critic_lr_mult,
+                )
+            if self.config['visual_second_lr_decay_after_step'] >= 0:
+                actor_lr_mult = jnp.where(
+                    step >= self.config['visual_second_lr_decay_after_step'],
+                    actor_lr_mult * self.config['visual_second_actor_lr_decay_mult'],
+                    actor_lr_mult,
+                )
+                critic_lr_mult = jnp.where(
+                    step >= self.config['visual_second_lr_decay_after_step'],
+                    critic_lr_mult * self.config['visual_second_critic_lr_decay_mult'],
+                    critic_lr_mult,
+                )
+        loss = critic_lr_mult * critic_loss + actor_lr_mult * actor_loss
+        info['visual_stable/actor_lr_mult'] = actor_lr_mult
+        info['visual_stable/critic_lr_mult'] = critic_lr_mult
+        info['stable/actor_lr'] = actor_lr_mult * self.config['lr']
+        info['stable/critic_lr'] = critic_lr_mult * self.config['lr']
+        encoder_frozen = jnp.asarray(0.0, dtype=jnp.float32)
+        if (
+            self.config['visual_stable_mode']
+            and self.config['visual_freeze_encoder_after_step'] >= 0
+        ):
+            encoder_frozen = jnp.where(
+                step >= self.config['visual_freeze_encoder_after_step'],
+                jnp.asarray(1.0, dtype=jnp.float32),
+                encoder_frozen,
+            )
+        info['stable/encoder_frozen'] = encoder_frozen
         return loss, info
 
-    def target_update(self, network, module_name):
+    def target_update(self, network, module_name, step=0):
         """Update the target network."""
+        tau = self.config['tau']
+        if (
+            self.config['visual_stable_mode']
+            and self.config['visual_target_tau_after_step'] >= 0
+            and self.config['visual_target_tau_value'] is not None
+        ):
+            tau = jnp.where(
+                step >= self.config['visual_target_tau_after_step'],
+                self.config['visual_target_tau_value'],
+                tau,
+            )
         new_target_params = jax.tree_util.tree_map(
-            lambda p, tp: p * self.config['tau'] + tp * (1 - self.config['tau']),
+            lambda p, tp: p * tau + tp * (1 - tau),
             self.network.params[f'modules_{module_name}'],
             self.network.params[f'modules_target_{module_name}'],
         )
         network.params[f'modules_target_{module_name}'] = new_target_params
 
     @jax.jit
-    def update(self, batch):
+    def update(self, batch, step=0):
         """Update the agent and return a new agent with information dictionary."""
         new_rng, rng = jax.random.split(self.rng)
 
         def loss_fn(grad_params):
-            return self.total_loss(batch, grad_params, rng=rng)
+            return self.total_loss(batch, grad_params, rng=rng, step=step)
 
-        new_network, info = self.network.apply_loss_fn(loss_fn=loss_fn)
-        self.target_update(new_network, 'critic_flow1')
-        self.target_update(new_network, 'critic_flow2')
+        grad_transform = None
+        if (
+            self.config['visual_stable_mode']
+            and self.config['visual_freeze_encoder_after_step'] >= 0
+        ):
+            freeze_gate = jnp.where(
+                step >= self.config['visual_freeze_encoder_after_step'],
+                jnp.asarray(0.0, dtype=jnp.float32),
+                jnp.asarray(1.0, dtype=jnp.float32),
+            )
+
+            def grad_transform(grads):
+                flat = flax.traverse_util.flatten_dict(grads)
+                masked = {}
+                for path, grad in flat.items():
+                    if any(str(part) == 'encoder' for part in path):
+                        masked[path] = jax.tree_util.tree_map(lambda g: g * freeze_gate, grad)
+                    else:
+                        masked[path] = grad
+                return flax.traverse_util.unflatten_dict(masked)
+
+        new_network, info = self.network.apply_loss_fn(loss_fn=loss_fn, grad_transform=grad_transform)
+        self.target_update(new_network, 'critic_flow1', step=step)
+        self.target_update(new_network, 'critic_flow2', step=step)
+        tau_value = jnp.asarray(self.config['tau'], dtype=jnp.float32)
+        if (
+            self.config['visual_stable_mode']
+            and self.config['visual_target_tau_after_step'] >= 0
+            and self.config['visual_target_tau_value'] is not None
+        ):
+            tau_value = jnp.where(
+                step >= self.config['visual_target_tau_after_step'],
+                self.config['visual_target_tau_value'],
+                tau_value,
+            )
+        info['visual_stable/target_tau'] = tau_value
 
         return self.replace(network=new_network, rng=new_rng), info
 
@@ -928,10 +1060,12 @@ class PMValueFlowsAgent(flax.struct.PyTreeNode):
                 (*observations.shape[: -len(self.config['ob_dims'])],
                 self.config['num_samples'], self.config['action_dim'])
             )
-            n_observations = jnp.repeat(
-                jnp.expand_dims(observations, -2),
-                self.config['num_samples'],
-                axis=-2,
+            batch_shape = observations.shape[: -len(self.config['ob_dims'])]
+            candidate_axis = len(batch_shape)
+            n_observations = jnp.expand_dims(observations, axis=candidate_axis)
+            n_observations = jnp.broadcast_to(
+                n_observations,
+                (*batch_shape, self.config['num_samples'], *self.config['ob_dims']),
             )
             flow_actions = self.compute_flow_actions(actor_noises, n_observations)
             
@@ -1102,6 +1236,9 @@ def get_config():
             pm_sb_typicality_tau=1.0,
             pm_sb_reliability_eps=1e-6,
             pm_sb_reliability_normalize='none',
+            pm_sb_weight_uniform_mix=0.0,
+            pm_sb_weight_logit_clip=-1.0,
+            pm_sb_weight_max=-1.0,
             pm_sb_value_preserving=False,
             pm_sb_vp_kappa=0.5,
             pm_sb_vp_eta_clip=10.0,
@@ -1113,6 +1250,22 @@ def get_config():
             pm_energy_residual_ref='median',
             pm_actor_energy_mode='raw',
             pm_actor_energy_residual_norm='data',
+            visual_stable_mode=False,
+            visual_freeze_encoder_after_step=-1,
+            visual_actor_lr_decay_after_step=-1,
+            visual_actor_lr_decay_mult=1.0,
+            visual_critic_lr_decay_after_step=-1,
+            visual_critic_lr_decay_mult=1.0,
+            visual_second_lr_decay_after_step=-1,
+            visual_second_actor_lr_decay_mult=1.0,
+            visual_second_critic_lr_decay_mult=1.0,
+            visual_target_tau_after_step=-1,
+            visual_target_tau_value=None,
+            actor_ema_anchor_coef=0.0,
+            actor_ema_anchor_start_step=-1,
+            actor_ema_tau=0.995,
+            save_eval_checkpoints=False,
+            checkpoint_dir='',
             ob_dims=ml_collections.config_dict.placeholder(list),  # Observation dimensions (will be set automatically).
             action_dim=ml_collections.config_dict.placeholder(int),  # Action dimension (will be set automatically).
             min_reward=ml_collections.config_dict.placeholder(float),  # Minimum reward (will be set automatically).

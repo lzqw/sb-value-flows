@@ -129,12 +129,14 @@ class TrainState(flax.struct.PyTreeNode):
             **kwargs,
         )
 
-    def apply_loss_fn(self, loss_fn):
+    def apply_loss_fn(self, loss_fn, grad_transform=None):
         """Apply the loss function and return the updated state and info.
 
         It additionally computes the gradient statistics and adds them to the dictionary.
         """
         grads, info = jax.grad(loss_fn, has_aux=True)(self.params)
+        if grad_transform is not None:
+            grads = grad_transform(grads)
 
         grad_max = jax.tree_util.tree_map(jnp.max, grads)
         grad_min = jax.tree_util.tree_map(jnp.min, grads)
