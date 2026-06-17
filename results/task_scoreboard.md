@@ -1,56 +1,46 @@
 # Task Scoreboard
 
-Final comparisons use completed final eval rows only. Peak values are not used as final results.
+Last update: 2026-06-17 01:44:48
 
-| env | modality | valueflow_success_mean | best_300k_success | best_300k_config | best_1m_success_mean | best_1m_success_std | best_1m_config | best_1m_delta | conclusion |
-|---|---|---|---|---|---|---|---|---|---|
-| cube-double-play-singletask-task1-v0 | state | 0.97 |  |  |  |  |  |  | No completed 1M result |
-| cube-double-play-singletask-task2-v0 | state | 0.76 | 0.4 | R3_residual_disagree_typicality_lam0p001 | 0.833333 | 0.11547 | R3_residual_disagree_typicality_lam0p001 | 0.0733333 | Above Value Flow baseline |
-| cube-double-play-singletask-task3-v0 | state | 0.73 | 0.5 | A2_action_std_lam0p003 | 0.833333 | 0.057735 | A2_action_std_lam0p003 | 0.103333 | Above Value Flow baseline |
-| cube-double-play-singletask-task4-v0 | state | 0.3 | 0.3 | A1_action_std_lam0p001 | 0.4 | 0.1 | A1_action_std_lam0p001 | 0.1 | Above Value Flow baseline |
-| cube-double-play-singletask-task5-v0 | state | 0.69 |  |  |  |  |  |  | No completed 1M result |
-| cube-triple-play-singletask-task1-v0 | state | 0.59 |  |  |  |  |  |  | No completed 1M result |
-| cube-triple-play-singletask-task2-v0 | state | 0 |  |  |  |  |  |  | No completed 1M result |
-| cube-triple-play-singletask-task3-v0 | state | 0.07 | 0.1 | A1_action_std_lam0p001 |  |  |  |  | No completed 1M result |
-| cube-triple-play-singletask-task4-v0 | state | 0 |  |  |  |  |  |  | No completed 1M result |
-| cube-triple-play-singletask-task5-v0 | state | 0.02 |  |  |  |  |  |  | No completed 1M result |
-| puzzle-3x3-play-singletask-task1-v0 | state | 0.99 |  |  |  |  |  |  | No completed 1M result |
-| puzzle-3x3-play-singletask-task2-v0 | state | 0.98 |  |  |  |  |  |  | No completed 1M result |
-| puzzle-3x3-play-singletask-task3-v0 | state | 0.97 | 0.2 | P0_particle |  |  |  |  | No completed 1M result |
-| puzzle-3x3-play-singletask-task4-v0 | state | 0.84 |  |  |  |  |  |  | No completed 1M result |
-| puzzle-3x3-play-singletask-task5-v0 | state | 0.58 |  |  |  |  |  |  | No completed 1M result |
-| puzzle-4x4-play-singletask-task1-v0 | state | 0.36 | 0.5 | A2_action_std_lam0p003 |  |  |  |  | No completed 1M result |
-| puzzle-4x4-play-singletask-task2-v0 | state | 0.27 | 0.2 | A2_action_std_lam0p003 | 0.333333 | 0.208167 | MinimalSB_lam0p001 | 0.0633333 | Weak or seed-unstable positive |
-| puzzle-4x4-play-singletask-task3-v0 | state | 0.3 | 0.2 | P0_particle |  |  |  |  | No completed 1M result |
-| puzzle-4x4-play-singletask-task4-v0 | state | 0.28 | 0.5 | R3_residual_disagree_typicality_lam0p001 | 0.1 | 0 | R3_residual_disagree_typicality_lam0p001 | -0.18 | 300k signal did not hold at 1M |
-| puzzle-4x4-play-singletask-task5-v0 | state | 0.13 | 0.1 | A2_action_std_lam0p003 | 0 | 0 | A2_action_std_lam0p003 | -0.13 | Below Value Flow baseline |
-| scene-play-singletask-task1-v0 | state | 0.99 |  |  |  |  |  |  | No completed 1M result |
-| scene-play-singletask-task2-v0 | state | 0.97 |  |  |  |  |  |  | No completed 1M result |
-| scene-play-singletask-task3-v0 | state | 0.94 |  |  |  |  |  |  | No completed 1M result |
-| scene-play-singletask-task4-v0 | state | 0.07 | 0.4 | P0_particle | 0 | 0 | P0_particle | -0.07 | 300k signal did not hold at 1M |
-| scene-play-singletask-task5-v0 | state | 0 |  |  |  |  |  |  | No completed 1M result |
-| visual-antmaze-medium-navigate-singletask-task1-v0 | visual | 0.77 | 0.3 | R2_flow_residual_disagree_std_lam0p001 | 0.2 | 0 | R2_flow_residual_disagree_std_lam0p001 | -0.57 | Below Value Flow baseline |
-| visual-antmaze-medium-navigate-singletask-task2-v0 | visual | 0.75 | 0.6 | R2_flow_residual_disagree_std_lam0p001 | 0.02 | 0 | R2_flow_residual_disagree_std_lam0p001 | -0.73 | Below Value Flow baseline |
-| visual-antmaze-medium-navigate-singletask-task3-v0 | visual | 0.81 | 0.2 | A1_action_std_lam0p001 | 0.32 | 0 | R2_flow_residual_disagree_std_lam0p001 | -0.49 | Below Value Flow baseline |
-| visual-antmaze-medium-navigate-singletask-task4-v0 | visual | 0.71 | 0.3 | A1_action_std_lam0p001 | 0.4 | 0 | R2_flow_residual_disagree_std_lam0p001 | -0.31 | Below Value Flow baseline |
-| visual-antmaze-medium-navigate-singletask-task5-v0 | visual | 0.7 | 0.1 | A1_action_std_lam0p001 | 0.12 | 0 | R2_flow_residual_disagree_std_lam0p001 | -0.58 | Below Value Flow baseline |
-| visual-antmaze-teleport-navigate-singletask-task1-v0 | visual | 0.1 | 0.1 | A1_action_std_lam0p001 | 0.08 | 0.0282843 | A1_action_std_lam0p001 | -0.02 | Below Value Flow baseline |
-| visual-antmaze-teleport-navigate-singletask-task2-v0 | visual | 0.17 | 0 | A1_action_std_lam0p001 | 0.2 | 0 | R2_flow_residual_disagree_std_lam0p001 | 0.03 | Above Value Flow baseline |
-| visual-antmaze-teleport-navigate-singletask-task3-v0 | visual | 0.16 | 0.3 | A1_action_std_lam0p001 | 0 | 0 | A1_action_std_lam0p001 | -0.16 | Below Value Flow baseline |
-| visual-antmaze-teleport-navigate-singletask-task4-v0 | visual | 0.16 | 0.1 | R2_flow_residual_disagree_std_lam0p001 | 0.3 | 0 | R2_flow_residual_disagree_std_lam0p001 | 0.14 | Above Value Flow baseline |
-| visual-antmaze-teleport-navigate-singletask-task5-v0 | visual | 0.08 | 0.1 | R2_flow_residual_disagree_std_lam0p001 | 0 | 0 | R2_flow_residual_disagree_std_lam0p001 | -0.08 | Below Value Flow baseline |
-| visual-cube-double-play-singletask-task1-v0 | visual | 0.35 | 0.3 | A1_action_std_lam0p001 | 0.1 | 0 | A1_action_std_lam0p001 | -0.25 | Below Value Flow baseline |
-| visual-cube-double-play-singletask-task2-v0 | visual | 0.04 | 0 | A1_action_std_lam0p001 | 0 | 0 | R2_flow_residual_disagree_std_lam0p001 | -0.04 | Below Value Flow baseline |
-| visual-cube-double-play-singletask-task3-v0 | visual | 0.11 | 0 | A1_action_std_lam0p001 | 0.1 | 0 | R2_flow_residual_disagree_std_lam0p001 | -0.01 | Below Value Flow baseline |
-| visual-cube-double-play-singletask-task4-v0 | visual | 0.02 | 0 | A1_action_std_lam0p001 | 0 | 0 | R2_flow_residual_disagree_std_lam0p001 | -0.02 | Below Value Flow baseline |
-| visual-cube-double-play-singletask-task5-v0 | visual | 0.13 | 0 | A1_action_std_lam0p001 | 0 | 0 | R2_flow_residual_disagree_std_lam0p001 | -0.13 | Below Value Flow baseline |
-| visual-puzzle-3x3-play-singletask-task1-v0 | visual | 0.93 |  |  |  |  |  |  | No completed 1M result |
-| visual-puzzle-3x3-play-singletask-task2-v0 | visual | 0.12 |  |  |  |  |  |  | No completed 1M result |
-| visual-puzzle-3x3-play-singletask-task3-v0 | visual | 0.03 |  |  |  |  |  |  | No completed 1M result |
-| visual-puzzle-3x3-play-singletask-task4-v0 | visual | 0.06 |  |  |  |  |  |  | No completed 1M result |
-| visual-puzzle-3x3-play-singletask-task5-v0 | visual | 0.02 |  |  |  |  |  |  | No completed 1M result |
-| visual-scene-play-singletask-task1-v0 | visual | 0.99 | 1 | R2_flow_residual_disagree_std_lam0p001 |  |  |  |  | Stage-A only / no completed 1M confirmation |
-| visual-scene-play-singletask-task2-v0 | visual | 0.4 | 0 | A1_action_std_lam0p001 |  |  |  |  | Stage-A only / no completed 1M confirmation |
-| visual-scene-play-singletask-task3-v0 | visual | 0.66 | 0 | A1_action_std_lam0p001 |  |  |  |  | Stage-A only / no completed 1M confirmation |
-| visual-scene-play-singletask-task4-v0 | visual | 0.1 | 0.1 | R2_flow_residual_disagree_std_lam0p001 |  |  |  |  | Stage-A only / no completed 1M confirmation |
-| visual-scene-play-singletask-task5-v0 | visual | 0 | 0 | A1_action_std_lam0p001 |  |  |  |  | Stage-A only / no completed 1M confirmation |
+All comparisons use completed final eval rows. Peak success and best-in-run values are retained in CSV for diagnostics, but they do not replace final success.
+
+## Strong Positives
+
+1M mean > Value Flow baseline with modest seed variance.
+
+| env | VF baseline | best 300k | best 1M mean +/- std | config | seeds | delta | run ids | eval paths |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| cube-double-play-singletask-task2-v0 | 0.76 | 0.4 | 0.833333 +/- 0.11547 | R3_residual_disagree_typicality_lam0p001 | 0;1;2 | 0.0733333 | single4090__stageB_seedext_1m__cube-double-play-singletask-task2-v0__R3_residual_disagree_typicality_lam0p001__seed0__1000000__sd000_20260612_093350;single4090__stageB_seedext_1m__cube-double-play-singletask-task2-v0__R3_residual_disagree_typicality_lam0p001__seed1__1000000;single4090__stageB_seed2_1m__cube-double-play-singletask-task2-v0__R3_residual_disagree_typicality_lam0p001__seed2__1000000 | bad_task_repair_single4090/stageB_seedext_1m_cube_double_task2_R3_residual_disagree_typicality_lam0p001_seed0/sd000_20260612_093350/eval.csv<br>bad_task_repair_single4090/stageB_seedext_1m_cube_double_task2_R3_residual_disagree_typicality_lam0p001_seed1/sd001_20260612_133305/eval.csv<br>bad_task_repair_single4090/stageB_seed2_1m_cube_double_task2_R3_residual_disagree_typicality_lam0p001_seed2/sd002_20260611_203011/eval.csv |
+| cube-double-play-singletask-task3-v0 | 0.73 | 0.5 | 0.833333 +/- 0.057735 | A2_action_std_lam0p003 | 0;1;2 | 0.103333 | single4090__stageB_seedext_1m__cube-double-play-singletask-task3-v0__A2_action_std_lam0p003__seed0__1000000;single4090__stageB_seedext_1m__cube-double-play-singletask-task3-v0__A2_action_std_lam0p003__seed1__1000000;single4090__stageB_seed2_1m__cube-double-play-singletask-task3-v0__A2_action_std_lam0p003__seed2__1000000 | bad_task_repair_single4090/stageB_seedext_1m_cube_double_task3_A2_action_std_lam0p003_seed0/sd000_20260612_213228/eval.csv<br>bad_task_repair_single4090/stageB_seedext_1m_cube_double_task3_A2_action_std_lam0p003_seed1/sd001_20260613_013227/eval.csv<br>bad_task_repair_single4090/stageB_seed2_1m_cube_double_task3_A2_action_std_lam0p003_seed2/sd002_20260612_173301/eval.csv |
+| cube-double-play-singletask-task4-v0 | 0.3 | 0.3 | 0.4 +/- 0.1 | A1_action_std_lam0p001 | 0;1;2 | 0.1 | single4090__stageB_seedext_1m__cube-double-play-singletask-task4-v0__A1_action_std_lam0p001__seed0__1000000;single4090__stageB_seedext_1m__cube-double-play-singletask-task4-v0__A1_action_std_lam0p001__seed1__1000000;single4090__stageB_seed2_1m__cube-double-play-singletask-task4-v0__A1_action_std_lam0p001__seed2__1000000 | bad_task_repair_single4090/stageB_seedext_1m_cube_double_task4_A1_action_std_lam0p001_seed0/sd000_20260613_093038/eval.csv<br>bad_task_repair_single4090/stageB_seedext_1m_cube_double_task4_A1_action_std_lam0p001_seed1/sd001_20260613_133019/eval.csv<br>bad_task_repair_single4090/stageB_seed2_1m_cube_double_task4_A1_action_std_lam0p001_seed2/sd002_20260613_053127/eval.csv |
+
+## Weak / Unstable Positives
+
+1M mean is above baseline but the margin is small or seed variance is large.
+
+| env | VF baseline | best 300k | best 1M mean +/- std | config | seeds | delta | run ids | eval paths |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| puzzle-4x4-play-singletask-task2-v0 | 0.27 | 0.2 | 0.333333 +/- 0.208167 | MinimalSB_lam0p001 | 0;1;2 | 0.0633333 | single4090__stageB_seedext_1m__puzzle-4x4-play-singletask-task2-v0__MinimalSB_lam0p001__seed0__1000000;single4090__stageB_seedext_1m__puzzle-4x4-play-singletask-task2-v0__MinimalSB_lam0p001__seed1__1000000;single4090__stageB_seed2_1m__puzzle-4x4-play-singletask-task2-v0__MinimalSB_lam0p001__seed2__1000000 | bad_task_repair_single4090/stageB_seedext_1m_puzzle_4x4_task2_MinimalSB_lam0p001_seed0/sd000_20260614_014306/eval.csv<br>bad_task_repair_single4090/stageB_seedext_1m_puzzle_4x4_task2_MinimalSB_lam0p001_seed1/sd001_20260614_055017/eval.csv<br>bad_task_repair_single4090/stageB_seed2_1m_puzzle_4x4_task2_MinimalSB_lam0p001_seed2/sd002_20260613_213740/eval.csv |
+
+## Failed / False Positives
+
+Completed 1M final success is below the Value Flow baseline after a Stage A selection or confirmation attempt.
+
+| env | VF baseline | best 300k | best 1M mean +/- std | config | seeds | delta | run ids | eval paths |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| puzzle-4x4-play-singletask-task4-v0 | 0.28 | 0.5 | 0.1 +/- 0 | R3_residual_disagree_typicality_lam0p001 | 2 | -0.18 | single4090__stageB_seed2_1m__puzzle-4x4-play-singletask-task4-v0__R3_residual_disagree_typicality_lam0p001__seed2__1000000 | bad_task_repair_single4090/stageB_seed2_1m_puzzle_4x4_task4_R3_residual_disagree_typicality_lam0p001_seed2/sd002_20260614_095700/eval.csv |
+| puzzle-4x4-play-singletask-task5-v0 | 0.13 | 0.1 | 0 +/- 0 | A2_action_std_lam0p003 | 2 | -0.13 | single4090__stageB_seed2_1m__puzzle-4x4-play-singletask-task5-v0__A2_action_std_lam0p003__seed2__1000000 | bad_task_repair_single4090/stageB_seed2_1m_puzzle_4x4_task5_A2_action_std_lam0p003_seed2/sd002_20260613_173157/eval.csv |
+| scene-play-singletask-task4-v0 | 0.07 | 0.4 | 0 +/- 0 | P0_particle | 2 | -0.07 | single4090__stageB_seed2_1m__scene-play-singletask-task4-v0__P0_particle__seed2__1000000 | bad_task_repair_single4090/stageB_seed2_1m_scene_task4_P0_particle_seed2/sd002_20260611_162414/eval.csv |
+
+## Stage-A Only / No 1M Confirmation
+
+Tasks with completed 300k screening results but no completed 1M confirmation in the registry.
+
+| env | VF baseline | best 300k | config | seed | delta | run id | eval path |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| cube-triple-play-singletask-task3-v0 | 0.07 | 0.1 | A1_action_std_lam0p001 | 2 | 0.03 | single4090__stageA_300k__cube-triple-play-singletask-task3-v0__A1_action_std_lam0p001__seed2__300000 | bad_task_repair_single4090/stageA_300k_cube_triple_task3_A1_action_std_lam0p001_seed2/sd002_20260611_111742/eval.csv |
+| puzzle-3x3-play-singletask-task3-v0 | 0.97 | 0.2 | P0_particle | 2 | -0.77 | single4090__stageA_300k__puzzle-3x3-play-singletask-task3-v0__P0_particle__seed2__300000 | bad_task_repair_single4090/stageA_300k_puzzle_3x3_task3_P0_particle_seed2/sd002_20260608_100720/eval.csv |
+| puzzle-3x3-play-singletask-task5-v0 | 0.58 | 0.4 | A1_action_std_lam0p001 | 2 | -0.18 | single4090__stageA_300k__puzzle-3x3-play-singletask-task5-v0__A1_action_std_lam0p001__seed2__300000 | exp/stageA_300k_puzzle_3x3_task5_A1_action_std_lam0p001_seed2/sd002_20260616_204333/eval.csv |
+| puzzle-4x4-play-singletask-task1-v0 | 0.36 | 0.5 | A2_action_std_lam0p003 | 2 | 0.14 | single4090__stageA_300k__puzzle-4x4-play-singletask-task1-v0__A2_action_std_lam0p003__seed2__300000 | exp/stageA_300k_puzzle_4x4_task1_A2_action_std_lam0p003_seed2/sd002_20260615_212615/eval.csv |
+| puzzle-4x4-play-singletask-task3-v0 | 0.3 | 0.5 | R2_residual_disagree_lam0p001 | 2 | 0.2 | single4090__stageA_300k__puzzle-4x4-play-singletask-task3-v0__R2_residual_disagree_lam0p001__seed2__300000 | exp/stageA_300k_puzzle_4x4_task3_R2_residual_disagree_lam0p001_seed2/sd002_20260616_142426/eval.csv |
+

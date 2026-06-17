@@ -162,3 +162,46 @@ visual-antmaze-medium R2 best-in-run mean:
 
 Conclusion:
 visual v7 shows strong early learning but severe late-training collapse. These results are diagnostic, not final-performance positives.
+
+## Single4090 Selective Stage-A Results
+
+- Total selective runs: 22
+- Completed: 21
+- Interrupted: 1
+- Failed: 0
+- Branch: results/single4090-selective-state-latest
+- Commit: df37c6b
+
+puzzle-4x4 task1, VF 0.36:
+- P0 final 0.5, best 0.5
+- A2 final 0.5, best 0.5
+- A1 final 0.4, best 0.4
+- Min003 final 0.3, best 0.4
+- Min001 final 0.3, best 0.4
+- R3 final 0.3, best 0.4
+- R2 final 0.2, best 0.5
+
+Conclusion: task1 has stable positive candidates. Stage-B candidates: P0 and A2.
+
+puzzle-4x4 task3, VF 0.30:
+- R2 final 0.5, best 0.8
+- A1 final 0.4, best 0.4
+- A2 final 0.3, best 0.7
+- Min001 rerun final 0.3, best 0.4
+- P0 final 0.2, best 0.6
+- Min003 final 0.1, best 0.4
+- R3 final 0.1, best 0.3
+
+Conclusion: task3 has positive but less stable candidates. Stage-B candidates: R2 and A1.
+
+puzzle-3x3 task5, VF 0.58:
+- A1 final 0.4, best 0.4
+- R3 final 0.3, best 0.4
+- Min003 final 0.2, best 0.2
+- A2 final 0.1, best 0.1
+- Min001 final 0.0, best 0.1
+- P0 final 0.0, best 0.0
+- R2 final 0.0, best 0.0
+
+Conclusion: task5 remains below VF; do not run ordinary 1M.
+
