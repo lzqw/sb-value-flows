@@ -215,3 +215,9 @@ Stage-B completed results:
 
 Conclusion:
 task1 Stage-B confirmation failed. task3/R2 is a moderate positive result, but below the strong threshold 0.45. Only task3/R2 is worth seed extension.
+
+## Single4090 Task3/R2 Seed Extension
+
+- puzzle-4x4 task3 / R2 / seed2: final 0.40, above VF 0.30
+- puzzle-4x4 task3 / R2 / seed0: final 0.00, below VF 0.30
+- Conclusion: not robust across seeds. Keep seed2 as a good-case/moderate diagnostic result, but stop seed extension and do not run seed1.
