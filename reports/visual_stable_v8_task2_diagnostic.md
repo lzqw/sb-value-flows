@@ -1,33 +1,33 @@
-# Visual Stable v8 Task2 Diagnostic
+# Visual Stable v8.1 Task2 Diagnostic
 
-Previous completed diagnostic run.
+Generated: 2026-06-19 12:15:07
 
 ## Result
 
-- Env: `visual-antmaze-medium-navigate-singletask-task2-v0`
-- Config: `R2_stable`
-- Seed: 2
-- Status: COMPLETED
-- Final success: 0.26 @ 1000000
-- Best success: 0.74 @ 100000
-- Peak after 500k: 0.56 @ 500000
-- Drop from best: -0.48
+`visual-antmaze-medium-navigate-singletask-task2-v0 / R2_stable_strong / seed2 / 1M` is completed.
 
-## Comparison
-
-- v7 task2 / R2: best 0.82, final 0.02.
-- v8 task2 / R2_stable: best 0.74, final 0.26.
-- Conclusion: v8 improves retention versus v7, but late collapse remains.
-- This is diagnostic, not a final positive.
-- Do not use best checkpoint as final.
-- Do not expand task1/task4 under current `R2_stable`.
-- Next config: `R2_stable_strong`.
+- final step: 1000000
+- final success: 0.4
+- best success: 0.74 @ 300000
+- peak after 500k: 0.56 @ 600000
+- drop from best: -0.33999999999999997
+- checkpoint count: 16
+- eval.csv: `/root/autodl-tmp/sb-value-flows-runs/visual_stable_v8_1_strong_4090d/exp/visual_medium_task2_R2_stable_strong_seed2_1m/visual_medium_task2_R2_stable_strong_seed2_1m/sd002_20260617_230839/eval.csv`
 
 ## Trajectory
 
-`0:0.0, 100k:0.74, 200k:0.58, 300k:0.56, 400k:0.5, 500k:0.56, 600k:0.48, 700k:0.28, 800k:0.28, 900k:0.3, 1M:0.26`
+`1:0; 100000:0.5; 200000:0.62; 300000:0.74; 400000:0.56; 500000:0.48; 600000:0.56; 700000:0.38; 800000:0.3; 900000:0.1; 1000000:0.4`
 
-## CSV Paths
+## Comparison
 
-- eval: `/root/autodl-tmp/sb-value-flows-runs/visual_stable_v8_task2_diagnostic/exp/visual_stable_v8_task2_R2_stable_seed2_1m/visual_stable_v8_task2_R2_stable_seed2_1m/sd002_20260616_162650/eval.csv`
-- train: `/root/autodl-tmp/sb-value-flows-runs/visual_stable_v8_task2_diagnostic/exp/visual_stable_v8_task2_R2_stable_seed2_1m/visual_stable_v8_task2_R2_stable_seed2_1m/sd002_20260616_162650/train.csv`
+- v7 task2 / R2: final 0.02, best 0.82 @200k.
+- v8 task2 / R2_stable: final 0.26, best 0.74 @100000, peak after 500k 0.56 @500000, drop -0.48.
+- v8.1 task2 / R2_stable_strong: final 0.4, best 0.74 @300000, peak after 500k 0.56 @600000, drop -0.33999999999999997.
+
+## Interpretation
+
+v8.1 strong clearly mitigates late collapse, but does not fully solve it. This is a diagnostic stability improvement, not yet a final visual superiority result. Final result uses only the last eval.csv row; best checkpoint and peaks are diagnostics only.
+
+## Next Diagnostic
+
+Run `visual-antmaze-medium-navigate-singletask-task4-v0 / R2_stable_strong / seed2 / 1M` only. Do not start task1, do not rerun task2, and do not continue ordinary v7.
