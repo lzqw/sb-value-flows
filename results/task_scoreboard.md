@@ -1,6 +1,6 @@
 # Task Scoreboard
 
-Last update: 2026-06-19 17:39:00
+Last update: 2026-06-20 19:09:53
 
 All comparisons use completed final eval rows. Peak success and best-in-run values are retained in CSV for diagnostics, but they do not replace final success.
 
@@ -40,7 +40,10 @@ Tasks with completed 300k screening results but no completed 1M confirmation in 
 
 | env | VF baseline | best 300k | config | seed | delta | run id | eval path |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| cube-triple-play-singletask-task3-v0 | 0.07 | 0.1 | A1_action_std_lam0p001 | 2 | 0.03 | single4090__stageA_300k__cube-triple-play-singletask-task3-v0__A1_action_std_lam0p001__seed2__300000 | bad_task_repair_single4090/stageA_300k_cube_triple_task3_A1_action_std_lam0p001_seed2/sd002_20260611_111742/eval.csv |
+| cube-triple-play-singletask-task2-v0 | 0 | 0 | A1_action_std_lam0p001 | 2 | 0 | single4090-new__state_goodcase_harvest_300k__cube-triple-play-singletask-task2-v0__A1_action_std_lam0p001__seed2__300000 | exp/goodcase300k_cube_triple_task2_A1_action_std_lam0p001_seed2/sd002_20260619_173909/eval.csv |
+| cube-triple-play-singletask-task3-v0 | 0.07 | 0.2 | R2_residual_disagree_lam0p001 | 2 | 0.13 | single4090-new__state_goodcase_harvest_300k__cube-triple-play-singletask-task3-v0__R2_residual_disagree_lam0p001__seed2__300000 | exp/goodcase300k_cube_triple_task3_R2_residual_disagree_lam0p001_seed2/sd002_20260620_113121/eval.csv |
+| cube-triple-play-singletask-task4-v0 | 0 | 0 | A1_action_std_lam0p001 | 2 | 0 | single4090-new__state_goodcase_harvest_300k__cube-triple-play-singletask-task4-v0__A1_action_std_lam0p001__seed2__300000 | exp/goodcase300k_cube_triple_task4_A1_action_std_lam0p001_seed2/sd002_20260619_224649/eval.csv |
+| cube-triple-play-singletask-task5-v0 | 0.02 | 0 | A1_action_std_lam0p001 | 2 | -0.02 | single4090-new__state_goodcase_harvest_300k__cube-triple-play-singletask-task5-v0__A1_action_std_lam0p001__seed2__300000 | exp/goodcase300k_cube_triple_task5_A1_action_std_lam0p001_seed2/sd002_20260620_050930/eval.csv |
 | puzzle-3x3-play-singletask-task3-v0 | 0.97 | 0.2 | P0_particle | 2 | -0.77 | single4090__stageA_300k__puzzle-3x3-play-singletask-task3-v0__P0_particle__seed2__300000 | bad_task_repair_single4090/stageA_300k_puzzle_3x3_task3_P0_particle_seed2/sd002_20260608_100720/eval.csv |
 | puzzle-3x3-play-singletask-task5-v0 | 0.58 | 0.4 | A1_action_std_lam0p001 | 2 | -0.18 | single4090__stageA_300k__puzzle-3x3-play-singletask-task5-v0__A1_action_std_lam0p001__seed2__300000 | exp/stageA_300k_puzzle_3x3_task5_A1_action_std_lam0p001_seed2/sd002_20260616_204333/eval.csv |
 
