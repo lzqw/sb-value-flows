@@ -1,6 +1,6 @@
 # State Collapse Cases
 
-Updated: 2026-06-21T23:03:43
+Updated: 2026-06-22T00:26:01
 
 Collapse is flagged when best_peak_success - final_success >= 0.30. Severe collapse is also flagged when best_peak_success >= 0.50 and final_success <= VF + 0.05.
 

@@ -1,6 +1,6 @@
 # Audit All Single4090 State Experiments
 
-Updated: 2026-06-21T23:03:43
+Updated: 2026-06-22T00:26:01
 
 No training is launched by this audit. It reports both final-row and best-peak result views.
 
@@ -15,23 +15,23 @@ No training is launched by this audit. It reports both final-row and best-peak r
 
 ## File Scan
 
-- Candidate files: 714
-- eval.csv: 217
-- train.csv: 216
-- command.txt: 4
-- Unique audited runs: 158
+- Candidate files: 718
+- eval.csv: 218
+- train.csv: 217
+- command.txt: 5
+- Unique audited runs: 159
 - Missing lightweight sources: none
 
 ## Status Counts
 
-- completed_300k: 112
+- completed_300k: 113
 - completed_1m: 45
 - partial: 1
 
 ## Root Path Counts
 
 - `/root/sb-value-flows/exp`: 108
-- `/root/autodl-tmp/sb-value-flows-runs`: 50
+- `/root/autodl-tmp/sb-value-flows-runs`: 51
 
 ## Domain Summary
 
@@ -41,7 +41,7 @@ No training is launched by this audit. It reports both final-row and best-peak r
 | cube-triple-play | 0.22 | 0.22 | 0.16 | 0.16 | 5 | 5 |
 | puzzle-3x3-play | 0.88 | 0.88 | 0.84 | 0.84 | 5 | 5 |
 | puzzle-4x4-play | 0.58 | 0.58 | 0.42 | 0.42 | 5 | 5 |
-| scene-play | 0.633 | 0.38 | 0.467 | 0.28 | 3 | 3 |
+| scene-play | 0.725 | 0.58 | 0.6 | 0.48 | 4 | 4 |
 
 ## Top 10 Best Peak Runs
 
@@ -68,10 +68,10 @@ No training is launched by this audit. It reports both final-row and best-peak r
 | puzzle-3x3-play-singletask-task4-v0 | ActorGeo | 1 | completed_1m | 1.0 | 1.0 | 1000000 | /root/sb-value-flows/exp/table3_pm_actorgeo_problem_envs_4090/puzzle-3x3-play-singletask-task4-v0_pm_actorgeo_problem_envs_4090/sd001_20260528_121505/eval.csv |
 | puzzle-3x3-play-singletask-task4-v0 | P0 | 5 | completed_1m | 1.0 | 1.0 | 850000 | /root/sb-value-flows/exp/puzzle3x3_bestseed_5task_single4090_v3/task4_S1_sb_lam0p001_seed2/sd002_20260607_022834/eval.csv |
 | puzzle-3x3-play-singletask-task5-v0 | P0 | 5 | completed_1m | 1.0 | 1.0 | 1000000 | /root/sb-value-flows/exp/puzzle3x3_bestseed_5task_single4090_v3/task5_S1_sb_lam0p001_seed2/sd002_20260607_063032/eval.csv |
+| scene-play-singletask-task1-v0 | P0_particle | 2 | completed_300k | 1.0 | 1.0 | 100000 | /root/autodl-tmp/sb-value-flows-runs/state_25task_goal_single4090/exp/state25_300k_coverage_scene_task1_P0_particle_seed2/sd002_20260621_231247/eval.csv |
 | scene-play-singletask-task2-v0 | FullSafe | 0 | completed_1m | 1.0 | 1.0 | 200000 | /root/sb-value-flows/exp/table3_pm_fullsafe_light_remaining_single4090/scene-play-singletask-task2-v0_pm_fullsafe_light_remaining_single4090/sd000_20260529_181552/eval.csv |
 | scene-play-singletask-task2-v0 | FullSafe | 1 | completed_1m | 1.0 | 1.0 | 50000 | /root/sb-value-flows/exp/table3_pm_fullsafe_light_remaining_single4090/scene-play-singletask-task2-v0_pm_fullsafe_light_remaining_single4090/sd001_20260529_221332/eval.csv |
 | scene-play-singletask-task2-v0 | FullSafe | 2 | completed_1m | 1.0 | 1.0 | 150000 | /root/sb-value-flows/exp/table3_pm_fullsafe_light_remaining_single4090/scene-play-singletask-task2-v0_pm_fullsafe_light_remaining_single4090/sd002_20260530_021208/eval.csv |
-| cube-double-play-singletask-task2-v0 | FullSafe | 1 | completed_1m | 0.9 | 0.9 | 900000 | /root/sb-value-flows/exp/table3_pm_fullsafe_official_4090_highmem_ldfix/cube-double-play-singletask-task2-v0_pm_fullsafe_official_highmem/sd001_20260526_150201/eval.csv |
 
 ## Top 10 Collapse Cases
 
@@ -90,5 +90,4 @@ No training is launched by this audit. It reports both final-row and best-peak r
 
 ## No Data Tasks
 
-- scene-play-singletask-task1-v0
 - scene-play-singletask-task3-v0

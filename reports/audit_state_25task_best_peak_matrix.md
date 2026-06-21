@@ -1,6 +1,6 @@
 # State 25-Task Best-Peak Matrix
 
-Updated: 2026-06-21T23:03:43
+Updated: 2026-06-22T00:26:01
 
 This matrix separates best-peak success from completed final success. Best peak is eligible for best-eval reporting; final remains the traditional last-row view.
 
@@ -26,7 +26,7 @@ This matrix separates best-peak success from completed final success. Best peak 
 | puzzle-4x4-play | task3 | 0.3 | 0.8 | R2_residual_disagree_lam0p001 | 2 | 0.5 | 0.5 | R2_residual_disagree_lam0p001 | 2 | 0.2 | has_1m | collapse: consider state_stable_v1; keep best peak as best-eval diagnostic |
 | puzzle-4x4-play | task4 | 0.28 | 0.6 | FullSafe | 0 | 0.31999999999999995 | 0.5 | R3_residual_disagree_typicality_lam0p001 | 2 | 0.21999999999999997 | has_1m | best_peak reaches/exceeds VF; consider best-eval reporting or 1M confirmation |
 | puzzle-4x4-play | task5 | 0.13 | 0.2 | A2_action_std_lam0p003 | 2 | 0.07 | 0.1 | A2_action_std_lam0p003 | 2 | -0.03 | has_1m | best_peak reaches/exceeds VF; consider best-eval reporting or 1M confirmation |
-| scene-play | task1 | 0.99 |  |  |  |  |  |  |  |  | no_data | missing: run 300k coverage |
+| scene-play | task1 | 0.99 | 1.0 | P0_particle | 2 | 0.010000000000000009 | 1.0 | P0_particle | 2 | 0.010000000000000009 | has_300k | best_peak reaches/exceeds VF; consider best-eval reporting or 1M confirmation |
 | scene-play | task2 | 0.97 | 1.0 | FullSafe | 0 | 0.030000000000000027 | 1.0 | FullSafe | 0 | 0.030000000000000027 | has_1m | best_peak reaches/exceeds VF; consider best-eval reporting or 1M confirmation |
 | scene-play | task3 | 0.94 |  |  |  |  |  |  |  |  | no_data | missing: run 300k coverage |
 | scene-play | task4 | 0.07 | 0.9 | P0_particle | 2 | 0.8300000000000001 | 0.4 | P0_particle | 2 | 0.33 | has_1m | collapse: consider state_stable_v1; keep best peak as best-eval diagnostic |
