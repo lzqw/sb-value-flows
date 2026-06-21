@@ -1,0 +1,4 @@
+cube_double_positive: ok
+puzzle4x4_collapse: ok
+scene_task4: ok
+cube_triple_task3: ok
