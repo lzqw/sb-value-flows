@@ -1,21 +1,21 @@
 # State 25-Task Coverage Matrix
 
-Updated: 2026-06-21T15:26:41
+Updated: 2026-06-21T23:03:44
 
 Final values use eval.csv last rows only. Best/peak columns are diagnostics and are not used as final performance.
 
 ## Coverage Counts
 
 - Tasks with completed 1M final: 16
-- Tasks with only completed 300k final: 5
-- No-data tasks: 4
-- Status counts: {'no_data': 4, '1M_completed': 13, '300k_only': 4, 'collapsed': 3, 'candidate': 1}
+- Tasks with only completed 300k final: 7
+- No-data tasks: 2
+- Status counts: {'300k_only': 6, '1M_completed': 13, 'collapsed': 3, 'candidate': 1, 'no_data': 2}
 
 ## Matrix
 
 | domain | task_id | env | VF_baseline | best_known_300k_final | best_known_300k_config | best_known_300k_seed | best_known_1M_final | best_known_1M_config | best_known_1M_seed | best_success | best_step | peak_after_500k | status | recommended_next_action |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| cube-double-play | task1 | cube-double-play-singletask-task1-v0 | 0.97 |  |  |  |  |  |  |  |  |  | no_data | Missing coverage priority 2: run one primary 300k before duplicate configs. |
+| cube-double-play | task1 | cube-double-play-singletask-task1-v0 | 0.97 | 0.7 | P0_particle | 2 |  |  |  | 0.7 | 300000 |  | 300k_only | Covered by completed 300k final row; lower priority unless domain coverage requires it. |
 | cube-double-play | task2 | cube-double-play-singletask-task2-v0 | 0.76 | 0.8 | R3_residual_disagree_typicality_lam0p001 | 0 | 1 | FullSafe | 2 | 1 | 750000 | 1 | 1M_completed | Skip: locked strong 1M R3/FullSafe; do not repeat ordinary tuning |
 | cube-double-play | task3 | cube-double-play-singletask-task3-v0 | 0.73 | 0.5 | A2_action_std_lam0p003 | 2 | 0.9 | A2_action_std_lam0p003 | 2 | 1 | 700000 | 1 | 1M_completed | Skip: locked strong 1M A2; do not repeat ordinary tuning |
 | cube-double-play | task4 | cube-double-play-singletask-task4-v0 | 0.3 | 0.3 | A1_action_std_lam0p001 | 2 | 0.5 | A1_action_std_lam0p001 | 2 | 0.7 | 800000 | 0.7 | 1M_completed | Skip: locked positive 1M A1; do not repeat ordinary tuning |
@@ -39,4 +39,4 @@ Final values use eval.csv last rows only. Best/peak columns are diagnostics and 
 | scene-play | task2 | scene-play-singletask-task2-v0 | 0.97 |  |  |  | 1 | FullSafe | 0 | 1 | 200000 | 1 | 1M_completed | Covered by completed 1M final row; do not repeat unless explicitly requested. |
 | scene-play | task3 | scene-play-singletask-task3-v0 | 0.94 |  |  |  |  |  |  |  |  |  | no_data | Missing coverage priority 5: run one primary 300k before duplicate configs. |
 | scene-play | task4 | scene-play-singletask-task4-v0 | 0.07 | 0.4 | P0_particle | 2 | 0 | P0_particle | 2 | 0.9 | 100000 | 0.1 | collapsed | Priority 2: collapse diagnostic; prefer state_stable_v1 before ordinary rerun. |
-| scene-play | task5 | scene-play-singletask-task5-v0 | 0 |  |  |  |  |  |  |  |  |  | no_data | Missing coverage priority 3: run one primary 300k before duplicate configs. |
+| scene-play | task5 | scene-play-singletask-task5-v0 | 0 | 0 | P0_particle | 2 |  |  |  | 0 | 1 |  | 300k_only | Covered by completed 300k final row; lower priority unless domain coverage requires it. |

@@ -1,42 +1,28 @@
 # State 25-Task Adaptive Queue
 
-Updated: 2026-06-21T15:26:41
+Updated: 2026-06-21T23:03:44
 
 Generated for planning only. No training is launched by this generator. Rows requiring state_stable_v1 include default-off stable flags that are enabled only for those command previews.
 
 | queue_id | priority | env | domain | task_id | action_type | config_name | seed | target_steps | reason | requires_state_stable_v1 | skip_reason |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 1 | 1 | cube-double-play-singletask-task1-v0 | cube-double-play | task1 | 300k_coverage | P0_particle | 2 | 300000 | missing-cell primary coverage; do not run duplicate configs until all missing cells are covered | false |  |
-| 2 | 1 | scene-play-singletask-task5-v0 | scene-play | task5 | 300k_coverage | P0_particle | 2 | 300000 | missing-cell primary coverage; do not run duplicate configs until all missing cells are covered | false |  |
-| 3 | 1 | scene-play-singletask-task1-v0 | scene-play | task1 | 300k_coverage | P0_particle | 2 | 300000 | missing-cell primary coverage; do not run duplicate configs until all missing cells are covered | false |  |
-| 4 | 1 | scene-play-singletask-task3-v0 | scene-play | task3 | 300k_coverage | P0_particle | 2 | 300000 | missing-cell primary coverage; do not run duplicate configs until all missing cells are covered | false |  |
-| 5 | 99 | cube-double-play-singletask-task2-v0 | cube-double-play | task2 | skip |  |  |  | locked strong 1M R3/FullSafe; do not repeat ordinary tuning | false | locked strong 1M R3/FullSafe; do not repeat ordinary tuning |
-| 6 | 99 | cube-double-play-singletask-task3-v0 | cube-double-play | task3 | skip |  |  |  | locked strong 1M A2; do not repeat ordinary tuning | false | locked strong 1M A2; do not repeat ordinary tuning |
-| 7 | 99 | cube-double-play-singletask-task4-v0 | cube-double-play | task4 | skip |  |  |  | locked positive 1M A1; do not repeat ordinary tuning | false | locked positive 1M A1; do not repeat ordinary tuning |
-| 8 | 99 | puzzle-4x4-play-singletask-task2-v0 | puzzle-4x4-play | task2 | skip |  |  |  | locked weak positive MinimalSB; do not repeat ordinary tuning | false | locked weak positive MinimalSB; do not repeat ordinary tuning |
-| 9 | 99 | puzzle-4x4-play-singletask-task3-v0 | puzzle-4x4-play | task3 | skip |  |  |  | do not run R2 seed1/extra ordinary seed extension without new confirmation | false | do not run R2 seed1/extra ordinary seed extension without new confirmation |
+| 1 | 1 | scene-play-singletask-task1-v0 | scene-play | task1 | 300k_coverage | P0_particle | 2 | 300000 | missing-cell primary coverage; do not run duplicate configs until all missing cells are covered | false |  |
+| 2 | 1 | scene-play-singletask-task3-v0 | scene-play | task3 | 300k_coverage | P0_particle | 2 | 300000 | missing-cell primary coverage; do not run duplicate configs until all missing cells are covered | false |  |
+| 3 | 99 | cube-double-play-singletask-task2-v0 | cube-double-play | task2 | skip |  |  |  | locked strong 1M R3/FullSafe; do not repeat ordinary tuning | false | locked strong 1M R3/FullSafe; do not repeat ordinary tuning |
+| 4 | 99 | cube-double-play-singletask-task3-v0 | cube-double-play | task3 | skip |  |  |  | locked strong 1M A2; do not repeat ordinary tuning | false | locked strong 1M A2; do not repeat ordinary tuning |
+| 5 | 99 | cube-double-play-singletask-task4-v0 | cube-double-play | task4 | skip |  |  |  | locked positive 1M A1; do not repeat ordinary tuning | false | locked positive 1M A1; do not repeat ordinary tuning |
+| 6 | 99 | puzzle-4x4-play-singletask-task2-v0 | puzzle-4x4-play | task2 | skip |  |  |  | locked weak positive MinimalSB; do not repeat ordinary tuning | false | locked weak positive MinimalSB; do not repeat ordinary tuning |
+| 7 | 99 | puzzle-4x4-play-singletask-task3-v0 | puzzle-4x4-play | task3 | skip |  |  |  | do not run R2 seed1/extra ordinary seed extension without new confirmation | false | do not run R2 seed1/extra ordinary seed extension without new confirmation |
 
 ## Next Command Previews
 
-### 1. cube-double-play-singletask-task1-v0 / P0_particle
-
-```bash
-conda run -n value-flows python main.py --env_name=cube-double-play-singletask-task1-v0 --seed=2 --save_dir=/root/autodl-tmp/sb-value-flows-runs/state_25task_goal_single4090/exp --wandb_run_group=state25_300k_coverage_cube_double_task1_P0_particle_seed2 --enable_wandb=0 --offline_steps=300000 --online_steps=0 --eval_interval=50000 --eval_episodes=10 --log_interval=25000 --save_interval=999999999 --agent=agents/pm_value_flows.py --agent.pm_minimal_sb=true --agent.pm_weight_type=field_kernel_norm --agent.pm_num_continuations=4 --agent.pm_field_kernel_norm_temp=0.3 --agent.pm_field_kernel_min_scale=1e-6 --agent.pm_actor_energy_coef=0.0 --agent.pm_actor_disagree_coef=0.0 --agent.pm_log_sb_diagnostics=true --agent.pm_sb_reliability_score=action --agent.pm_sb_lambda=0.0 --agent.pm_sb_reliability_normalize=none --agent.pm_sb_value_preserving=false
-```
-
-### 2. scene-play-singletask-task5-v0 / P0_particle
-
-```bash
-conda run -n value-flows python main.py --env_name=scene-play-singletask-task5-v0 --seed=2 --save_dir=/root/autodl-tmp/sb-value-flows-runs/state_25task_goal_single4090/exp --wandb_run_group=state25_300k_coverage_scene_task5_P0_particle_seed2 --enable_wandb=0 --offline_steps=300000 --online_steps=0 --eval_interval=50000 --eval_episodes=10 --log_interval=25000 --save_interval=999999999 --agent=agents/pm_value_flows.py --agent.pm_minimal_sb=true --agent.pm_weight_type=field_kernel_norm --agent.pm_num_continuations=4 --agent.pm_field_kernel_norm_temp=0.3 --agent.pm_field_kernel_min_scale=1e-6 --agent.pm_actor_energy_coef=0.0 --agent.pm_actor_disagree_coef=0.0 --agent.pm_log_sb_diagnostics=true --agent.pm_sb_reliability_score=action --agent.pm_sb_lambda=0.0 --agent.pm_sb_reliability_normalize=none --agent.pm_sb_value_preserving=false
-```
-
-### 3. scene-play-singletask-task1-v0 / P0_particle
+### 1. scene-play-singletask-task1-v0 / P0_particle
 
 ```bash
 conda run -n value-flows python main.py --env_name=scene-play-singletask-task1-v0 --seed=2 --save_dir=/root/autodl-tmp/sb-value-flows-runs/state_25task_goal_single4090/exp --wandb_run_group=state25_300k_coverage_scene_task1_P0_particle_seed2 --enable_wandb=0 --offline_steps=300000 --online_steps=0 --eval_interval=50000 --eval_episodes=10 --log_interval=25000 --save_interval=999999999 --agent=agents/pm_value_flows.py --agent.pm_minimal_sb=true --agent.pm_weight_type=field_kernel_norm --agent.pm_num_continuations=4 --agent.pm_field_kernel_norm_temp=0.3 --agent.pm_field_kernel_min_scale=1e-6 --agent.pm_actor_energy_coef=0.0 --agent.pm_actor_disagree_coef=0.0 --agent.pm_log_sb_diagnostics=true --agent.pm_sb_reliability_score=action --agent.pm_sb_lambda=0.0 --agent.pm_sb_reliability_normalize=none --agent.pm_sb_value_preserving=false
 ```
 
-### 4. scene-play-singletask-task3-v0 / P0_particle
+### 2. scene-play-singletask-task3-v0 / P0_particle
 
 ```bash
 conda run -n value-flows python main.py --env_name=scene-play-singletask-task3-v0 --seed=2 --save_dir=/root/autodl-tmp/sb-value-flows-runs/state_25task_goal_single4090/exp --wandb_run_group=state25_300k_coverage_scene_task3_P0_particle_seed2 --enable_wandb=0 --offline_steps=300000 --online_steps=0 --eval_interval=50000 --eval_episodes=10 --log_interval=25000 --save_interval=999999999 --agent=agents/pm_value_flows.py --agent.pm_minimal_sb=true --agent.pm_weight_type=field_kernel_norm --agent.pm_num_continuations=4 --agent.pm_field_kernel_norm_temp=0.3 --agent.pm_field_kernel_min_scale=1e-6 --agent.pm_actor_energy_coef=0.0 --agent.pm_actor_disagree_coef=0.0 --agent.pm_log_sb_diagnostics=true --agent.pm_sb_reliability_score=action --agent.pm_sb_lambda=0.0 --agent.pm_sb_reliability_normalize=none --agent.pm_sb_value_preserving=false

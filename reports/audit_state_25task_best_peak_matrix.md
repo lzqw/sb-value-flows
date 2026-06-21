@@ -1,12 +1,12 @@
 # State 25-Task Best-Peak Matrix
 
-Updated: 2026-06-21T15:26:41
+Updated: 2026-06-21T23:03:43
 
 This matrix separates best-peak success from completed final success. Best peak is eligible for best-eval reporting; final remains the traditional last-row view.
 
 | domain | task_id | vf_baseline | best_peak_success_any_run | best_peak_config | best_peak_seed | best_peak_minus_vf | best_final_success_any_completed_run | best_final_config | best_final_seed | best_final_minus_vf | coverage_status | recommended_next_action |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| cube-double-play | task1 | 0.97 |  |  |  |  |  |  |  |  | no_data | missing: run 300k coverage |
+| cube-double-play | task1 | 0.97 | 0.7 | P0_particle | 2 | -0.27 | 0.7 | P0_particle | 2 | -0.27 | has_300k | covered but below VF; lower priority unless domain coverage requires it |
 | cube-double-play | task2 | 0.76 | 1.0 | FullSafe | 2 | 0.24 | 1.0 | FullSafe | 2 | 0.24 | has_1m | best_peak reaches/exceeds VF; consider best-eval reporting or 1M confirmation |
 | cube-double-play | task3 | 0.73 | 1.0 | A2_action_std_lam0p003 | 0 | 0.27 | 0.9 | A2_action_std_lam0p003 | 2 | 0.17000000000000004 | has_1m | best_peak reaches/exceeds VF; consider best-eval reporting or 1M confirmation |
 | cube-double-play | task4 | 0.3 | 0.7 | A1_action_std_lam0p001 | 2 | 0.39999999999999997 | 0.5 | A1_action_std_lam0p001 | 2 | 0.2 | has_1m | best_peak reaches/exceeds VF; consider best-eval reporting or 1M confirmation |
@@ -30,4 +30,4 @@ This matrix separates best-peak success from completed final success. Best peak 
 | scene-play | task2 | 0.97 | 1.0 | FullSafe | 0 | 0.030000000000000027 | 1.0 | FullSafe | 0 | 0.030000000000000027 | has_1m | best_peak reaches/exceeds VF; consider best-eval reporting or 1M confirmation |
 | scene-play | task3 | 0.94 |  |  |  |  |  |  |  |  | no_data | missing: run 300k coverage |
 | scene-play | task4 | 0.07 | 0.9 | P0_particle | 2 | 0.8300000000000001 | 0.4 | P0_particle | 2 | 0.33 | has_1m | collapse: consider state_stable_v1; keep best peak as best-eval diagnostic |
-| scene-play | task5 | 0.0 |  |  |  |  |  |  |  |  | no_data | missing: run 300k coverage |
+| scene-play | task5 | 0.0 | 0.0 | P0_particle | 2 | 0.0 | 0.0 | P0_particle | 2 | 0.0 | has_300k | best_peak reaches/exceeds VF; consider best-eval reporting or 1M confirmation |
