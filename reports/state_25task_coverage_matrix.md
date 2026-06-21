@@ -1,15 +1,15 @@
 # State 25-Task Coverage Matrix
 
-Updated: 2026-06-22T00:26:01
+Updated: 2026-06-22T01:48:35
 
 Final values use eval.csv last rows only. Best/peak columns are diagnostics and are not used as final performance.
 
 ## Coverage Counts
 
 - Tasks with completed 1M final: 16
-- Tasks with only completed 300k final: 8
-- No-data tasks: 1
-- Status counts: {'300k_only': 7, '1M_completed': 13, 'collapsed': 3, 'candidate': 1, 'no_data': 1}
+- Tasks with only completed 300k final: 9
+- No-data tasks: 0
+- Status counts: {'300k_only': 8, '1M_completed': 13, 'collapsed': 3, 'candidate': 1}
 
 ## Matrix
 
@@ -37,6 +37,6 @@ Final values use eval.csv last rows only. Best/peak columns are diagnostics and 
 | puzzle-4x4-play | task5 | puzzle-4x4-play-singletask-task5-v0 | 0.13 | 0.1 | A2_action_std_lam0p003 | 2 | 0 | A2_action_std_lam0p003 | 2 | 0.2 | 250000 | 0.1 | 1M_completed | Covered by completed 1M final row; do not repeat unless explicitly requested. |
 | scene-play | task1 | scene-play-singletask-task1-v0 | 0.99 | 1 | P0_particle | 2 |  |  |  | 1 | 100000 |  | 300k_only | Covered by completed 300k final row; lower priority unless domain coverage requires it. |
 | scene-play | task2 | scene-play-singletask-task2-v0 | 0.97 |  |  |  | 1 | FullSafe | 0 | 1 | 200000 | 1 | 1M_completed | Covered by completed 1M final row; do not repeat unless explicitly requested. |
-| scene-play | task3 | scene-play-singletask-task3-v0 | 0.94 |  |  |  |  |  |  |  |  |  | no_data | Missing coverage priority 5: run one primary 300k before duplicate configs. |
+| scene-play | task3 | scene-play-singletask-task3-v0 | 0.94 | 1 | P0_particle | 2 |  |  |  | 1 | 300000 |  | 300k_only | Covered by completed 300k final row; lower priority unless domain coverage requires it. |
 | scene-play | task4 | scene-play-singletask-task4-v0 | 0.07 | 0.4 | P0_particle | 2 | 0 | P0_particle | 2 | 0.9 | 100000 | 0.1 | collapsed | Priority 2: collapse diagnostic; prefer state_stable_v1 before ordinary rerun. |
 | scene-play | task5 | scene-play-singletask-task5-v0 | 0 | 0 | P0_particle | 2 |  |  |  | 0 | 1 |  | 300k_only | Covered by completed 300k final row; lower priority unless domain coverage requires it. |

@@ -1,6 +1,6 @@
 # Audit All Single4090 State Experiments
 
-Updated: 2026-06-22T00:26:01
+Updated: 2026-06-22T01:48:35
 
 No training is launched by this audit. It reports both final-row and best-peak result views.
 
@@ -15,23 +15,23 @@ No training is launched by this audit. It reports both final-row and best-peak r
 
 ## File Scan
 
-- Candidate files: 718
-- eval.csv: 218
-- train.csv: 217
-- command.txt: 5
-- Unique audited runs: 159
+- Candidate files: 722
+- eval.csv: 219
+- train.csv: 218
+- command.txt: 6
+- Unique audited runs: 160
 - Missing lightweight sources: none
 
 ## Status Counts
 
-- completed_300k: 113
+- completed_300k: 114
 - completed_1m: 45
 - partial: 1
 
 ## Root Path Counts
 
 - `/root/sb-value-flows/exp`: 108
-- `/root/autodl-tmp/sb-value-flows-runs`: 51
+- `/root/autodl-tmp/sb-value-flows-runs`: 52
 
 ## Domain Summary
 
@@ -41,7 +41,7 @@ No training is launched by this audit. It reports both final-row and best-peak r
 | cube-triple-play | 0.22 | 0.22 | 0.16 | 0.16 | 5 | 5 |
 | puzzle-3x3-play | 0.88 | 0.88 | 0.84 | 0.84 | 5 | 5 |
 | puzzle-4x4-play | 0.58 | 0.58 | 0.42 | 0.42 | 5 | 5 |
-| scene-play | 0.725 | 0.58 | 0.6 | 0.48 | 4 | 4 |
+| scene-play | 0.78 | 0.78 | 0.68 | 0.68 | 5 | 5 |
 
 ## Top 10 Best Peak Runs
 
@@ -90,4 +90,4 @@ No training is launched by this audit. It reports both final-row and best-peak r
 
 ## No Data Tasks
 
-- scene-play-singletask-task3-v0
+- None.
