@@ -110,6 +110,49 @@ def attach_command_to_run_dir(row: dict[str, str], text: str) -> None:
     if run_dir is not None:
         (run_dir / 'command.txt').write_text(text, encoding='utf-8')
 
+
+def refresh_state_audit_inputs() -> None:
+    audit_dir = Path('/tmp/state_audit')
+    audit_dir.mkdir(parents=True, exist_ok=True)
+    roots = [REPO, Path('/root/autodl-tmp')]
+    keywords = (
+        'sb-value-flows', 'value-flows', 'state', 'stage', 'selective',
+        'goodcase', 'puzzle', 'cube', 'scene', 'ogbench', 'single4090',
+    )
+    allowed_names = {'eval.csv', 'train.csv', 'command.txt'}
+    allowed_suffixes = {'.md', '.json'}
+    files = []
+    for root in roots:
+        if not root.exists():
+            continue
+        for path in root.rglob('*'):
+            if not path.is_file():
+                continue
+            if path.name not in allowed_names and path.suffix not in allowed_suffixes:
+                continue
+            text = str(path)
+            if any(token in text for token in keywords):
+                files.append(text)
+    files = sorted(set(files))
+    (audit_dir / 'all_candidate_files.txt').write_text('\n'.join(files) + '\n', encoding='utf-8')
+    for name, suffix in [
+        ('all_eval_csv.txt', '/eval.csv'),
+        ('all_train_csv.txt', '/train.csv'),
+        ('all_command_txt.txt', '/command.txt'),
+    ]:
+        selected = [path for path in files if path.endswith(suffix)]
+        (audit_dir / name).write_text('\n'.join(selected) + ('\n' if selected else ''), encoding='utf-8')
+
+
+def refresh_state_reports() -> None:
+    refresh_state_audit_inputs()
+    for cmd in [
+        ["/root/miniconda3/bin/python", "scripts/audit_all_state_experiments_single4090.py"],
+        ["/root/miniconda3/bin/python", "scripts/build_state_25task_goal_artifacts.py"],
+        ["/root/miniconda3/bin/python", "scripts/plot_state_25task_curves.py"],
+    ]:
+        subprocess.call(cmd, cwd=REPO, env=env_vars())
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--dry_run", default="true")
@@ -163,6 +206,7 @@ def main() -> int:
             cwd=REPO,
             env=env_vars(),
         )
+        refresh_state_reports()
         time.sleep(5)
     return 0
 
