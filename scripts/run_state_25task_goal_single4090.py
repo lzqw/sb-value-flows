@@ -14,6 +14,7 @@ import os
 import subprocess
 import sys
 import time
+import shlex
 from datetime import datetime
 from pathlib import Path
 
@@ -63,6 +64,52 @@ def env_vars() -> dict[str, str]:
     return env
 
 
+
+def git_value(*args: str) -> str:
+    try:
+        return subprocess.check_output(["git", *args], cwd=REPO, text=True).strip()
+    except Exception:
+        return "UNKNOWN"
+
+
+def command_with_metadata(row: dict[str, str], cmd: str) -> str:
+    return "\n".join(
+        [
+            f"timestamp={now()}",
+            f"git_branch={git_value('branch', '--show-current')}",
+            f"git_head={git_value('rev-parse', 'HEAD')}",
+            f"queue_id={row.get('queue_id', '')}",
+            f"env={row.get('env', '')}",
+            f"config_name={row.get('config_name', '')}",
+            f"seed={row.get('seed', '')}",
+            f"target_steps={row.get('target_steps', '')}",
+            "",
+            cmd,
+            "",
+        ]
+    )
+
+
+def latest_run_dir(row: dict[str, str]) -> Path | None:
+    cmd = row.get('command_preview', '')
+    group = ''
+    for part in shlex.split(cmd):
+        if part.startswith('--wandb_run_group='):
+            group = part.split('=', 1)[1]
+            break
+    if not group:
+        return None
+    seed = int(row.get('seed') or 0)
+    base = OUTPUT_BASE / 'exp' / group
+    dirs = sorted(base.glob(f'sd{seed:03d}_*'), key=lambda path: path.stat().st_mtime)
+    return dirs[-1] if dirs else None
+
+
+def attach_command_to_run_dir(row: dict[str, str], text: str) -> None:
+    run_dir = latest_run_dir(row)
+    if run_dir is not None:
+        (run_dir / 'command.txt').write_text(text, encoding='utf-8')
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--dry_run", default="true")
@@ -92,9 +139,11 @@ def main() -> int:
             print("Refusing to start because main.py is already running.", file=sys.stderr)
             return 2
         cmd_path = LOG_DIR / f"queue_{row['queue_id']}.command.txt"
-        cmd_path.write_text(cmd + "\n", encoding="utf-8")
+        command_text = command_with_metadata(row, cmd)
+        cmd_path.write_text(command_text, encoding="utf-8")
         started = now()
         code = subprocess.call(cmd.split(), cwd=REPO, env=env_vars())
+        attach_command_to_run_dir(row, command_text)
         with (LOG_DIR / "runner.log").open("a", encoding="utf-8") as f:
             f.write(f"{started} queue_id={row['queue_id']} exit={code} {cmd}\n")
         if code != 0:
