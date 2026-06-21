@@ -1,5 +1,5 @@
 domain,tasks,domain_best_peak_mean,domain_best_peak_mean_missing_as_zero,domain_best_peak_available_tasks,domain_best_final_mean,domain_best_final_mean_missing_as_zero,domain_best_final_available_tasks,missing_peak_tasks,missing_final_tasks
-cube-double-play,5,0.9,0.54,3,0.8,0.48,3,task1;task5,task1;task5
+cube-double-play,5,0.8,0.64,4,0.725,0.58,4,task1,task1
 cube-triple-play,5,0.22,0.22,5,0.16,0.16,5,,
 puzzle-3x3-play,5,0.88,0.88,5,0.84,0.84,5,,
 puzzle-4x4-play,5,0.58,0.58,5,0.42,0.42,5,,

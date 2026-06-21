@@ -1,6 +1,6 @@
 # State 25-Task Best-Peak Matrix
 
-Updated: 2026-06-21T13:51:30
+Updated: 2026-06-21T15:26:41
 
 This matrix separates best-peak success from completed final success. Best peak is eligible for best-eval reporting; final remains the traditional last-row view.
 
@@ -10,7 +10,7 @@ This matrix separates best-peak success from completed final success. Best peak 
 | cube-double-play | task2 | 0.76 | 1.0 | FullSafe | 2 | 0.24 | 1.0 | FullSafe | 2 | 0.24 | has_1m | best_peak reaches/exceeds VF; consider best-eval reporting or 1M confirmation |
 | cube-double-play | task3 | 0.73 | 1.0 | A2_action_std_lam0p003 | 0 | 0.27 | 0.9 | A2_action_std_lam0p003 | 2 | 0.17000000000000004 | has_1m | best_peak reaches/exceeds VF; consider best-eval reporting or 1M confirmation |
 | cube-double-play | task4 | 0.3 | 0.7 | A1_action_std_lam0p001 | 2 | 0.39999999999999997 | 0.5 | A1_action_std_lam0p001 | 2 | 0.2 | has_1m | best_peak reaches/exceeds VF; consider best-eval reporting or 1M confirmation |
-| cube-double-play | task5 | 0.69 |  |  |  |  |  |  |  |  | no_data | missing: run 300k coverage |
+| cube-double-play | task5 | 0.69 | 0.5 | P0_particle | 2 | -0.18999999999999995 | 0.5 | P0_particle | 2 | -0.18999999999999995 | has_300k | covered but below VF; lower priority unless domain coverage requires it |
 | cube-triple-play | task1 | 0.59 | 0.9 | ActorGeo | 0 | 0.31000000000000005 | 0.6 | ActorGeo | 0 | 0.010000000000000009 | has_1m | collapse: consider state_stable_v1; keep best peak as best-eval diagnostic |
 | cube-triple-play | task2 | 0.0 | 0.0 | A1_action_std_lam0p001 | 2 | 0.0 | 0.0 | A1_action_std_lam0p001 | 2 | 0.0 | has_300k | best_peak reaches/exceeds VF; consider best-eval reporting or 1M confirmation |
 | cube-triple-play | task3 | 0.07 | 0.2 | R2_residual_disagree_lam0p001 | 2 | 0.13 | 0.2 | R2_residual_disagree_lam0p001 | 2 | 0.13 | has_300k | best_peak reaches/exceeds VF; consider best-eval reporting or 1M confirmation |

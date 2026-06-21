@@ -1,15 +1,15 @@
 # State 25-Task Coverage Matrix
 
-Updated: 2026-06-21T14:51:18
+Updated: 2026-06-21T15:26:41
 
 Final values use eval.csv last rows only. Best/peak columns are diagnostics and are not used as final performance.
 
 ## Coverage Counts
 
 - Tasks with completed 1M final: 16
-- Tasks with only completed 300k final: 4
-- No-data tasks: 5
-- Status counts: {'no_data': 5, '1M_completed': 13, 'collapsed': 3, '300k_only': 3, 'candidate': 1}
+- Tasks with only completed 300k final: 5
+- No-data tasks: 4
+- Status counts: {'no_data': 4, '1M_completed': 13, '300k_only': 4, 'collapsed': 3, 'candidate': 1}
 
 ## Matrix
 
@@ -19,7 +19,7 @@ Final values use eval.csv last rows only. Best/peak columns are diagnostics and 
 | cube-double-play | task2 | cube-double-play-singletask-task2-v0 | 0.76 | 0.8 | R3_residual_disagree_typicality_lam0p001 | 0 | 1 | FullSafe | 2 | 1 | 750000 | 1 | 1M_completed | Skip: locked strong 1M R3/FullSafe; do not repeat ordinary tuning |
 | cube-double-play | task3 | cube-double-play-singletask-task3-v0 | 0.73 | 0.5 | A2_action_std_lam0p003 | 2 | 0.9 | A2_action_std_lam0p003 | 2 | 1 | 700000 | 1 | 1M_completed | Skip: locked strong 1M A2; do not repeat ordinary tuning |
 | cube-double-play | task4 | cube-double-play-singletask-task4-v0 | 0.3 | 0.3 | A1_action_std_lam0p001 | 2 | 0.5 | A1_action_std_lam0p001 | 2 | 0.7 | 800000 | 0.7 | 1M_completed | Skip: locked positive 1M A1; do not repeat ordinary tuning |
-| cube-double-play | task5 | cube-double-play-singletask-task5-v0 | 0.69 |  |  |  |  |  |  |  |  |  | no_data | Missing coverage priority 1: run one primary 300k before duplicate configs. |
+| cube-double-play | task5 | cube-double-play-singletask-task5-v0 | 0.69 | 0.5 | P0_particle | 2 |  |  |  | 0.5 | 250000 |  | 300k_only | Covered by completed 300k final row; lower priority unless domain coverage requires it. |
 | cube-triple-play | task1 | cube-triple-play-singletask-task1-v0 | 0.59 |  |  |  | 0.6 | ActorGeo | 0 | 0.9 | 850000 | 0.9 | collapsed | Priority 2: collapse diagnostic; prefer state_stable_v1 before ordinary rerun. |
 | cube-triple-play | task2 | cube-triple-play-singletask-task2-v0 | 0 | 0 | A1_action_std_lam0p001 | 2 |  |  |  | 0 | 1 |  | 300k_only | Covered by completed 300k final row; lower priority unless domain coverage requires it. |
 | cube-triple-play | task3 | cube-triple-play-singletask-task3-v0 | 0.07 | 0.2 | R2_residual_disagree_lam0p001 | 2 |  |  |  | 0.2 | 300000 |  | candidate | Priority 3: good 300k final; consider 1M good-case confirmation. |

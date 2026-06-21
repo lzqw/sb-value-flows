@@ -1,6 +1,6 @@
 # State 25-Task Goal Progress
 
-Updated: 2026-06-21T14:51:18
+Updated: 2026-06-21T15:26:41
 
 - No training was launched by this artifact generation step.
 - state_stable_v1 was not triggered as a run by this artifact generation step; collapse tasks are queued with stable flags for future explicit execution.
@@ -9,9 +9,9 @@ Updated: 2026-06-21T14:51:18
 ## Current Counts
 
 - Tasks with completed 1M final: 16
-- Tasks with only completed 300k final: 4
-- No-data tasks: 5
-- Status counts: {'no_data': 5, '1M_completed': 13, 'collapsed': 3, '300k_only': 3, 'candidate': 1}
+- Tasks with only completed 300k final: 5
+- No-data tasks: 4
+- Status counts: {'no_data': 4, '1M_completed': 13, '300k_only': 4, 'collapsed': 3, 'candidate': 1}
 
 ## Top Good-Case Candidates
 
@@ -27,7 +27,7 @@ Updated: 2026-06-21T14:51:18
 
 | domain | coverage_average_draft | coverage_available_tasks | coverage_missing_tasks |
 |---|---|---|---|
-| cube-double-play | 0.8 | 3 | task1;task5 |
+| cube-double-play | 0.725 | 4 | task1 |
 | cube-triple-play | 0.16 | 5 |  |
 | puzzle-3x3-play | 0.82 | 5 |  |
 | puzzle-4x4-play | 0.3 | 5 |  |
