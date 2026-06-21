@@ -1,17 +1,35 @@
 #!/usr/bin/env python3
-"""Plot selected state 25-task success curves.
+"""Plot selected state 25-task curves from audit plot data.
 
-The script reads generated coverage files and existing eval.csv paths. It
-generates PNG and PDF figures under reports/figures/state_25task_curves.
+Reads results/plot_data_state_curves.csv, which is generated from raw eval.csv
+files by scripts/audit_all_state_experiments_single4090.py.
 """
 
 from __future__ import annotations
 
 import csv
+from collections import defaultdict
 from pathlib import Path
 
+
 REPO = Path("/root/sb-value-flows")
+PLOT_DATA = REPO / "results/plot_data_state_curves.csv"
 OUT = REPO / "reports/figures/state_25task_curves"
+
+GROUPS = {
+    "cube_double_positive": [
+        "cube-double-play-singletask-task2-v0",
+        "cube-double-play-singletask-task3-v0",
+        "cube-double-play-singletask-task4-v0",
+    ],
+    "puzzle4x4_collapse": [
+        "puzzle-4x4-play-singletask-task1-v0",
+        "puzzle-4x4-play-singletask-task3-v0",
+        "puzzle-4x4-play-singletask-task4-v0",
+    ],
+    "scene_task4": ["scene-play-singletask-task4-v0"],
+    "cube_triple_task3": ["cube-triple-play-singletask-task3-v0"],
+}
 
 
 def read_csv(path: Path) -> list[dict[str, str]]:
@@ -21,55 +39,45 @@ def read_csv(path: Path) -> list[dict[str, str]]:
         return list(csv.DictReader(f))
 
 
-def fnum(v: str):
+def fnum(value: str) -> float | None:
     try:
-        return float(v)
+        return float(value)
     except Exception:
         return None
 
 
-def eval_curve(path: str):
-    rows = read_csv(Path(path))
-    points = []
-    for r in rows:
-        step = fnum(r.get("step", "") or r.get("env_step", "") or r.get("training/step", ""))
-        succ = fnum(r.get("evaluation/success", "") or r.get("eval/success", "") or r.get("success", ""))
-        if step is not None and succ is not None:
-            points.append((step, succ))
-    return points
+def run_label(env: str, config: str, seed: str) -> str:
+    task = env.replace("-play-singletask-", " ").replace("-v0", "")
+    return f"{task} {config} s{seed}"
 
 
-def add_paths_from_runs(selections):
-    runs = []
-    for p in [
-        REPO / "results/experiment_runs.csv",
-        REPO / "results/state_goodcase_harvest_single4090.csv",
-        REPO / "results/single4090_selective_state_runs_latest.csv",
-        REPO / "results/single4090_selective_stageB_1m_latest.csv",
-        REPO / "results/single4090_stageB_task3_R2_seed_extension.csv",
-    ]:
-        runs.extend(read_csv(p))
-    out = []
-    for label, env_pat, cfg_pat, vf in selections:
-        matches = []
-        for r in runs:
-            env = r.get("env", "")
-            cfg = r.get("config_name", "") or r.get("config", "")
-            path = r.get("eval_csv", "")
-            if env == env_pat and cfg_pat in cfg and path:
-                try:
-                    final = float(r.get("success_final", "-1"))
-                    step = float(r.get("final_step", "0"))
-                except Exception:
-                    final, step = -1.0, 0.0
-                matches.append((step, final, path, cfg))
-        if matches:
-            matches.sort(reverse=True)
-            out.append((label, matches[0][2], vf))
-    return out
+def select_runs(rows: list[dict[str, str]], envs: list[str]) -> list[tuple[tuple[str, str, str, str], list[dict[str, str]]]]:
+    by_run: dict[tuple[str, str, str, str], list[dict[str, str]]] = defaultdict(list)
+    for row in rows:
+        if row.get("env") not in envs:
+            continue
+        key = (row.get("env", ""), row.get("config", ""), row.get("seed", ""), row.get("eval_csv", ""))
+        by_run[key].append(row)
+    scored = []
+    for key, points in by_run.items():
+        points.sort(key=lambda row: fnum(row.get("step", "")) or -1)
+        successes = [fnum(row.get("success", "")) for row in points if fnum(row.get("success", "")) is not None]
+        steps = [fnum(row.get("step", "")) for row in points if fnum(row.get("step", "")) is not None]
+        if not successes:
+            continue
+        peak = max(successes)
+        final = successes[-1]
+        final_step = max(steps) if steps else 0
+        scored.append((key[0], peak, final, final_step, key, points))
+    selected = []
+    for env in envs:
+        candidates = [item for item in scored if item[0] == env]
+        candidates.sort(key=lambda item: (item[1], item[2], item[3]), reverse=True)
+        selected.extend((item[4], item[5]) for item in candidates[:3])
+    return selected
 
 
-def plot_group(name: str, selections):
+def plot_group(name: str, envs: list[str]) -> bool:
     OUT.mkdir(parents=True, exist_ok=True)
     try:
         import matplotlib
@@ -78,31 +86,39 @@ def plot_group(name: str, selections):
     except Exception as exc:
         (OUT / f"{name}.missing_matplotlib.txt").write_text(str(exc), encoding="utf-8")
         return False
-    curves = add_paths_from_runs(selections)
-    if not curves:
-        (OUT / f"{name}.no_curves.txt").write_text("No matching eval.csv paths found.\n", encoding="utf-8")
+    rows = read_csv(PLOT_DATA)
+    runs = select_runs(rows, envs)
+    if not runs:
+        (OUT / f"{name}.no_curves.txt").write_text("No matching audit plot data found.\n", encoding="utf-8")
         return False
-    fig, ax = plt.subplots(figsize=(8, 4.8))
-    for label, path, vf in curves:
-        pts = eval_curve(path)
-        if not pts:
+    fig, ax = plt.subplots(figsize=(9.4, 5.4))
+    for key, points in runs:
+        env, config, seed, _ = key
+        xy = []
+        for row in points:
+            step = fnum(row.get("step", ""))
+            success = fnum(row.get("success", ""))
+            if step is not None and success is not None:
+                xy.append((step / 1000.0, success))
+        if not xy:
             continue
-        xs = [x / 1000 for x, _ in pts]
-        ys = [y for _, y in pts]
-        best = max(ys)
-        best_step = xs[ys.index(best)]
-        final = ys[-1]
-        drop = best - final
-        ax.plot(xs, ys, marker="o", linewidth=1.8, label=f"{label} final={final:.2f} best={best:.2f} drop={drop:.2f}")
-        ax.axhline(vf, linestyle="--", linewidth=1.0, alpha=0.35)
-        ax.text(xs[-1], vf, f"VF {vf:.2f}", fontsize=8, va="bottom")
-        ax.scatter([best_step], [best], s=28)
+        xs = [x for x, _ in xy]
+        ys = [y for _, y in xy]
+        best_idx = max(range(len(ys)), key=lambda idx: ys[idx])
+        vf = fnum(points[0].get("vf_baseline", ""))
+        drop = ys[-1] - ys[best_idx]
+        label = f"{run_label(env, config, seed)} final={ys[-1]:.2f} peak={ys[best_idx]:.2f} drop={drop:.2f}"
+        ax.plot(xs, ys, marker="o", linewidth=1.5, markersize=3.5, label=label)
+        ax.scatter([xs[best_idx]], [ys[best_idx]], marker="*", s=54, zorder=4)
+        ax.scatter([xs[-1]], [ys[-1]], marker="s", s=34, zorder=4)
+        if vf is not None:
+            ax.axhline(vf, linestyle="--", linewidth=0.9, alpha=0.22)
     ax.set_title(name.replace("_", " "))
     ax.set_xlabel("Step (k)")
     ax.set_ylabel("Success")
     ax.set_ylim(-0.03, 1.03)
-    ax.grid(True, alpha=0.25)
-    ax.legend(fontsize=8)
+    ax.grid(True, alpha=0.22)
+    ax.legend(fontsize=6.8)
     fig.tight_layout()
     fig.savefig(OUT / f"{name}.png", dpi=180)
     fig.savefig(OUT / f"{name}.pdf")
@@ -110,35 +126,14 @@ def plot_group(name: str, selections):
     return True
 
 
-def main():
-    groups = {
-        "cube_double_positive": [
-            ("task2 R3", "cube-double-play-singletask-task2-v0", "R3", 0.76),
-            ("task3 A2", "cube-double-play-singletask-task3-v0", "A2", 0.73),
-            ("task4 A1", "cube-double-play-singletask-task4-v0", "A1", 0.30),
-        ],
-        "puzzle4x4_collapse": [
-            ("task1 P0", "puzzle-4x4-play-singletask-task1-v0", "P0", 0.36),
-            ("task3 R2", "puzzle-4x4-play-singletask-task3-v0", "R2", 0.30),
-            ("task4 R3", "puzzle-4x4-play-singletask-task4-v0", "R3", 0.28),
-        ],
-        "scene_task4": [
-            ("A1", "scene-play-singletask-task4-v0", "A1", 0.07),
-            ("A2", "scene-play-singletask-task4-v0", "A2", 0.07),
-            ("R2", "scene-play-singletask-task4-v0", "R2", 0.07),
-            ("P0", "scene-play-singletask-task4-v0", "P0", 0.07),
-        ],
-        "cube_triple_task3": [
-            ("R2", "cube-triple-play-singletask-task3-v0", "R2", 0.07),
-        ],
-    }
-    ok = []
-    for name, selections in groups.items():
-        ok.append((name, plot_group(name, selections)))
-    summary = "\n".join(f"{name}: {'ok' if flag else 'missing'}" for name, flag in ok) + "\n"
+def main() -> int:
+    results = [(name, plot_group(name, envs)) for name, envs in GROUPS.items()]
+    summary = "\n".join(f"{name}: {'ok' if ok else 'missing'}" for name, ok in results) + "\n"
+    OUT.mkdir(parents=True, exist_ok=True)
     (OUT / "plot_summary.txt").write_text(summary, encoding="utf-8")
     print(summary)
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

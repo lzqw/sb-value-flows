@@ -1,26 +1,34 @@
 # State 25-Task Goal Progress
 
-Updated: 2026-06-21T13:33:54
+Updated: 2026-06-21T14:00:47
 
 - No training was launched by this artifact generation step.
 - state_stable_v1 was not triggered as a run; collapse tasks are queued as requiring stable support.
-- Final values use eval.csv last rows only.
+- Final values use eval.csv last rows only; best/peak values remain diagnostic.
 
 ## Current Counts
 
-- 1M completed tasks: 6
-- 300k-only tasks: 5
-- Candidate tasks: 1
-- Collapsed tasks: 3
-- No-data tasks: 10
+- Tasks with completed 1M final: 16
+- Tasks with only completed 300k final: 4
+- No-data tasks: 5
+- Status counts: {'no_data': 5, '1M_completed': 13, 'collapsed': 3, '300k_only': 3, 'candidate': 1}
 
-## Top Candidates
+## Top Good-Case Candidates
 
-- cube-triple-play-singletask-task3-v0: config R2_residual_disagree_lam0p001, target 1000000, reason good completed 300k final; confirm final row at 1M
-- scene-play-singletask-task4-v0: config P0_particle, target 1000000, reason user-listed current good-case candidate from 300k final; historical 1M collapse risk
+- cube-triple-play-singletask-task3-v0: R2_residual_disagree_lam0p001 final 0.2 vs VF 0.07
 
 ## Collapse Diagnostics
 
-- puzzle-4x4-play-singletask-task1-v0: best 0.7 @ 300000, recommended Completed 1M final is weak/collapsed; prefer state_stable_v1 diagnostic, no seed extension.
-- puzzle-4x4-play-singletask-task4-v0: best 0.5 @ 850000, recommended Completed 1M final is weak/collapsed; prefer state_stable_v1 diagnostic, no seed extension.
-- scene-play-singletask-task4-v0: best 0.9 @ 100000, recommended Completed 1M final is weak/collapsed; prefer state_stable_v1 diagnostic, no seed extension.
+- cube-triple-play-singletask-task1-v0: best 0.9 @ 850000, best 1M final 0.6; Priority 2: collapse diagnostic; prefer state_stable_v1 before ordinary rerun.
+- puzzle-4x4-play-singletask-task3-v0: best 0.8 @ 250000, best 1M final 0.4; Priority 2: collapse diagnostic; prefer state_stable_v1 before ordinary rerun.
+- scene-play-singletask-task4-v0: best 0.9 @ 100000, best 1M final 0; Priority 2: collapse diagnostic; prefer state_stable_v1 before ordinary rerun.
+
+## Domain Coverage Averages
+
+| domain | coverage_average_draft | coverage_available_tasks | coverage_missing_tasks |
+|---|---|---|---|
+| cube-double-play | 0.8 | 3 | task1;task5 |
+| cube-triple-play | 0.16 | 5 |  |
+| puzzle-3x3-play | 0.82 | 5 |  |
+| puzzle-4x4-play | 0.3 | 5 |  |
+| scene-play | 0.5 | 2 | task1;task3;task5 |
