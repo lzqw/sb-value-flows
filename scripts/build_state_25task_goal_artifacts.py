@@ -162,7 +162,26 @@ def method_flags(config: str) -> list[str]:
     ]
 
 
-def command_preview(env: str, config: str, seed: int, steps: int, action: str) -> str:
+def state_stable_flags() -> list[str]:
+    return [
+        "--agent.state_stable_mode=true",
+        "--agent.save_eval_checkpoints=true",
+        "--agent.stable_after_step=300000",
+        "--agent.actor_lr_decay_mult=0.3",
+        "--agent.critic_lr_decay_mult=0.5",
+        "--agent.second_decay_step=500000",
+        "--agent.second_actor_lr_decay_mult=0.1",
+        "--agent.second_critic_lr_decay_mult=0.2",
+        "--agent.actor_anchor_coef=0.01",
+        "--agent.actor_anchor_start_step=300000",
+        "--agent.pm_sb_weight_uniform_mix=0.05",
+        "--agent.pm_sb_weight_logit_clip=5.0",
+        "--agent.pm_sb_weight_max=0.7",
+        "--agent.grad_clip_norm=10.0",
+    ]
+
+
+def command_preview(env: str, config: str, seed: int, steps: int, action: str, stable: bool = False) -> str:
     group = "state25_" + "_".join(
         [
             action,
@@ -185,6 +204,8 @@ def command_preview(env: str, config: str, seed: int, steps: int, action: str) -
         "--log_interval=25000",
         "--save_interval=999999999",
     ] + method_flags(config)
+    if stable:
+        parts.extend(state_stable_flags())
     return " ".join(parts)
 
 
@@ -326,7 +347,14 @@ def build_queue(matrix: list[dict[str, object]]) -> list[dict[str, object]]:
                 "reason": reason,
                 "requires_state_stable_v1": str(bool(stable)).lower(),
                 "skip_reason": skip_reason,
-                "command_preview": "" if action_type == "skip" else command_preview(env, config, int(seed or 2), int(target or 300000), action_type),
+                "command_preview": "" if action_type == "skip" else command_preview(
+                    env,
+                    config,
+                    int(seed or 2),
+                    int(target or 300000),
+                    action_type,
+                    stable,
+                ),
             }
         )
 
@@ -346,7 +374,7 @@ def build_queue(matrix: list[dict[str, object]]) -> list[dict[str, object]]:
             add(3, env, "1m_goodcase_confirmation", config, row["best_known_300k_seed"] or 2, 1000000, "good completed 300k final; confirm final row at 1M")
         elif status == "collapsed":
             config = str(row["best_known_1M_config"] or row["best_known_300k_config"] or "P0_particle")
-            add(2, env, "state_stable_v1_diagnostic", config, row["best_known_1M_seed"] or row["best_known_300k_seed"] or 2, 300000, "best/peak high but final row dropped; do not use peak as final", True, "state_stable_v1 flags not implemented in current code")
+            add(2, env, "state_stable_v1_diagnostic", config, row["best_known_1M_seed"] or row["best_known_300k_seed"] or 2, 300000, "best/peak high but final row dropped; do not use peak as final", True, "")
 
     for env, reason in LOCKED_SKIP.items():
         add(99, env, "skip", "", "", "", reason, False, reason)
@@ -440,7 +468,7 @@ def write_reports(matrix: list[dict[str, object]], summary: list[dict[str, objec
         "",
         f"Updated: {NOW}",
         "",
-        "Generated for planning only. No training is launched by this generator. Rows requiring state_stable_v1 are skipped by the runner until flags are implemented.",
+        "Generated for planning only. No training is launched by this generator. Rows requiring state_stable_v1 include default-off stable flags that are enabled only for those command previews.",
         "",
         md_table(queue, q_fields[:-1]),
         "",
@@ -457,7 +485,7 @@ def write_reports(matrix: list[dict[str, object]], summary: list[dict[str, objec
         f"Updated: {NOW}",
         "",
         "- No training was launched by this artifact generation step.",
-        "- state_stable_v1 was not triggered as a run; collapse tasks are queued as requiring stable support.",
+        "- state_stable_v1 was not triggered as a run by this artifact generation step; collapse tasks are queued with stable flags for future explicit execution.",
         "- Final values use eval.csv last rows only; best/peak values remain diagnostic.",
         "",
         "## Current Counts",

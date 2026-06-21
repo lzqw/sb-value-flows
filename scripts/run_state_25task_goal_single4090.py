@@ -3,7 +3,7 @@
 
 Default is dry-run. Use --dry_run false only after explicit user approval.
 The runner reads results/state_25task_adaptive_queue.csv and executes one
-main.py at a time, skipping completed/skip/stable-unavailable rows.
+main.py at a time, skipping completed/skip rows.
 """
 
 from __future__ import annotations
@@ -75,8 +75,8 @@ def main() -> int:
         for row in csv.DictReader(f):
             if row.get("action_type") == "skip":
                 continue
-            if row.get("requires_state_stable_v1") == "true":
-                print(f"SKIP stable-unavailable: {row['env']} / {row['config_name']} :: {row.get('skip_reason','')}")
+            if row.get("skip_reason"):
+                print(f"SKIP unavailable: {row['env']} / {row['config_name']} :: {row.get('skip_reason','')}")
                 continue
             rows.append(row)
     if args.max_runs:

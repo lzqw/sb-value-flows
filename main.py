@@ -118,6 +118,8 @@ def main(_):
     eval_logger = CsvLogger(os.path.join(FLAGS.save_dir, 'eval.csv'))
     first_time = time.time()
     last_time = time.time()
+    best_eval_success = None
+    best_eval_step = None
     
     rng = jax.random.PRNGKey(FLAGS.seed)
     expl_metrics = dict()
@@ -212,6 +214,19 @@ def main(_):
             )
             for k, v in eval_info.items():
                 eval_metrics[f'evaluation/{k}'] = v
+            if 'success' in eval_info:
+                eval_success = float(eval_info['success'])
+                improved = best_eval_success is None or eval_success > best_eval_success
+                if improved:
+                    best_eval_success = eval_success
+                    best_eval_step = i
+                eval_metrics['evaluation/best_success_so_far'] = best_eval_success
+                eval_metrics['evaluation/best_step'] = best_eval_step
+                eval_metrics['evaluation/drop_from_best'] = eval_success - best_eval_success
+                if config.get('save_eval_checkpoints', False):
+                    save_agent(agent, FLAGS.save_dir, f'eval_{i}')
+                    if improved:
+                        save_agent(agent, FLAGS.save_dir, 'best_eval')
 
             if FLAGS.video_episodes > 0:
                 video = get_wandb_video(renders=renders)
@@ -224,6 +239,9 @@ def main(_):
         # Save agent.
         if i % FLAGS.save_interval == 0:
             save_agent(agent, FLAGS.save_dir, i)
+
+    if config.get('save_eval_checkpoints', False):
+        save_agent(agent, FLAGS.save_dir, 'final')
 
     train_logger.close()
     eval_logger.close()

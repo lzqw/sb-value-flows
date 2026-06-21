@@ -1,6 +1,6 @@
 # State 25-Task Coverage Matrix
 
-Updated: 2026-06-21T14:00:47
+Updated: 2026-06-21T14:06:19
 
 Final values use eval.csv last rows only. Best/peak columns are diagnostics and are not used as final performance.
 

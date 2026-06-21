@@ -19,6 +19,53 @@ class PMValueFlowsAgent(flax.struct.PyTreeNode):
     network: Any
     config: Any = nonpytree_field()
 
+    def stable_lr_mults(self, step):
+        """Return actor and critic learning-rate multipliers for state_stable_v1."""
+        if not self.config['state_stable_mode']:
+            one = jnp.asarray(1.0, dtype=jnp.float32)
+            return one, one
+        step = jnp.asarray(step)
+        actor_mult = jnp.where(
+            step >= self.config['stable_after_step'],
+            self.config['actor_lr_decay_mult'],
+            1.0,
+        )
+        critic_mult = jnp.where(
+            step >= self.config['stable_after_step'],
+            self.config['critic_lr_decay_mult'],
+            1.0,
+        )
+        actor_mult = jnp.where(
+            step >= self.config['second_decay_step'],
+            self.config['second_actor_lr_decay_mult'],
+            actor_mult,
+        )
+        critic_mult = jnp.where(
+            step >= self.config['second_decay_step'],
+            self.config['second_critic_lr_decay_mult'],
+            critic_mult,
+        )
+        return actor_mult, critic_mult
+
+    def stabilize_sb_weights(self, weights, logits=None):
+        """Apply optional state_stable_v1 weight clipping, cap, and uniform mix."""
+        if not self.config['state_stable_mode']:
+            return weights
+        if logits is not None and self.config['pm_sb_weight_logit_clip'] > 0:
+            clip = self.config['pm_sb_weight_logit_clip']
+            clipped_logits = jnp.clip(logits, -clip, clip)
+            clipped_logits = clipped_logits - jnp.max(clipped_logits, axis=1, keepdims=True)
+            weights = jax.nn.softmax(clipped_logits, axis=1)
+        if self.config['pm_sb_weight_max'] > 0:
+            weights = jnp.minimum(weights, self.config['pm_sb_weight_max'])
+            weights = weights / (weights.sum(axis=1, keepdims=True) + self.config['pm_sb_reliability_eps'])
+        if self.config['pm_sb_weight_uniform_mix'] > 0:
+            k = weights.shape[1]
+            uniform = jnp.ones_like(weights) / k
+            mix = self.config['pm_sb_weight_uniform_mix']
+            weights = (1.0 - mix) * weights + mix * uniform
+        return weights
+
     def critic_loss(self, batch, grad_params, rng):
         """Compute the flow distributional critic loss."""
         batch_size = batch['actions'].shape[0]
@@ -314,6 +361,7 @@ class PMValueFlowsAgent(flax.struct.PyTreeNode):
             rel_logits = base_logits - self.config['pm_sb_lambda'] * reliability
             rel_logits = rel_logits - jnp.max(rel_logits, axis=1, keepdims=True)
             sb_weights = jax.nn.softmax(rel_logits, axis=1)
+            sb_weights = self.stabilize_sb_weights(sb_weights, rel_logits)
             w_rel = sb_weights
 
             if self.config['pm_sb_value_preserving']:
@@ -335,6 +383,7 @@ class PMValueFlowsAgent(flax.struct.PyTreeNode):
                 final_logits = rel_logits + vp_eta[:, None] * y_scalar
                 final_logits = final_logits - jnp.max(final_logits, axis=1, keepdims=True)
                 sb_weights = jax.nn.softmax(final_logits, axis=1)
+                sb_weights = self.stabilize_sb_weights(sb_weights, final_logits)
                 vp_m_final = (sb_weights * y_scalar).sum(axis=1)
 
             target_weights = jax.lax.stop_gradient(sb_weights)
@@ -658,7 +707,21 @@ class PMValueFlowsAgent(flax.struct.PyTreeNode):
             lam = jax.lax.stop_gradient(1 / jnp.abs(q_geo).mean())
             q_loss = lam * q_loss
 
-        actor_loss = bc_flow_loss + self.config['alpha'] * distill_loss + q_loss
+        actor_anchor_loss = jnp.mean((actor_actions - batch['actions']) ** 2)
+        actor_anchor_active = jnp.asarray(
+            self.config['state_stable_mode'],
+            dtype=actor_anchor_loss.dtype,
+        ) * jnp.asarray(
+            self.network.step >= self.config['actor_anchor_start_step'],
+            dtype=actor_anchor_loss.dtype,
+        )
+        actor_anchor_loss_scaled = (
+            actor_anchor_active
+            * self.config['actor_anchor_coef']
+            * actor_anchor_loss
+        )
+
+        actor_loss = bc_flow_loss + self.config['alpha'] * distill_loss + q_loss + actor_anchor_loss_scaled
 
         # Additional metrics for logging.
         actions = self.sample_actions(batch['observations'], seed=rng)
@@ -684,6 +747,9 @@ class PMValueFlowsAgent(flax.struct.PyTreeNode):
             'actor_disagree': actor_disagree.mean(),
             'actor_energy_penalty': actor_energy_penalty.mean(),
             'actor_disagree_penalty': actor_disagree_penalty.mean(),
+            'actor_anchor_loss': actor_anchor_loss,
+            'actor_anchor_loss_scaled': actor_anchor_loss_scaled,
+            'actor_anchor_active': actor_anchor_active,
             'mse': mse,
         }
 
@@ -725,6 +791,24 @@ class PMValueFlowsAgent(flax.struct.PyTreeNode):
         new_network, info = self.network.apply_loss_fn(loss_fn=loss_fn)
         self.target_update(new_network, 'critic_flow1')
         self.target_update(new_network, 'critic_flow2')
+
+        actor_lr_mult, critic_lr_mult = self.stable_lr_mults(self.network.step)
+        info.update(
+            {
+                'stable/enabled': jnp.asarray(self.config['state_stable_mode'], dtype=jnp.float32),
+                'stable/actor_lr_mult': actor_lr_mult,
+                'stable/critic_lr_mult': critic_lr_mult,
+                'stable/sb_weight_uniform_mix': jnp.asarray(
+                    self.config['pm_sb_weight_uniform_mix'], dtype=jnp.float32
+                ),
+                'stable/sb_weight_logit_clip': jnp.asarray(
+                    self.config['pm_sb_weight_logit_clip'], dtype=jnp.float32
+                ),
+                'stable/sb_weight_max': jnp.asarray(
+                    self.config['pm_sb_weight_max'], dtype=jnp.float32
+                ),
+            }
+        )
 
         return self.replace(network=new_network, rng=new_rng), info
 
@@ -1062,8 +1146,51 @@ class PMValueFlowsAgent(flax.struct.PyTreeNode):
         network_args = {k: v[1] for k, v in network_info.items()}
 
         network_def = ModuleDict(networks)
-        network_tx = optax.adam(learning_rate=config['lr'])
         network_params = network_def.init(init_rng, **network_args)['params']
+        if config['state_stable_mode']:
+            def stable_mult(count, first_mult, second_mult):
+                return jnp.where(
+                    count >= config['second_decay_step'],
+                    second_mult,
+                    jnp.where(count >= config['stable_after_step'], first_mult, 1.0),
+                )
+
+            def label_from_path(path, _):
+                joined = '/'.join(
+                    str(key.key if hasattr(key, 'key') else key)
+                    for key in path
+                )
+                return 'actor' if 'modules_actor' in joined else 'critic'
+
+            def tx_for(mult1, mult2):
+                transforms = []
+                if config['grad_clip_norm'] > 0:
+                    transforms.append(optax.clip_by_global_norm(config['grad_clip_norm']))
+                transforms.extend(
+                    [
+                        optax.scale_by_adam(),
+                        optax.scale_by_schedule(
+                            lambda count: -config['lr'] * stable_mult(count, mult1, mult2)
+                        ),
+                    ]
+                )
+                return optax.chain(*transforms)
+
+            network_tx = optax.multi_transform(
+                {
+                    'actor': tx_for(
+                        config['actor_lr_decay_mult'],
+                        config['second_actor_lr_decay_mult'],
+                    ),
+                    'critic': tx_for(
+                        config['critic_lr_decay_mult'],
+                        config['second_critic_lr_decay_mult'],
+                    ),
+                },
+                jax.tree_util.tree_map_with_path(label_from_path, network_params),
+            )
+        else:
+            network_tx = optax.adam(learning_rate=config['lr'])
         network = TrainState.create(network_def, network_params, tx=network_tx)
 
         params = network_params
@@ -1105,6 +1232,20 @@ def get_config():
             pm_sb_value_preserving=False,
             pm_sb_vp_kappa=0.5,
             pm_sb_vp_eta_clip=10.0,
+            state_stable_mode=False,
+            save_eval_checkpoints=False,
+            stable_after_step=300000,
+            actor_lr_decay_mult=0.3,
+            critic_lr_decay_mult=0.5,
+            second_decay_step=500000,
+            second_actor_lr_decay_mult=0.1,
+            second_critic_lr_decay_mult=0.2,
+            actor_anchor_coef=0.01,
+            actor_anchor_start_step=300000,
+            pm_sb_weight_uniform_mix=0.0,
+            pm_sb_weight_logit_clip=0.0,
+            pm_sb_weight_max=0.0,
+            grad_clip_norm=0.0,
             pm_log_sb_diagnostics=False,
             pm_actor_energy_coef=0.0,
             pm_actor_disagree_coef=0.0,
