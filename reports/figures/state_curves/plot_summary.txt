@@ -1,0 +1,5 @@
+cube_double_task2_task3_task4: ok
+puzzle4x4_all_tasks: ok
+puzzle3x3_task5: ok
+cube_triple_task3: ok
+scene_task4: ok
