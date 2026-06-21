@@ -50,6 +50,13 @@ FORBIDDEN_EXTENSIONS = {
 }
 
 MISSING_HIGH_BASELINE = 0.90
+MISSING_CELL_ORDER = {
+    "cube-double-play-singletask-task5-v0": 1,
+    "cube-double-play-singletask-task1-v0": 2,
+    "scene-play-singletask-task5-v0": 3,
+    "scene-play-singletask-task1-v0": 4,
+    "scene-play-singletask-task3-v0": 5,
+}
 
 
 def read_csv(path: Path) -> list[dict[str, str]]:
@@ -250,10 +257,11 @@ def build_matrix(runs: list[dict[str, str]]) -> list[dict[str, object]]:
         if env in LOCKED_SKIP:
             action = f"Skip: {LOCKED_SKIP[env]}"
         elif status == "no_data":
-            if vf >= MISSING_HIGH_BASELINE:
-                action = "Priority 4: high-baseline coverage only; run at most P0 and R2 300k."
+            order = MISSING_CELL_ORDER.get(env)
+            if order is None:
+                action = "Missing coverage: run one primary 300k before duplicate configs."
             else:
-                action = "Priority 1: no final row; run P0 and R2 300k coverage."
+                action = f"Missing coverage priority {order}: run one primary 300k before duplicate configs."
         elif status == "candidate":
             action = "Priority 3: good 300k final; consider 1M good-case confirmation."
         elif status == "collapsed":
@@ -358,18 +366,54 @@ def build_queue(matrix: list[dict[str, object]]) -> list[dict[str, object]]:
             }
         )
 
+    missing_rows = [
+        row for row in matrix
+        if str(row["status"]) == "no_data" and str(row["env"]) not in LOCKED_SKIP
+    ]
+    missing_rows.sort(
+        key=lambda row: (
+            MISSING_CELL_ORDER.get(str(row["env"]), 100),
+            str(row["domain"]),
+            str(row["task_id"]),
+        )
+    )
+    if missing_rows:
+        for row in missing_rows:
+            env = str(row["env"])
+            add(
+                1,
+                env,
+                "300k_coverage",
+                "P0_particle",
+                2,
+                300000,
+                "missing-cell primary coverage; do not run duplicate configs until all missing cells are covered",
+            )
+    else:
+        secondary_rows = [
+            row for row in matrix
+            if str(row["status"]) == "300k_only" and str(row["env"]) not in LOCKED_SKIP
+        ]
+        for row in secondary_rows:
+            env = str(row["env"])
+            add(
+                4,
+                env,
+                "300k_secondary_check",
+                "R2_residual_disagree_lam0p001",
+                2,
+                300000,
+                "all missing cells covered; optional secondary config",
+            )
+
     for row in matrix:
         env = str(row["env"])
-        vf = fnum(row["VF_baseline"]) or 0.0
         status = str(row["status"])
         if env in LOCKED_SKIP:
             continue
-        if status == "no_data":
-            priority = 4 if vf >= MISSING_HIGH_BASELINE else 1
-            reason = "high-baseline coverage only" if priority == 4 else "missing coverage"
-            add(priority, env, "300k_coverage", "P0_particle", 2, 300000, reason)
-            add(priority, env, "300k_coverage", "R2_residual_disagree_lam0p001", 2, 300000, reason)
-        elif status == "candidate":
+        if missing_rows:
+            continue
+        if status == "candidate":
             config = str(row["best_known_300k_config"] or "P0_particle")
             add(3, env, "1m_goodcase_confirmation", config, row["best_known_300k_seed"] or 2, 1000000, "good completed 300k final; confirm final row at 1M")
         elif status == "collapsed":

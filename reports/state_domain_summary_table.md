@@ -1,6 +1,6 @@
 # State Domain Summary Table
 
-Updated: 2026-06-21T14:06:19
+Updated: 2026-06-21T14:51:18
 
 Draft Table-1 style state-domain summary. The 1M-only average uses completed 1M final rows only. The coverage average uses completed 1M final when available and otherwise completed 300k final. The candidate average uses each task's best current final row and is for internal screening only.
 

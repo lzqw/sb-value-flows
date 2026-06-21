@@ -1,30 +1,21 @@
 # State 25-Task Adaptive Queue
 
-Updated: 2026-06-21T14:06:19
+Updated: 2026-06-21T14:51:18
 
 Generated for planning only. No training is launched by this generator. Rows requiring state_stable_v1 include default-off stable flags that are enabled only for those command previews.
 
 | queue_id | priority | env | domain | task_id | action_type | config_name | seed | target_steps | reason | requires_state_stable_v1 | skip_reason |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 1 | 1 | cube-double-play-singletask-task5-v0 | cube-double-play | task5 | 300k_coverage | P0_particle | 2 | 300000 | missing coverage | false |  |
-| 2 | 1 | cube-double-play-singletask-task5-v0 | cube-double-play | task5 | 300k_coverage | R2_residual_disagree_lam0p001 | 2 | 300000 | missing coverage | false |  |
-| 3 | 1 | scene-play-singletask-task5-v0 | scene-play | task5 | 300k_coverage | P0_particle | 2 | 300000 | missing coverage | false |  |
-| 4 | 1 | scene-play-singletask-task5-v0 | scene-play | task5 | 300k_coverage | R2_residual_disagree_lam0p001 | 2 | 300000 | missing coverage | false |  |
-| 5 | 2 | cube-triple-play-singletask-task1-v0 | cube-triple-play | task1 | state_stable_v1_diagnostic | ActorGeo | 0 | 300000 | best/peak high but final row dropped; do not use peak as final | true |  |
-| 6 | 2 | puzzle-4x4-play-singletask-task3-v0 | puzzle-4x4-play | task3 | state_stable_v1_diagnostic | R2_residual_disagree_lam0p001 | 2 | 300000 | best/peak high but final row dropped; do not use peak as final | true |  |
-| 7 | 2 | scene-play-singletask-task4-v0 | scene-play | task4 | state_stable_v1_diagnostic | P0_particle | 2 | 300000 | best/peak high but final row dropped; do not use peak as final | true |  |
-| 8 | 3 | cube-triple-play-singletask-task3-v0 | cube-triple-play | task3 | 1m_goodcase_confirmation | R2_residual_disagree_lam0p001 | 2 | 1000000 | good completed 300k final; confirm final row at 1M | false |  |
-| 9 | 4 | cube-double-play-singletask-task1-v0 | cube-double-play | task1 | 300k_coverage | P0_particle | 2 | 300000 | high-baseline coverage only | false |  |
-| 10 | 4 | cube-double-play-singletask-task1-v0 | cube-double-play | task1 | 300k_coverage | R2_residual_disagree_lam0p001 | 2 | 300000 | high-baseline coverage only | false |  |
-| 11 | 4 | scene-play-singletask-task1-v0 | scene-play | task1 | 300k_coverage | P0_particle | 2 | 300000 | high-baseline coverage only | false |  |
-| 12 | 4 | scene-play-singletask-task1-v0 | scene-play | task1 | 300k_coverage | R2_residual_disagree_lam0p001 | 2 | 300000 | high-baseline coverage only | false |  |
-| 13 | 4 | scene-play-singletask-task3-v0 | scene-play | task3 | 300k_coverage | P0_particle | 2 | 300000 | high-baseline coverage only | false |  |
-| 14 | 4 | scene-play-singletask-task3-v0 | scene-play | task3 | 300k_coverage | R2_residual_disagree_lam0p001 | 2 | 300000 | high-baseline coverage only | false |  |
-| 15 | 99 | cube-double-play-singletask-task2-v0 | cube-double-play | task2 | skip |  |  |  | locked strong 1M R3/FullSafe; do not repeat ordinary tuning | false | locked strong 1M R3/FullSafe; do not repeat ordinary tuning |
-| 16 | 99 | cube-double-play-singletask-task3-v0 | cube-double-play | task3 | skip |  |  |  | locked strong 1M A2; do not repeat ordinary tuning | false | locked strong 1M A2; do not repeat ordinary tuning |
-| 17 | 99 | cube-double-play-singletask-task4-v0 | cube-double-play | task4 | skip |  |  |  | locked positive 1M A1; do not repeat ordinary tuning | false | locked positive 1M A1; do not repeat ordinary tuning |
-| 18 | 99 | puzzle-4x4-play-singletask-task2-v0 | puzzle-4x4-play | task2 | skip |  |  |  | locked weak positive MinimalSB; do not repeat ordinary tuning | false | locked weak positive MinimalSB; do not repeat ordinary tuning |
-| 19 | 99 | puzzle-4x4-play-singletask-task3-v0 | puzzle-4x4-play | task3 | skip |  |  |  | do not run R2 seed1/extra ordinary seed extension without new confirmation | false | do not run R2 seed1/extra ordinary seed extension without new confirmation |
+| 1 | 1 | cube-double-play-singletask-task5-v0 | cube-double-play | task5 | 300k_coverage | P0_particle | 2 | 300000 | missing-cell primary coverage; do not run duplicate configs until all missing cells are covered | false |  |
+| 2 | 1 | cube-double-play-singletask-task1-v0 | cube-double-play | task1 | 300k_coverage | P0_particle | 2 | 300000 | missing-cell primary coverage; do not run duplicate configs until all missing cells are covered | false |  |
+| 3 | 1 | scene-play-singletask-task5-v0 | scene-play | task5 | 300k_coverage | P0_particle | 2 | 300000 | missing-cell primary coverage; do not run duplicate configs until all missing cells are covered | false |  |
+| 4 | 1 | scene-play-singletask-task1-v0 | scene-play | task1 | 300k_coverage | P0_particle | 2 | 300000 | missing-cell primary coverage; do not run duplicate configs until all missing cells are covered | false |  |
+| 5 | 1 | scene-play-singletask-task3-v0 | scene-play | task3 | 300k_coverage | P0_particle | 2 | 300000 | missing-cell primary coverage; do not run duplicate configs until all missing cells are covered | false |  |
+| 6 | 99 | cube-double-play-singletask-task2-v0 | cube-double-play | task2 | skip |  |  |  | locked strong 1M R3/FullSafe; do not repeat ordinary tuning | false | locked strong 1M R3/FullSafe; do not repeat ordinary tuning |
+| 7 | 99 | cube-double-play-singletask-task3-v0 | cube-double-play | task3 | skip |  |  |  | locked strong 1M A2; do not repeat ordinary tuning | false | locked strong 1M A2; do not repeat ordinary tuning |
+| 8 | 99 | cube-double-play-singletask-task4-v0 | cube-double-play | task4 | skip |  |  |  | locked positive 1M A1; do not repeat ordinary tuning | false | locked positive 1M A1; do not repeat ordinary tuning |
+| 9 | 99 | puzzle-4x4-play-singletask-task2-v0 | puzzle-4x4-play | task2 | skip |  |  |  | locked weak positive MinimalSB; do not repeat ordinary tuning | false | locked weak positive MinimalSB; do not repeat ordinary tuning |
+| 10 | 99 | puzzle-4x4-play-singletask-task3-v0 | puzzle-4x4-play | task3 | skip |  |  |  | do not run R2 seed1/extra ordinary seed extension without new confirmation | false | do not run R2 seed1/extra ordinary seed extension without new confirmation |
 
 ## Next Command Previews
 
@@ -34,10 +25,10 @@ Generated for planning only. No training is launched by this generator. Rows req
 conda run -n value-flows python main.py --env_name=cube-double-play-singletask-task5-v0 --seed=2 --save_dir=/root/autodl-tmp/sb-value-flows-runs/state_25task_goal_single4090/exp --wandb_run_group=state25_300k_coverage_cube_double_task5_P0_particle_seed2 --enable_wandb=0 --offline_steps=300000 --online_steps=0 --eval_interval=50000 --eval_episodes=10 --log_interval=25000 --save_interval=999999999 --agent=agents/pm_value_flows.py --agent.pm_minimal_sb=true --agent.pm_weight_type=field_kernel_norm --agent.pm_num_continuations=4 --agent.pm_field_kernel_norm_temp=0.3 --agent.pm_field_kernel_min_scale=1e-6 --agent.pm_actor_energy_coef=0.0 --agent.pm_actor_disagree_coef=0.0 --agent.pm_log_sb_diagnostics=true --agent.pm_sb_reliability_score=action --agent.pm_sb_lambda=0.0 --agent.pm_sb_reliability_normalize=none --agent.pm_sb_value_preserving=false
 ```
 
-### 2. cube-double-play-singletask-task5-v0 / R2_residual_disagree_lam0p001
+### 2. cube-double-play-singletask-task1-v0 / P0_particle
 
 ```bash
-conda run -n value-flows python main.py --env_name=cube-double-play-singletask-task5-v0 --seed=2 --save_dir=/root/autodl-tmp/sb-value-flows-runs/state_25task_goal_single4090/exp --wandb_run_group=state25_300k_coverage_cube_double_task5_R2_residual_disagree_lam0p001_seed2 --enable_wandb=0 --offline_steps=300000 --online_steps=0 --eval_interval=50000 --eval_episodes=10 --log_interval=25000 --save_interval=999999999 --agent=agents/pm_value_flows.py --agent.pm_minimal_sb=true --agent.pm_weight_type=field_kernel_norm --agent.pm_num_continuations=4 --agent.pm_field_kernel_norm_temp=0.3 --agent.pm_field_kernel_min_scale=1e-6 --agent.pm_actor_energy_coef=0.0 --agent.pm_actor_disagree_coef=0.0 --agent.pm_log_sb_diagnostics=true --agent.pm_sb_reliability_score=flow_residual_disagree --agent.pm_sb_lambda=0.001 --agent.pm_sb_reliability_normalize=std --agent.pm_sb_flow_residual_eps=0.05 --agent.pm_sb_disagree_beta=0.5 --agent.pm_sb_disagree_umax=3.0 --agent.pm_sb_value_preserving=false
+conda run -n value-flows python main.py --env_name=cube-double-play-singletask-task1-v0 --seed=2 --save_dir=/root/autodl-tmp/sb-value-flows-runs/state_25task_goal_single4090/exp --wandb_run_group=state25_300k_coverage_cube_double_task1_P0_particle_seed2 --enable_wandb=0 --offline_steps=300000 --online_steps=0 --eval_interval=50000 --eval_episodes=10 --log_interval=25000 --save_interval=999999999 --agent=agents/pm_value_flows.py --agent.pm_minimal_sb=true --agent.pm_weight_type=field_kernel_norm --agent.pm_num_continuations=4 --agent.pm_field_kernel_norm_temp=0.3 --agent.pm_field_kernel_min_scale=1e-6 --agent.pm_actor_energy_coef=0.0 --agent.pm_actor_disagree_coef=0.0 --agent.pm_log_sb_diagnostics=true --agent.pm_sb_reliability_score=action --agent.pm_sb_lambda=0.0 --agent.pm_sb_reliability_normalize=none --agent.pm_sb_value_preserving=false
 ```
 
 ### 3. scene-play-singletask-task5-v0 / P0_particle
@@ -46,56 +37,14 @@ conda run -n value-flows python main.py --env_name=cube-double-play-singletask-t
 conda run -n value-flows python main.py --env_name=scene-play-singletask-task5-v0 --seed=2 --save_dir=/root/autodl-tmp/sb-value-flows-runs/state_25task_goal_single4090/exp --wandb_run_group=state25_300k_coverage_scene_task5_P0_particle_seed2 --enable_wandb=0 --offline_steps=300000 --online_steps=0 --eval_interval=50000 --eval_episodes=10 --log_interval=25000 --save_interval=999999999 --agent=agents/pm_value_flows.py --agent.pm_minimal_sb=true --agent.pm_weight_type=field_kernel_norm --agent.pm_num_continuations=4 --agent.pm_field_kernel_norm_temp=0.3 --agent.pm_field_kernel_min_scale=1e-6 --agent.pm_actor_energy_coef=0.0 --agent.pm_actor_disagree_coef=0.0 --agent.pm_log_sb_diagnostics=true --agent.pm_sb_reliability_score=action --agent.pm_sb_lambda=0.0 --agent.pm_sb_reliability_normalize=none --agent.pm_sb_value_preserving=false
 ```
 
-### 4. scene-play-singletask-task5-v0 / R2_residual_disagree_lam0p001
-
-```bash
-conda run -n value-flows python main.py --env_name=scene-play-singletask-task5-v0 --seed=2 --save_dir=/root/autodl-tmp/sb-value-flows-runs/state_25task_goal_single4090/exp --wandb_run_group=state25_300k_coverage_scene_task5_R2_residual_disagree_lam0p001_seed2 --enable_wandb=0 --offline_steps=300000 --online_steps=0 --eval_interval=50000 --eval_episodes=10 --log_interval=25000 --save_interval=999999999 --agent=agents/pm_value_flows.py --agent.pm_minimal_sb=true --agent.pm_weight_type=field_kernel_norm --agent.pm_num_continuations=4 --agent.pm_field_kernel_norm_temp=0.3 --agent.pm_field_kernel_min_scale=1e-6 --agent.pm_actor_energy_coef=0.0 --agent.pm_actor_disagree_coef=0.0 --agent.pm_log_sb_diagnostics=true --agent.pm_sb_reliability_score=flow_residual_disagree --agent.pm_sb_lambda=0.001 --agent.pm_sb_reliability_normalize=std --agent.pm_sb_flow_residual_eps=0.05 --agent.pm_sb_disagree_beta=0.5 --agent.pm_sb_disagree_umax=3.0 --agent.pm_sb_value_preserving=false
-```
-
-### 5. cube-triple-play-singletask-task1-v0 / ActorGeo
-
-```bash
-conda run -n value-flows python main.py --env_name=cube-triple-play-singletask-task1-v0 --seed=0 --save_dir=/root/autodl-tmp/sb-value-flows-runs/state_25task_goal_single4090/exp --wandb_run_group=state25_state_stable_v1_diagnostic_cube_triple_task1_ActorGeo_seed0 --enable_wandb=0 --offline_steps=300000 --online_steps=0 --eval_interval=50000 --eval_episodes=10 --log_interval=25000 --save_interval=999999999 --agent=agents/pm_value_flows.py --agent.pm_minimal_sb=true --agent.pm_weight_type=field_kernel_norm --agent.pm_num_continuations=4 --agent.pm_field_kernel_norm_temp=0.3 --agent.pm_field_kernel_min_scale=1e-6 --agent.pm_actor_energy_coef=0.0 --agent.pm_actor_disagree_coef=0.0 --agent.pm_log_sb_diagnostics=true --agent.pm_sb_reliability_score=action --agent.pm_sb_lambda=0.0 --agent.pm_sb_reliability_normalize=none --agent.pm_sb_value_preserving=false --agent.state_stable_mode=true --agent.save_eval_checkpoints=true --agent.stable_after_step=300000 --agent.actor_lr_decay_mult=0.3 --agent.critic_lr_decay_mult=0.5 --agent.second_decay_step=500000 --agent.second_actor_lr_decay_mult=0.1 --agent.second_critic_lr_decay_mult=0.2 --agent.actor_anchor_coef=0.01 --agent.actor_anchor_start_step=300000 --agent.pm_sb_weight_uniform_mix=0.05 --agent.pm_sb_weight_logit_clip=5.0 --agent.pm_sb_weight_max=0.7 --agent.grad_clip_norm=10.0
-```
-
-### 6. puzzle-4x4-play-singletask-task3-v0 / R2_residual_disagree_lam0p001
-
-```bash
-conda run -n value-flows python main.py --env_name=puzzle-4x4-play-singletask-task3-v0 --seed=2 --save_dir=/root/autodl-tmp/sb-value-flows-runs/state_25task_goal_single4090/exp --wandb_run_group=state25_state_stable_v1_diagnostic_puzzle_4x4_task3_R2_residual_disagree_lam0p001_seed2 --enable_wandb=0 --offline_steps=300000 --online_steps=0 --eval_interval=50000 --eval_episodes=10 --log_interval=25000 --save_interval=999999999 --agent=agents/pm_value_flows.py --agent.pm_minimal_sb=true --agent.pm_weight_type=field_kernel_norm --agent.pm_num_continuations=4 --agent.pm_field_kernel_norm_temp=0.3 --agent.pm_field_kernel_min_scale=1e-6 --agent.pm_actor_energy_coef=0.0 --agent.pm_actor_disagree_coef=0.0 --agent.pm_log_sb_diagnostics=true --agent.pm_sb_reliability_score=flow_residual_disagree --agent.pm_sb_lambda=0.001 --agent.pm_sb_reliability_normalize=std --agent.pm_sb_flow_residual_eps=0.05 --agent.pm_sb_disagree_beta=0.5 --agent.pm_sb_disagree_umax=3.0 --agent.pm_sb_value_preserving=false --agent.state_stable_mode=true --agent.save_eval_checkpoints=true --agent.stable_after_step=300000 --agent.actor_lr_decay_mult=0.3 --agent.critic_lr_decay_mult=0.5 --agent.second_decay_step=500000 --agent.second_actor_lr_decay_mult=0.1 --agent.second_critic_lr_decay_mult=0.2 --agent.actor_anchor_coef=0.01 --agent.actor_anchor_start_step=300000 --agent.pm_sb_weight_uniform_mix=0.05 --agent.pm_sb_weight_logit_clip=5.0 --agent.pm_sb_weight_max=0.7 --agent.grad_clip_norm=10.0
-```
-
-### 7. scene-play-singletask-task4-v0 / P0_particle
-
-```bash
-conda run -n value-flows python main.py --env_name=scene-play-singletask-task4-v0 --seed=2 --save_dir=/root/autodl-tmp/sb-value-flows-runs/state_25task_goal_single4090/exp --wandb_run_group=state25_state_stable_v1_diagnostic_scene_task4_P0_particle_seed2 --enable_wandb=0 --offline_steps=300000 --online_steps=0 --eval_interval=50000 --eval_episodes=10 --log_interval=25000 --save_interval=999999999 --agent=agents/pm_value_flows.py --agent.pm_minimal_sb=true --agent.pm_weight_type=field_kernel_norm --agent.pm_num_continuations=4 --agent.pm_field_kernel_norm_temp=0.3 --agent.pm_field_kernel_min_scale=1e-6 --agent.pm_actor_energy_coef=0.0 --agent.pm_actor_disagree_coef=0.0 --agent.pm_log_sb_diagnostics=true --agent.pm_sb_reliability_score=action --agent.pm_sb_lambda=0.0 --agent.pm_sb_reliability_normalize=none --agent.pm_sb_value_preserving=false --agent.state_stable_mode=true --agent.save_eval_checkpoints=true --agent.stable_after_step=300000 --agent.actor_lr_decay_mult=0.3 --agent.critic_lr_decay_mult=0.5 --agent.second_decay_step=500000 --agent.second_actor_lr_decay_mult=0.1 --agent.second_critic_lr_decay_mult=0.2 --agent.actor_anchor_coef=0.01 --agent.actor_anchor_start_step=300000 --agent.pm_sb_weight_uniform_mix=0.05 --agent.pm_sb_weight_logit_clip=5.0 --agent.pm_sb_weight_max=0.7 --agent.grad_clip_norm=10.0
-```
-
-### 8. cube-triple-play-singletask-task3-v0 / R2_residual_disagree_lam0p001
-
-```bash
-conda run -n value-flows python main.py --env_name=cube-triple-play-singletask-task3-v0 --seed=2 --save_dir=/root/autodl-tmp/sb-value-flows-runs/state_25task_goal_single4090/exp --wandb_run_group=state25_1m_goodcase_confirmation_cube_triple_task3_R2_residual_disagree_lam0p001_seed2 --enable_wandb=0 --offline_steps=1000000 --online_steps=0 --eval_interval=50000 --eval_episodes=10 --log_interval=25000 --save_interval=999999999 --agent=agents/pm_value_flows.py --agent.pm_minimal_sb=true --agent.pm_weight_type=field_kernel_norm --agent.pm_num_continuations=4 --agent.pm_field_kernel_norm_temp=0.3 --agent.pm_field_kernel_min_scale=1e-6 --agent.pm_actor_energy_coef=0.0 --agent.pm_actor_disagree_coef=0.0 --agent.pm_log_sb_diagnostics=true --agent.pm_sb_reliability_score=flow_residual_disagree --agent.pm_sb_lambda=0.001 --agent.pm_sb_reliability_normalize=std --agent.pm_sb_flow_residual_eps=0.05 --agent.pm_sb_disagree_beta=0.5 --agent.pm_sb_disagree_umax=3.0 --agent.pm_sb_value_preserving=false
-```
-
-### 9. cube-double-play-singletask-task1-v0 / P0_particle
-
-```bash
-conda run -n value-flows python main.py --env_name=cube-double-play-singletask-task1-v0 --seed=2 --save_dir=/root/autodl-tmp/sb-value-flows-runs/state_25task_goal_single4090/exp --wandb_run_group=state25_300k_coverage_cube_double_task1_P0_particle_seed2 --enable_wandb=0 --offline_steps=300000 --online_steps=0 --eval_interval=50000 --eval_episodes=10 --log_interval=25000 --save_interval=999999999 --agent=agents/pm_value_flows.py --agent.pm_minimal_sb=true --agent.pm_weight_type=field_kernel_norm --agent.pm_num_continuations=4 --agent.pm_field_kernel_norm_temp=0.3 --agent.pm_field_kernel_min_scale=1e-6 --agent.pm_actor_energy_coef=0.0 --agent.pm_actor_disagree_coef=0.0 --agent.pm_log_sb_diagnostics=true --agent.pm_sb_reliability_score=action --agent.pm_sb_lambda=0.0 --agent.pm_sb_reliability_normalize=none --agent.pm_sb_value_preserving=false
-```
-
-### 10. cube-double-play-singletask-task1-v0 / R2_residual_disagree_lam0p001
-
-```bash
-conda run -n value-flows python main.py --env_name=cube-double-play-singletask-task1-v0 --seed=2 --save_dir=/root/autodl-tmp/sb-value-flows-runs/state_25task_goal_single4090/exp --wandb_run_group=state25_300k_coverage_cube_double_task1_R2_residual_disagree_lam0p001_seed2 --enable_wandb=0 --offline_steps=300000 --online_steps=0 --eval_interval=50000 --eval_episodes=10 --log_interval=25000 --save_interval=999999999 --agent=agents/pm_value_flows.py --agent.pm_minimal_sb=true --agent.pm_weight_type=field_kernel_norm --agent.pm_num_continuations=4 --agent.pm_field_kernel_norm_temp=0.3 --agent.pm_field_kernel_min_scale=1e-6 --agent.pm_actor_energy_coef=0.0 --agent.pm_actor_disagree_coef=0.0 --agent.pm_log_sb_diagnostics=true --agent.pm_sb_reliability_score=flow_residual_disagree --agent.pm_sb_lambda=0.001 --agent.pm_sb_reliability_normalize=std --agent.pm_sb_flow_residual_eps=0.05 --agent.pm_sb_disagree_beta=0.5 --agent.pm_sb_disagree_umax=3.0 --agent.pm_sb_value_preserving=false
-```
-
-### 11. scene-play-singletask-task1-v0 / P0_particle
+### 4. scene-play-singletask-task1-v0 / P0_particle
 
 ```bash
 conda run -n value-flows python main.py --env_name=scene-play-singletask-task1-v0 --seed=2 --save_dir=/root/autodl-tmp/sb-value-flows-runs/state_25task_goal_single4090/exp --wandb_run_group=state25_300k_coverage_scene_task1_P0_particle_seed2 --enable_wandb=0 --offline_steps=300000 --online_steps=0 --eval_interval=50000 --eval_episodes=10 --log_interval=25000 --save_interval=999999999 --agent=agents/pm_value_flows.py --agent.pm_minimal_sb=true --agent.pm_weight_type=field_kernel_norm --agent.pm_num_continuations=4 --agent.pm_field_kernel_norm_temp=0.3 --agent.pm_field_kernel_min_scale=1e-6 --agent.pm_actor_energy_coef=0.0 --agent.pm_actor_disagree_coef=0.0 --agent.pm_log_sb_diagnostics=true --agent.pm_sb_reliability_score=action --agent.pm_sb_lambda=0.0 --agent.pm_sb_reliability_normalize=none --agent.pm_sb_value_preserving=false
 ```
 
-### 12. scene-play-singletask-task1-v0 / R2_residual_disagree_lam0p001
+### 5. scene-play-singletask-task3-v0 / P0_particle
 
 ```bash
-conda run -n value-flows python main.py --env_name=scene-play-singletask-task1-v0 --seed=2 --save_dir=/root/autodl-tmp/sb-value-flows-runs/state_25task_goal_single4090/exp --wandb_run_group=state25_300k_coverage_scene_task1_R2_residual_disagree_lam0p001_seed2 --enable_wandb=0 --offline_steps=300000 --online_steps=0 --eval_interval=50000 --eval_episodes=10 --log_interval=25000 --save_interval=999999999 --agent=agents/pm_value_flows.py --agent.pm_minimal_sb=true --agent.pm_weight_type=field_kernel_norm --agent.pm_num_continuations=4 --agent.pm_field_kernel_norm_temp=0.3 --agent.pm_field_kernel_min_scale=1e-6 --agent.pm_actor_energy_coef=0.0 --agent.pm_actor_disagree_coef=0.0 --agent.pm_log_sb_diagnostics=true --agent.pm_sb_reliability_score=flow_residual_disagree --agent.pm_sb_lambda=0.001 --agent.pm_sb_reliability_normalize=std --agent.pm_sb_flow_residual_eps=0.05 --agent.pm_sb_disagree_beta=0.5 --agent.pm_sb_disagree_umax=3.0 --agent.pm_sb_value_preserving=false
+conda run -n value-flows python main.py --env_name=scene-play-singletask-task3-v0 --seed=2 --save_dir=/root/autodl-tmp/sb-value-flows-runs/state_25task_goal_single4090/exp --wandb_run_group=state25_300k_coverage_scene_task3_P0_particle_seed2 --enable_wandb=0 --offline_steps=300000 --online_steps=0 --eval_interval=50000 --eval_episodes=10 --log_interval=25000 --save_interval=999999999 --agent=agents/pm_value_flows.py --agent.pm_minimal_sb=true --agent.pm_weight_type=field_kernel_norm --agent.pm_num_continuations=4 --agent.pm_field_kernel_norm_temp=0.3 --agent.pm_field_kernel_min_scale=1e-6 --agent.pm_actor_energy_coef=0.0 --agent.pm_actor_disagree_coef=0.0 --agent.pm_log_sb_diagnostics=true --agent.pm_sb_reliability_score=action --agent.pm_sb_lambda=0.0 --agent.pm_sb_reliability_normalize=none --agent.pm_sb_value_preserving=false
 ```
