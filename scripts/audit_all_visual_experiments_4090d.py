@@ -53,6 +53,17 @@ def infer_domain_task_env(path: Path):
         task = f'task{m_medium.group(1)}'
         d = 'visual-antmaze-medium-navigate'
         return d, task, f'{d}-singletask-{task}-v0'
+    short_domains = {
+        'scene': 'visual-scene-play',
+        'puzzle': 'visual-puzzle-3x3-play',
+        'cube': 'visual-cube-double-play',
+        'teleport': 'visual-antmaze-teleport-navigate',
+    }
+    m_short = re.search(r'(scene|puzzle|cube|teleport)[-_]task[-_]?(\d+)', sl)
+    if m_short:
+        d = short_domains[m_short.group(1)]
+        task = f'task{m_short.group(2)}'
+        return d, task, f'{d}-singletask-{task}-v0'
     for d in VISUAL_DOMAINS:
         if d in sl:
             m=re.search(re.escape(d)+r'.*?task-?(\d+)', sl) or re.search(r'task-?(\d+).*?'+re.escape(d), sl)
@@ -94,16 +105,21 @@ def infer_method(path: Path, config: str):
 def infer_target(path: Path, final_step: int):
     s=str(path).lower()
     if 'smoke' in s or '_1000' in s: return 1000
+    if '500000' in s or '500k' in s or 'peak500' in s: return 500000
     if '300000' in s or '300k' in s or 'stagea' in s: return 300000
     if '1000000' in s or '1m' in s or 'matched' in s or 'stageb' in s or 'v7' in s or 'v8' in s: return 1000000
     if final_step>=900000: return 1000000
+    if final_step>=450000: return 500000
     if final_step>=250000: return 300000
     return ''
 
 def status_for(path: Path, final_step: int, target):
     s=str(path).lower()
     if 'smoke' in s or target==1000: return 'smoke'
-    if target and isinstance(target,int) and final_step>=target*0.98: return 'completed_1m' if target>=1000000 else 'completed_300k'
+    if target and isinstance(target,int) and final_step>=target*0.98:
+        if target>=1000000: return 'completed_1m'
+        if target>=500000: return 'completed_500k'
+        return 'completed_300k'
     if final_step>0: return 'partial'
     return 'unknown'
 
@@ -113,6 +129,15 @@ def find_related(path: Path, kind: str):
     except Exception: c=[]
     if c:
         c.sort(key=lambda p:p.stat().st_mtime if p.exists() else 0, reverse=True); return str(c[0])
+    if kind == 'command.txt':
+        parts = path.parts
+        if 'exp' in parts:
+            i = parts.index('exp')
+            if i + 1 < len(parts):
+                run_name = parts[i + 1]
+                for logs_name in ['logs', 'log']:
+                    cand = Path(*parts[:i]) / logs_name / run_name / kind
+                    if cand.exists(): return str(cand)
     return ''
 
 def ckpt_info(path: Path):

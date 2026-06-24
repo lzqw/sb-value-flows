@@ -6,6 +6,14 @@ DATA = ROOT / 'results' / 'plot_data_visual_curves.csv'
 OUT = ROOT / 'reports' / 'figures' / 'visual_curves'
 OUT.mkdir(parents=True, exist_ok=True)
 COLORS = ['#1f77b4','#d62728','#2ca02c','#9467bd','#ff7f0e','#17becf','#8c564b','#e377c2']
+DOMAINS = [
+    'visual-antmaze-medium-navigate',
+    'visual-scene-play',
+    'visual-puzzle-3x3-play',
+    'visual-cube-double-play',
+    'visual-antmaze-teleport-navigate',
+]
+TASKS = [f'task{i}' for i in range(1, 6)]
 
 def rows():
     with DATA.open(newline='') as f: return list(csv.DictReader(f))
@@ -51,16 +59,17 @@ def plot_group(rs, title, filename):
 
 def main():
     allr=rows(); made=[]
-    specs=[
-        ('visual-antmaze-medium-navigate','task1','medium_task1_v7_v8p1.svg','visual-antmaze-medium task1: v7 vs v8.1'),
-        ('visual-antmaze-medium-navigate','task2','medium_task2_v7_v8_v8p1.svg','visual-antmaze-medium task2: v7 vs v8 vs v8.1'),
-        ('visual-antmaze-medium-navigate','task3','medium_task3_v7_v8p1.svg','visual-antmaze-medium task3: v7 vs v8.1'),
-        ('visual-antmaze-medium-navigate','task4','medium_task4_v7_v8p1.svg','visual-antmaze-medium task4: v7 vs v8.1'),
-        ('visual-antmaze-medium-navigate','task5','medium_task5_v7_v8p1.svg','visual-antmaze-medium task5: v7 vs v8.1'),
-    ]
-    for domain,task,fn,title in specs:
-        sub=[r for r in allr if r['visual_domain']==domain and r['task_id']==task and r['method_group'] in ('v7','v8','v8p1')]
-        if sub: plot_group(sub,title,fn); made.append(fn)
+    for old in OUT.glob('*.svg'):
+        old.unlink()
+    for domain in DOMAINS:
+        for task in TASKS:
+            fn=f"{domain.replace('visual-','').replace('-','_')}_{task}_curves.svg"
+            title=f"{domain} {task}: Best-Eval / Peak Success"
+            sub=[r for r in allr if r['visual_domain']==domain and r['task_id']==task]
+            if not sub:
+                continue
+            sub.sort(key=lambda r:(r.get('method_group',''), r.get('config_name',''), r.get('seed',''), fnum(r.get('step')) or 0))
+            plot_group(sub,title,fn); made.append(fn)
     (OUT/'README.md').write_text('# Visual Curve Figures\n\nSVG line plots. Circles mark best peak; squares mark final/latest eval.\n\n'+'\n'.join(f'- `{m}`' for m in made)+'\n')
     print('generated',len(made),'svg figures')
     for m in made: print(OUT/m)

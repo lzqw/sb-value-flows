@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="920" height="500" viewBox="0 0 920 500">
+<rect width="100%" height="100%" fill="white"/>
+<text x="80" y="25" font-family="Arial" font-size="16">visual-cube-double-play task2: Best-Eval / Peak Success</text>
+<line x1="80" y1="400.0" x2="840" y2="400.0" stroke="#ddd"/>
+<text x="45" y="404.0" font-family="Arial" font-size="11">0</text>
+<line x1="80" y1="310.0" x2="840" y2="310.0" stroke="#ddd"/>
+<text x="45" y="314.0" font-family="Arial" font-size="11">0.25</text>
+<line x1="80" y1="220.0" x2="840" y2="220.0" stroke="#ddd"/>
+<text x="45" y="224.0" font-family="Arial" font-size="11">0.5</text>
+<line x1="80" y1="130.0" x2="840" y2="130.0" stroke="#ddd"/>
+<text x="45" y="134.0" font-family="Arial" font-size="11">0.75</text>
+<line x1="80" y1="40.0" x2="840" y2="40.0" stroke="#ddd"/>
+<text x="45" y="44.0" font-family="Arial" font-size="11">1</text>
+<line x1="80" y1="400" x2="840" y2="400" stroke="#333"/><line x1="80" y1="40" x2="80" y2="400" stroke="#333"/>
+<line x1="80.0" y1="400" x2="80.0" y2="405" stroke="#333"/>
+<text x="68.0" y="420" font-family="Arial" font-size="11">0</text>
+<line x1="232.0" y1="400" x2="232.0" y2="405" stroke="#333"/>
+<text x="220.0" y="420" font-family="Arial" font-size="11">200k</text>
+<line x1="384.0" y1="400" x2="384.0" y2="405" stroke="#333"/>
+<text x="372.0" y="420" font-family="Arial" font-size="11">400k</text>
+<line x1="536.0" y1="400" x2="536.0" y2="405" stroke="#333"/>
+<text x="524.0" y="420" font-family="Arial" font-size="11">600k</text>
+<line x1="688.0" y1="400" x2="688.0" y2="405" stroke="#333"/>
+<text x="676.0" y="420" font-family="Arial" font-size="11">800k</text>
+<line x1="840.0" y1="400" x2="840.0" y2="405" stroke="#333"/>
+<text x="828.0" y="420" font-family="Arial" font-size="11">1M</text>
+<polyline points="80.0,400.0 118.0,400.0 156.0,400.0 194.0,400.0 232.0,400.0 270.0,400.0 308.0,400.0" fill="none" stroke="#1f77b4" stroke-width="2"/>
+<circle cx="80.0" cy="400.0" r="6" fill="#1f77b4" stroke="black"/>
+<rect x="303.0" y="395.0" width="10" height="10" fill="#1f77b4" stroke="black"/>
+<line x1="80" y1="445" x2="105" y2="445" stroke="#1f77b4" stroke-width="2"/><text x="112" y="449" font-family="Arial" font-size="11">v6 / A1 / seed2 best=0@1 final=0</text>
+<polyline points="80.0,400.0 118.0,400.0 156.0,400.0 194.0,400.0 232.0,400.0 270.0,400.0 308.0,400.0" fill="none" stroke="#d62728" stroke-width="2"/>
+<circle cx="80.0" cy="400.0" r="6" fill="#d62728" stroke="black"/>
+<rect x="303.0" y="395.0" width="10" height="10" fill="#d62728" stroke="black"/>
+<line x1="80" y1="460" x2="105" y2="460" stroke="#d62728" stroke-width="2"/><text x="112" y="464" font-family="Arial" font-size="11">v6 / R2 / seed2 best=0@1 final=0</text>
+<polyline points="80.0,400.0 118.0,400.0 156.0,400.0 194.0,400.0 232.0,400.0 270.0,400.0 308.0,400.0 346.0,400.0 384.0,400.0 422.0,400.0 460.0,400.0 498.0,400.0 536.0,400.0 574.0,400.0 612.0,400.0 650.0,400.0 688.0,400.0 726.0,400.0 764.0,400.0 802.0,400.0 840.0,400.0" fill="none" stroke="#2ca02c" stroke-width="2"/>
+<circle cx="80.0" cy="400.0" r="6" fill="#2ca02c" stroke="black"/>
+<rect x="835.0" y="395.0" width="10" height="10" fill="#2ca02c" stroke="black"/>
+<line x1="80" y1="475" x2="105" y2="475" stroke="#2ca02c" stroke-width="2"/><text x="112" y="479" font-family="Arial" font-size="11">v6 / R2 / seed2 best=0@1 final=0</text>
+</svg>

@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="920" height="500" viewBox="0 0 920 500">
+<rect width="100%" height="100%" fill="white"/>
+<text x="80" y="25" font-family="Arial" font-size="16">visual-antmaze-medium-navigate task2: Best-Eval / Peak Success</text>
+<line x1="80" y1="400.0" x2="840" y2="400.0" stroke="#ddd"/>
+<text x="45" y="404.0" font-family="Arial" font-size="11">0</text>
+<line x1="80" y1="310.0" x2="840" y2="310.0" stroke="#ddd"/>
+<text x="45" y="314.0" font-family="Arial" font-size="11">0.25</text>
+<line x1="80" y1="220.0" x2="840" y2="220.0" stroke="#ddd"/>
+<text x="45" y="224.0" font-family="Arial" font-size="11">0.5</text>
+<line x1="80" y1="130.0" x2="840" y2="130.0" stroke="#ddd"/>
+<text x="45" y="134.0" font-family="Arial" font-size="11">0.75</text>
+<line x1="80" y1="40.0" x2="840" y2="40.0" stroke="#ddd"/>
+<text x="45" y="44.0" font-family="Arial" font-size="11">1</text>
+<line x1="80" y1="400" x2="840" y2="400" stroke="#333"/><line x1="80" y1="40" x2="80" y2="400" stroke="#333"/>
+<line x1="80.0" y1="400" x2="80.0" y2="405" stroke="#333"/>
+<text x="68.0" y="420" font-family="Arial" font-size="11">0</text>
+<line x1="232.0" y1="400" x2="232.0" y2="405" stroke="#333"/>
+<text x="220.0" y="420" font-family="Arial" font-size="11">200k</text>
+<line x1="384.0" y1="400" x2="384.0" y2="405" stroke="#333"/>
+<text x="372.0" y="420" font-family="Arial" font-size="11">400k</text>
+<line x1="536.0" y1="400" x2="536.0" y2="405" stroke="#333"/>
+<text x="524.0" y="420" font-family="Arial" font-size="11">600k</text>
+<line x1="688.0" y1="400" x2="688.0" y2="405" stroke="#333"/>
+<text x="676.0" y="420" font-family="Arial" font-size="11">800k</text>
+<line x1="840.0" y1="400" x2="840.0" y2="405" stroke="#333"/>
+<text x="828.0" y="420" font-family="Arial" font-size="11">1M</text>
+<polyline points="80.0,400.0 118.0,400.0 156.0,256.0 194.0,364.0 232.0,400.0 270.0,292.0 308.0,328.0" fill="none" stroke="#1f77b4" stroke-width="2"/>
+<circle cx="156.0" cy="256.0" r="6" fill="#1f77b4" stroke="black"/>
+<rect x="303.0" y="323.0" width="10" height="10" fill="#1f77b4" stroke="black"/>
+<line x1="80" y1="445" x2="105" y2="445" stroke="#1f77b4" stroke-width="2"/><text x="112" y="449" font-family="Arial" font-size="11">v6 / A1 / seed2 best=0.4@100000 final=0.2</text>
+<polyline points="80.0,400.0 118.0,400.0 156.0,328.0 194.0,364.0 232.0,364.0 270.0,328.0 308.0,184.0" fill="none" stroke="#d62728" stroke-width="2"/>
+<circle cx="308.0" cy="184.0" r="6" fill="#d62728" stroke="black"/>
+<rect x="303.0" y="179.0" width="10" height="10" fill="#d62728" stroke="black"/>
+<line x1="80" y1="460" x2="105" y2="460" stroke="#d62728" stroke-width="2"/><text x="112" y="464" font-family="Arial" font-size="11">v6 / R2 / seed2 best=0.6@300000 final=0.6</text>
+<polyline points="80.0,400.0 80.0,400.0 156.0,320.8 156.0,227.2 232.0,227.2 232.0,104.8 308.0,184.0 384.0,320.8 460.0,328.0 536.0,335.2 612.0,313.6 688.0,335.2 764.0,378.4 840.0,392.8" fill="none" stroke="#2ca02c" stroke-width="2"/>
+<circle cx="232.0" cy="104.8" r="6" fill="#2ca02c" stroke="black"/>
+<rect x="835.0" y="387.8" width="10" height="10" fill="#2ca02c" stroke="black"/>
+<line x1="80" y1="475" x2="105" y2="475" stroke="#2ca02c" stroke-width="2"/><text x="112" y="479" font-family="Arial" font-size="11">v7 / R2 / seed2 best=0.82@200000 final=0.02</text>
+<polyline points="80.0,400.0 156.0,133.6 232.0,191.2 308.0,198.4 384.0,220.0 460.0,198.4 536.0,227.2 612.0,299.2 688.0,299.2 764.0,292.0 840.0,306.4" fill="none" stroke="#9467bd" stroke-width="2"/>
+<circle cx="156.0" cy="133.6" r="6" fill="#9467bd" stroke="black"/>
+<rect x="835.0" y="301.4" width="10" height="10" fill="#9467bd" stroke="black"/>
+<line x1="80" y1="490" x2="105" y2="490" stroke="#9467bd" stroke-width="2"/><text x="112" y="494" font-family="Arial" font-size="11">v8 / R2_stable / seed2 best=0.74@100000 final=0.26</text>
+<polyline points="80.0,400.0 80.8,400.0" fill="none" stroke="#ff7f0e" stroke-width="2"/>
+<circle cx="80.0" cy="400.0" r="6" fill="#ff7f0e" stroke="black"/>
+<rect x="75.8" y="395.0" width="10" height="10" fill="#ff7f0e" stroke="black"/>
+<line x1="80" y1="505" x2="105" y2="505" stroke="#ff7f0e" stroke-width="2"/><text x="112" y="509" font-family="Arial" font-size="11">v8p1 / R2_stable_strong / seed2 best=0@1 final=0</text>
+<polyline points="80.0,400.0 156.0,220.0 232.0,176.8 308.0,133.6 384.0,198.4 460.0,227.2 536.0,198.4 612.0,263.2 688.0,292.0 764.0,364.0 840.0,256.0" fill="none" stroke="#17becf" stroke-width="2"/>
+<circle cx="308.0" cy="133.6" r="6" fill="#17becf" stroke="black"/>
+<rect x="835.0" y="251.0" width="10" height="10" fill="#17becf" stroke="black"/>
+<line x1="80" y1="520" x2="105" y2="520" stroke="#17becf" stroke-width="2"/><text x="112" y="524" font-family="Arial" font-size="11">v8p1 / R2_stable_strong / seed2 best=0.74@300000 final=0.4</text>
+<polyline points="80.0,400.0 156.0,126.4 232.0,198.4 308.0,198.4 384.0,277.6 460.0,320.8 536.0,299.2 612.0,270.4 688.0,263.2 764.0,263.2 840.0,342.4" fill="none" stroke="#8c564b" stroke-width="2"/>
+<circle cx="156.0" cy="126.4" r="6" fill="#8c564b" stroke="black"/>
+<rect x="835.0" y="337.4" width="10" height="10" fill="#8c564b" stroke="black"/>
+<line x1="80" y1="535" x2="105" y2="535" stroke="#8c564b" stroke-width="2"/><text x="112" y="539" font-family="Arial" font-size="11">v8p1 / R2_stable_strong / seed3 best=0.76@100000 final=0.16</text>
+</svg>
