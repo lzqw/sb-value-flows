@@ -1,6 +1,6 @@
 # Task Scoreboard
 
-Last update: 2026-06-22 01:48:35
+Last update: 2026-06-24 16:11:36
 
 All comparisons use completed final eval rows. Peak success and best-in-run values are retained in CSV for diagnostics, but they do not replace final success.
 
