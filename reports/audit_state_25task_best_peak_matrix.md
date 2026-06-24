@@ -1,6 +1,6 @@
 # State 25-Task Best-Peak Matrix
 
-Updated: 2026-06-25T00:24:39
+Updated: 2026-06-25T01:46:34
 
 This matrix separates best-peak success from completed final success. Best peak is eligible for best-eval reporting; final remains the traditional last-row view.
 
@@ -30,4 +30,4 @@ This matrix separates best-peak success from completed final success. Best peak 
 | scene-play | task2 | 0.97 | 1.0 | FullSafe | 0 | 0.030000000000000027 | 1.0 | FullSafe | 0 | 0.030000000000000027 | has_1m | best_peak reaches/exceeds VF; consider best-eval reporting or 1M confirmation |
 | scene-play | task3 | 0.94 | 1.0 | P0_particle | 2 | 0.06000000000000005 | 1.0 | P0_particle | 2 | 0.06000000000000005 | has_300k | best_peak reaches/exceeds VF; consider best-eval reporting or 1M confirmation |
 | scene-play | task4 | 0.07 | 0.9 | P0_particle | 2 | 0.8300000000000001 | 0.4 | P0_particle | 2 | 0.33 | has_1m | collapse: consider state_stable_v1; keep best peak as best-eval diagnostic |
-| scene-play | task5 | 0.0 | 0.0 | P0_particle | 2 | 0.0 | 0.0 | P0_particle | 2 | 0.0 | has_300k | best_peak reaches/exceeds VF; consider best-eval reporting or 1M confirmation |
+| scene-play | task5 | 0.0 | 0.0 | FullSafe | 2 | 0.0 | 0.0 | FullSafe | 2 | 0.0 | has_300k | best_peak reaches/exceeds VF; consider best-eval reporting or 1M confirmation |
