@@ -128,6 +128,16 @@ def selected_cells(rows: list[dict[str, str]]) -> dict[tuple[str, str], dict[str
     return out
 
 
+def has_peak_sweep_attempt(rows: list[dict[str, str]], domain: str, task: str) -> bool:
+    marker = '/visual_main_peak_coverage_4090d/'
+    for row in rows:
+        if row.get('visual_domain') != domain or row.get('task_id') != task:
+            continue
+        if marker in row.get('root_path', '') or marker in row.get('eval_csv', ''):
+            return True
+    return False
+
+
 def active_envs() -> set[str]:
     out = shell("ps -eo args | grep -E 'main.py' | grep -v grep || true")
     envs = set()
@@ -255,13 +265,14 @@ def choose_jobs(rows: list[dict[str, str]], active: set[str], slots: int) -> lis
             if env in active:
                 continue
             row = cells[(domain, task)]
+            attempted = 1 if has_peak_sweep_attempt(rows, domain, task) else 0
             peak = fnum(row.get('best_peak_success')) if row else math.nan
             if row is None or math.isnan(peak):
-                candidates.append((0, -1.0, task))
+                candidates.append((0, attempted, -1.0, task))
             elif peak < target:
-                candidates.append((1, peak, task))
+                candidates.append((1, attempted, peak, task))
         candidates.sort(key=lambda x: (x[0], x[1], x[2]))
-        for _kind, _peak, task in candidates:
+        for _kind, _attempted, _peak, task in candidates:
             chosen.append((domain, task))
             if len(chosen) >= slots:
                 return chosen
