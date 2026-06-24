@@ -1,6 +1,6 @@
 # State 25-Task Best-Peak Matrix
 
-Updated: 2026-06-24T22:59:56
+Updated: 2026-06-25T00:24:39
 
 This matrix separates best-peak success from completed final success. Best peak is eligible for best-eval reporting; final remains the traditional last-row view.
 
