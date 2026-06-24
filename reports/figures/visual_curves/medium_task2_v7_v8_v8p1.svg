@@ -40,4 +40,8 @@
 <circle cx="308.0" cy="133.6" r="6" fill="#9467bd" stroke="black"/>
 <rect x="835.0" y="251.0" width="10" height="10" fill="#9467bd" stroke="black"/>
 <line x1="80" y1="490" x2="105" y2="490" stroke="#9467bd" stroke-width="2"/><text x="112" y="494" font-family="Arial" font-size="11">v8p1 / R2_stable_strong / seed2 best=0.74@300000 final=0.4</text>
+<polyline points="80.0,400.0 156.0,126.4 232.0,198.4 308.0,198.4 384.0,277.6 460.0,320.8 536.0,299.2 612.0,270.4 688.0,263.2 764.0,263.2 840.0,342.4" fill="none" stroke="#ff7f0e" stroke-width="2"/>
+<circle cx="156.0" cy="126.4" r="6" fill="#ff7f0e" stroke="black"/>
+<rect x="835.0" y="337.4" width="10" height="10" fill="#ff7f0e" stroke="black"/>
+<line x1="80" y1="505" x2="105" y2="505" stroke="#ff7f0e" stroke-width="2"/><text x="112" y="509" font-family="Arial" font-size="11">v8p1 / R2_stable_strong / seed3 best=0.76@100000 final=0.16</text>
 </svg>

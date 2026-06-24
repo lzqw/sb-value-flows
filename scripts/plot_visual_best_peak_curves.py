@@ -51,7 +51,13 @@ def plot_group(rs, title, filename):
 
 def main():
     allr=rows(); made=[]
-    specs=[('visual-antmaze-medium-navigate','task2','medium_task2_v7_v8_v8p1.svg','visual-antmaze-medium task2: v7 vs v8 vs v8.1'),('visual-antmaze-medium-navigate','task4','medium_task4_v7_v8p1.svg','visual-antmaze-medium task4: v7 vs v8.1'),('visual-antmaze-medium-navigate','task1','medium_task1_v7_v8p1.svg','visual-antmaze-medium task1: v7 vs v8.1'),('visual-antmaze-medium-navigate','task3','medium_task3_v7_v8p1.svg','visual-antmaze-medium task3: v7 vs v8.1')]
+    specs=[
+        ('visual-antmaze-medium-navigate','task1','medium_task1_v7_v8p1.svg','visual-antmaze-medium task1: v7 vs v8.1'),
+        ('visual-antmaze-medium-navigate','task2','medium_task2_v7_v8_v8p1.svg','visual-antmaze-medium task2: v7 vs v8 vs v8.1'),
+        ('visual-antmaze-medium-navigate','task3','medium_task3_v7_v8p1.svg','visual-antmaze-medium task3: v7 vs v8.1'),
+        ('visual-antmaze-medium-navigate','task4','medium_task4_v7_v8p1.svg','visual-antmaze-medium task4: v7 vs v8.1'),
+        ('visual-antmaze-medium-navigate','task5','medium_task5_v7_v8p1.svg','visual-antmaze-medium task5: v7 vs v8.1'),
+    ]
     for domain,task,fn,title in specs:
         sub=[r for r in allr if r['visual_domain']==domain and r['task_id']==task and r['method_group'] in ('v7','v8','v8p1')]
         if sub: plot_group(sub,title,fn); made.append(fn)

@@ -70,6 +70,7 @@ def infer_seed(path: Path):
 
 def infer_config(path: Path):
     s=str(path).lower()
+    if 'retentionrepair' in s or 'retention_repair' in s: return 'R2_retention_repair'
     if 'r2_stable_strong' in s or 'r2stablestrong' in s: return 'R2_stable_strong'
     if 'r2_stable' in s: return 'R2_stable'
     if 'value_flows' in s and 'pm_' not in s: return 'baseline_value_flows'
