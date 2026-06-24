@@ -1,8 +1,8 @@
 # State Main Table Peak Polish Progress
 
-- Updated: 2026-06-24T21:20:48
+- Updated: 2026-06-24T22:59:56
 - Output base: `/root/autodl-tmp/sb-value-flows-runs/state_main_table_peak_polish_single4090`
-- Runs recorded: 5
+- Runs recorded: 6
 
 Main reporting uses `best_peak_success`. `final_success` and `drop_final_from_peak` are diagnostics.
 
@@ -13,3 +13,4 @@ Main reporting uses `best_peak_success`. `final_success` and `drop_final_from_pe
 | puzzle-3x3-play-singletask-task3-v0 | A2_action_std_lam0p003 | 2 | completed_300k | 300000 | 0.0 | 0.0 | 1 | 0.0 | >=0.7 |
 | puzzle-3x3-play-singletask-task3-v0 | R3_residual_disagree_typicality_lam0p001 | 2 | completed_300k | 300000 | 0.0 | 0.1 | 100000 | -0.1 | >=0.7 |
 | cube-double-play-singletask-task1-v0 | FullSafe | 2 | completed_300k | 300000 | 1.0 | 1.0 | 300000 | 0.0 | >=0.85 |
+| cube-double-play-singletask-task5-v0 | FullSafe | 2 | completed_300k | 300000 | 0.7 | 0.7 | 300000 | 0.0 | >=0.7 |

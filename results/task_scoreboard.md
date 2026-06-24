@@ -1,6 +1,6 @@
 # Task Scoreboard
 
-Last update: 2026-06-24 21:20:48
+Last update: 2026-06-24 22:59:56
 
 All comparisons use completed final eval rows. Peak success and best-in-run values are retained in CSV for diagnostics, but they do not replace final success.
 
@@ -41,7 +41,7 @@ Tasks with completed 300k screening results but no completed 1M confirmation in 
 | env | VF baseline | best 300k | config | seed | delta | run id | eval path |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | cube-double-play-singletask-task1-v0 | 0.97 | 1 | UNKNOWN | 2 | 0.03 | single4090-new__state_main_table_peak_polish_300k__cube-double-play-singletask-task1-v0__UNKNOWN__seed2__300000 | exp/peakpolish_300k_cube_double_task1_FullSafe_seed2/sd002_20260624_200707/eval.csv |
-| cube-double-play-singletask-task5-v0 | 0.69 | 0.5 | P0_particle | 2 | -0.19 | single4090-new__state_25task_goal__cube-double-play-singletask-task5-v0__P0_particle__seed2__300000 | exp/state25_300k_coverage_cube_double_task5_P0_particle_seed2/sd002_20260621_141124/eval.csv |
+| cube-double-play-singletask-task5-v0 | 0.69 | 0.7 | UNKNOWN | 2 | 0.01 | single4090-new__state_main_table_peak_polish_300k__cube-double-play-singletask-task5-v0__UNKNOWN__seed2__300000 | exp/peakpolish_300k_cube_double_task5_FullSafe_seed2/sd002_20260624_214558/eval.csv |
 | cube-triple-play-singletask-task2-v0 | 0 | 0 | A1_action_std_lam0p001 | 2 | 0 | single4090-new__state_goodcase_harvest_300k__cube-triple-play-singletask-task2-v0__A1_action_std_lam0p001__seed2__300000 | exp/goodcase300k_cube_triple_task2_A1_action_std_lam0p001_seed2/sd002_20260619_173909/eval.csv |
 | cube-triple-play-singletask-task3-v0 | 0.07 | 0.2 | R2_residual_disagree_lam0p001 | 2 | 0.13 | single4090-new__state_goodcase_harvest_300k__cube-triple-play-singletask-task3-v0__R2_residual_disagree_lam0p001__seed2__300000 | exp/goodcase300k_cube_triple_task3_R2_residual_disagree_lam0p001_seed2/sd002_20260620_113121/eval.csv |
 | cube-triple-play-singletask-task4-v0 | 0 | 0 | A1_action_std_lam0p001 | 2 | 0 | single4090-new__state_goodcase_harvest_300k__cube-triple-play-singletask-task4-v0__A1_action_std_lam0p001__seed2__300000 | exp/goodcase300k_cube_triple_task4_A1_action_std_lam0p001_seed2/sd002_20260619_224649/eval.csv |
