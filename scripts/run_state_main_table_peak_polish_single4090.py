@@ -268,8 +268,8 @@ def command(spec: RunSpec) -> list[str]:
         "--eval_episodes=10",
         "--log_interval=25000",
         "--save_interval=999999999",
-        *TASK_FLAGS.get(spec.env, []),
         *config_flags(spec.config),
+        *TASK_FLAGS.get(spec.env, []),
     ]
 
 
