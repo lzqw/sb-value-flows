@@ -1,6 +1,6 @@
 # State Domain Best-Peak Summary
 
-Updated: 2026-06-24T18:47:36
+Updated: 2026-06-24T20:05:24
 
 Domain means are computed once using per-task best peak and once using per-task best completed final. Missing-as-zero variants are included for full-domain accounting.
 
