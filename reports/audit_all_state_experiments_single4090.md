@@ -1,6 +1,6 @@
 # Audit All Single4090 State Experiments
 
-Updated: 2026-06-24T17:30:58
+Updated: 2026-06-24T18:47:36
 
 No training is launched by this audit. It reports both final-row and best-peak result views.
 
@@ -15,23 +15,23 @@ No training is launched by this audit. It reports both final-row and best-peak r
 
 ## File Scan
 
-- Candidate files: 731
-- eval.csv: 221
-- train.csv: 220
-- command.txt: 8
-- Unique audited runs: 162
+- Candidate files: 735
+- eval.csv: 222
+- train.csv: 221
+- command.txt: 9
+- Unique audited runs: 163
 - Missing lightweight sources: none
 
 ## Status Counts
 
-- completed_300k: 116
+- completed_300k: 117
 - completed_1m: 45
 - partial: 1
 
 ## Root Path Counts
 
 - `/root/sb-value-flows/exp`: 108
-- `/root/autodl-tmp/sb-value-flows-runs`: 54
+- `/root/autodl-tmp/sb-value-flows-runs`: 55
 
 ## Domain Summary
 
