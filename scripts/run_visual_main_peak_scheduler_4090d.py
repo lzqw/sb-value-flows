@@ -257,7 +257,10 @@ def choose_jobs(rows: list[dict[str, str]], active: set[str], slots: int) -> lis
         mean = sum(vals) / len(vals) if vals else math.nan
         meets = len(vals) == 5 and not math.isnan(mean) and mean >= target
         log(f'ROW {domain}: covered={len(vals)}/5 mean={mean if not math.isnan(mean) else "nan"} target={target} meets={meets}')
-        if meets:
+        # Current objective prioritizes finishing 5-task coverage across domains.
+        # Once all tasks in a row have a usable peak, move to the next domain even
+        # if the row is below target; the peak gap remains visible in reports.
+        if len(vals) == 5:
             continue
         candidates = []
         for task in TASKS:
