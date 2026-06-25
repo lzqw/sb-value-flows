@@ -48,8 +48,8 @@
 <circle cx="80.0" cy="400.0" r="6" fill="#17becf" stroke="black"/>
 <rect x="303.0" y="395.0" width="10" height="10" fill="#17becf" stroke="black"/>
 <line x1="80" y1="520" x2="105" y2="520" stroke="#17becf" stroke-width="2"/><text x="112" y="524" font-family="Arial" font-size="11">v6 / R2 / seed2 best=0@1 final=0</text>
-<polyline points="80.0,400.0 118.0,400.0 156.0,400.0 194.0,400.0 232.0,400.0" fill="none" stroke="#8c564b" stroke-width="2"/>
+<polyline points="80.0,400.0 118.0,400.0 156.0,400.0 194.0,400.0 232.0,400.0 270.0,400.0" fill="none" stroke="#8c564b" stroke-width="2"/>
 <circle cx="80.0" cy="400.0" r="6" fill="#8c564b" stroke="black"/>
-<rect x="227.0" y="395.0" width="10" height="10" fill="#8c564b" stroke="black"/>
+<rect x="265.0" y="395.0" width="10" height="10" fill="#8c564b" stroke="black"/>
 <line x1="80" y1="535" x2="105" y2="535" stroke="#8c564b" stroke-width="2"/><text x="112" y="539" font-family="Arial" font-size="11">v8p1 / R2_stable_strong / seed2 best=0@1 final=0</text>
 </svg>
