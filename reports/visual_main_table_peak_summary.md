@@ -6,7 +6,7 @@ Best-Eval / Peak Success table selected from all discovered visual runs.
 |---|---|---|---|---|
 | visual-antmaze-medium-navigate | 5 | 0.796 |  | False |
 | visual-scene-play | 5 | 0.324 | 0.45 | False |
-| visual-puzzle-3x3-play | 1 | 0 | 0.25 | False |
+| visual-puzzle-3x3-play | 1 | 0.48 | 0.25 | False |
 | visual-cube-double-play | 5 | 0.16 | 0.15 | True |
 | visual-antmaze-teleport-navigate | 5 | 0.364 | 0.15 | True |
 
@@ -24,7 +24,7 @@ Best-Eval / Peak Success table selected from all discovered visual runs.
 | visual-scene-play | task3 | v8p1 | R2_stable_strong | 2 | completed_500k | 500000 | 0.36 | 0.4 | 350000 | -0.040000000000000036 | /root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/exp/scene_task3_R2stableStrong_peak500k_seed2/scene_task3_R2stableStrong_peak500k_seed2/sd002_20260624_153858/eval.csv | /root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/logs/scene_task3_R2stableStrong_peak500k_seed2/command.txt |
 | visual-scene-play | task4 | v6 | R2 | 2 | completed_300k | 300000 | 0.1 | 0.1 | 300000 | 0.0 | /root/autodl-tmp/sb-value-flows-runs/visual_bigtable_4090d_v6/exp/stageA_visual-scene-play_visual-scene-play-singletask-task4-v0_R2_flow_residual_disagree_std_lam0p001_seed2_300000/stageA_visual-scene-play_visual-scene-play-singletask-task4-v0_R2_flow_residual_disagree_std_lam0p001_seed2_300000/sd002_20260610_202011/eval.csv |  |
 | visual-scene-play | task5 | v8p1 | R2_stable_strong | 2 | partial | 350000 | 0.0 | 0.0 | 1 | 0.0 | /root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/exp/visual-scene-play_task5_R2stableStrong_peak500k_seed2_20260625_051428/visual-scene-play_task5_R2stableStrong_peak500k_seed2_20260625_051428/sd002_20260625_051434/eval.csv | /root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/logs/visual-scene-play_task5_R2stableStrong_peak500k_seed2_20260625_051428/command.txt |
-| visual-puzzle-3x3-play | task1 | v8p1 | R2_stable_strong | 2 | partial | 1 | 0.0 | 0.0 | 1 | 0.0 | /root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/exp/visual-puzzle-3x3-play_task1_R2stableStrong_peak500k_seed2_20260625_191840/visual-puzzle-3x3-play_task1_R2stableStrong_peak500k_seed2_20260625_191840/sd002_20260625_191846/eval.csv | /root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/logs/visual-puzzle-3x3-play_task1_R2stableStrong_peak500k_seed2_20260625_191840/command.txt |
+| visual-puzzle-3x3-play | task1 | v8p1 | R2_stable_strong | 2 | partial | 50000 | 0.48 | 0.48 | 50000 | 0.0 | /root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/exp/visual-puzzle-3x3-play_task1_R2stableStrong_peak500k_seed2_20260625_191840/visual-puzzle-3x3-play_task1_R2stableStrong_peak500k_seed2_20260625_191840/sd002_20260625_191846/eval.csv | /root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/logs/visual-puzzle-3x3-play_task1_R2stableStrong_peak500k_seed2_20260625_191840/command.txt |
 | visual-puzzle-3x3-play | task2 |  |  |  | missing |  |  |  |  |  |  |  |
 | visual-puzzle-3x3-play | task3 |  |  |  | missing |  |  |  |  |  |  |  |
 | visual-puzzle-3x3-play | task4 |  |  |  | missing |  |  |  |  |  |  |  |
