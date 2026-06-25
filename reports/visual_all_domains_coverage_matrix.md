@@ -20,15 +20,15 @@ Main value is `best_peak_success`; final and drop are diagnostics.
 ## visual-scene-play
 
 - covered_tasks: 5/5
-- best_peak_mean: 0.292
+- best_peak_mean: 0.324
 - target: 0.45
 - meets_target: False
 
 | domain | task | method_group | config_name | seed | status | final_step | final_success | best_peak_success | best_peak_step | drop_final_from_peak | eval_csv | command_txt |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
 | visual-scene-play | task1 | v6 | R2 | 2 | completed_300k | 300000 | 1.0 | 1.0 | 200000 | 0.0 | /root/autodl-tmp/sb-value-flows-runs/visual_bigtable_4090d_v6/exp/stageA_visual-scene-play_visual-scene-play-singletask-task1-v0_R2_flow_residual_disagree_std_lam0p001_seed2_300000/stageA_visual-scene-play_visual-scene-play-singletask-task1-v0_R2_flow_residual_disagree_std_lam0p001_seed2_300000/sd002_20260610_161757/eval.csv |  |
-| visual-scene-play | task2 | v8p1 | R2_stable_strong | 2 | partial | 250000 | 0.04 | 0.04 | 250000 | 0.0 | /root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/exp/scene_task2_R2stableStrong_peak500k_seed2/scene_task2_R2stableStrong_peak500k_seed2/sd002_20260624_153858/eval.csv | /root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/logs/scene_task2_R2stableStrong_peak500k_seed2/command.txt |
-| visual-scene-play | task3 | v8p1 | R2_stable_strong | 2 | partial | 250000 | 0.18 | 0.32 | 200000 | -0.14 | /root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/exp/scene_task3_R2stableStrong_peak500k_seed2/scene_task3_R2stableStrong_peak500k_seed2/sd002_20260624_153858/eval.csv | /root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/logs/scene_task3_R2stableStrong_peak500k_seed2/command.txt |
+| visual-scene-play | task2 | v8p1 | R2_stable_strong | 2 | completed_500k | 500000 | 0.1 | 0.12 | 350000 | -0.01999999999999999 | /root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/exp/scene_task2_R2stableStrong_peak500k_seed2/scene_task2_R2stableStrong_peak500k_seed2/sd002_20260624_153858/eval.csv | /root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/logs/scene_task2_R2stableStrong_peak500k_seed2/command.txt |
+| visual-scene-play | task3 | v8p1 | R2_stable_strong | 2 | completed_500k | 500000 | 0.36 | 0.4 | 350000 | -0.040000000000000036 | /root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/exp/scene_task3_R2stableStrong_peak500k_seed2/scene_task3_R2stableStrong_peak500k_seed2/sd002_20260624_153858/eval.csv | /root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/logs/scene_task3_R2stableStrong_peak500k_seed2/command.txt |
 | visual-scene-play | task4 | v6 | R2 | 2 | completed_300k | 300000 | 0.1 | 0.1 | 300000 | 0.0 | /root/autodl-tmp/sb-value-flows-runs/visual_bigtable_4090d_v6/exp/stageA_visual-scene-play_visual-scene-play-singletask-task4-v0_R2_flow_residual_disagree_std_lam0p001_seed2_300000/stageA_visual-scene-play_visual-scene-play-singletask-task4-v0_R2_flow_residual_disagree_std_lam0p001_seed2_300000/sd002_20260610_202011/eval.csv |  |
 | visual-scene-play | task5 | v6 | A1 | 2 | completed_300k | 300000 | 0.0 | 0.0 | 1 | 0.0 | /root/autodl-tmp/sb-value-flows-runs/visual_bigtable_4090d_v6/exp/stageA_visual-scene-play_visual-scene-play-singletask-task5-v0_A1_action_std_lam0p001_seed2_300000/stageA_visual-scene-play_visual-scene-play-singletask-task5-v0_A1_action_std_lam0p001_seed2_300000/sd002_20260610_214116/eval.csv |  |
 
