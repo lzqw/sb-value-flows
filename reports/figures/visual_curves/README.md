@@ -12,6 +12,7 @@ SVG line plots. Circles mark best peak; squares mark final/latest eval.
 - `scene_play_task3_curves.svg`
 - `scene_play_task4_curves.svg`
 - `scene_play_task5_curves.svg`
+- `puzzle_3x3_play_task1_curves.svg`
 - `cube_double_play_task1_curves.svg`
 - `cube_double_play_task2_curves.svg`
 - `cube_double_play_task3_curves.svg`
