@@ -35,13 +35,13 @@ Main value is `best_peak_success`; final and drop are diagnostics.
 ## visual-puzzle-3x3-play
 
 - covered_tasks: 1/5
-- best_peak_mean: 0.48
+- best_peak_mean: 0.62
 - target: 0.25
 - meets_target: False
 
 | domain | task | method_group | config_name | seed | status | final_step | final_success | best_peak_success | best_peak_step | drop_final_from_peak | eval_csv | command_txt |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| visual-puzzle-3x3-play | task1 | v8p1 | R2_stable_strong | 2 | partial | 50000 | 0.48 | 0.48 | 50000 | 0.0 | /root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/exp/visual-puzzle-3x3-play_task1_R2stableStrong_peak500k_seed2_20260625_191840/visual-puzzle-3x3-play_task1_R2stableStrong_peak500k_seed2_20260625_191840/sd002_20260625_191846/eval.csv | /root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/logs/visual-puzzle-3x3-play_task1_R2stableStrong_peak500k_seed2_20260625_191840/command.txt |
+| visual-puzzle-3x3-play | task1 | v8p1 | R2_stable_strong | 2 | partial | 100000 | 0.62 | 0.62 | 100000 | 0.0 | /root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/exp/visual-puzzle-3x3-play_task1_R2stableStrong_peak500k_seed2_20260625_191840/visual-puzzle-3x3-play_task1_R2stableStrong_peak500k_seed2_20260625_191840/sd002_20260625_191846/eval.csv | /root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/logs/visual-puzzle-3x3-play_task1_R2stableStrong_peak500k_seed2_20260625_191840/command.txt |
 | visual-puzzle-3x3-play | task2 |  |  |  | missing |  |  |  |  |  |  |  |
 | visual-puzzle-3x3-play | task3 |  |  |  | missing |  |  |  |  |  |  |  |
 | visual-puzzle-3x3-play | task4 |  |  |  | missing |  |  |  |  |  |  |  |
