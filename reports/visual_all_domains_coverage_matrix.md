@@ -1,13 +1,30 @@
 # Visual All-Domains Coverage Matrix
 
 Main value is `best_peak_success`; final and drop are diagnostics.
+Completed coverage counts only `completed_300k`, `completed_500k`, and `completed_1m` rows.
+Partial rows are retained separately as screening/recovery evidence and are not mixed into completed final results.
 
 ## visual-antmaze-medium-navigate
 
-- covered_tasks: 5/5
-- best_peak_mean: 0.796
+- completed_tasks: 5/5
+- all_evidence_tasks: 5/5
+- completed_best_peak_mean: 0.792
+- all_evidence_best_peak_mean: 0.796
 - target: 
 - meets_target: False
+- row_status: `reference_row`
+
+### Completed Cells
+
+| domain | task | method_group | config_name | seed | status | final_step | final_success | best_peak_success | best_peak_step | drop_final_from_peak | eval_csv | command_txt |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| visual-antmaze-medium-navigate | task1 | v7 | R2 | 2 | completed_1m | 1000000 | 0.2 | 0.78 | 200000 | -0.5800000000000001 | /root/autodl-tmp/sb-value-flows-runs/visual_matched_4090d_v7/exp/domain_visual-antmaze-medium-navigate_visual-antmaze-medium-navigate-singletask-task1-v0_R2_flow_residual_disagree_std_lam0p001_seed2_1m_paper_like_b256_s16_f10/domain_visual-antmaze-medium-navigate_visual-antmaze-medium-navigate-singletask-task1-v0_R2_flow_residual_disagree_std_lam0p001_seed2_1m_paper_like_b256_s16_f10/sd002_20260612_092355/eval.csv |  |
+| visual-antmaze-medium-navigate | task2 | v7 | R2 | 2 | completed_1m | 1000000 | 0.02 | 0.82 | 200000 | -0.7999999999999999 | /root/autodl-tmp/sb-value-flows-runs/visual_matched_4090d_v7/exp/domain_visual-antmaze-medium-navigate_visual-antmaze-medium-navigate-singletask-task2-v0_R2_flow_residual_disagree_std_lam0p001_seed2_1m_paper_like_b256_s16_f10/domain_visual-antmaze-medium-navigate_visual-antmaze-medium-navigate-singletask-task2-v0_R2_flow_residual_disagree_std_lam0p001_seed2_1m_paper_like_b256_s16_f10/sd002_20260612_092355/eval.csv |  |
+| visual-antmaze-medium-navigate | task3 | v7 | R2 | 2 | completed_1m | 1000000 | 0.32 | 0.8 | 100000 | -0.48000000000000004 | /root/autodl-tmp/sb-value-flows-runs/visual_matched_4090d_v7/exp/domain_visual-antmaze-medium-navigate_visual-antmaze-medium-navigate-singletask-task3-v0_R2_flow_residual_disagree_std_lam0p001_seed2_1m_paper_like_b256_s16_f10/domain_visual-antmaze-medium-navigate_visual-antmaze-medium-navigate-singletask-task3-v0_R2_flow_residual_disagree_std_lam0p001_seed2_1m_paper_like_b256_s16_f10/sd002_20260613_115731/eval.csv |  |
+| visual-antmaze-medium-navigate | task4 | v8p1 | R2_retention_repair | 2 | completed_1m | 1000000 | 0.5 | 0.86 | 100000 | -0.36 | /root/autodl-tmp/sb-value-flows-runs/visual_stable_v8p1_repair_4090d/exp/visual_stable_v8p1_task4_R2retentionRepair_seed2/visual_stable_v8p1_task4_R2retentionRepair_seed2/sd002_20260623_093626/eval.csv | /root/autodl-tmp/sb-value-flows-runs/visual_stable_v8p1_repair_4090d/logs/visual_stable_v8p1_task4_R2retentionRepair_seed2/command.txt |
+| visual-antmaze-medium-navigate | task5 | v7 | R2 | 2 | completed_1m | 1000000 | 0.12 | 0.7 | 300000 | -0.58 | /root/autodl-tmp/sb-value-flows-runs/visual_matched_4090d_v7/exp/domain_visual-antmaze-medium-navigate_visual-antmaze-medium-navigate-singletask-task5-v0_R2_flow_residual_disagree_std_lam0p001_seed2_1m_paper_like_b256_s16_f10/domain_visual-antmaze-medium-navigate_visual-antmaze-medium-navigate-singletask-task5-v0_R2_flow_residual_disagree_std_lam0p001_seed2_1m_paper_like_b256_s16_f10/sd002_20260614_143015/eval.csv |  |
+
+### All Evidence Cells
 
 | domain | task | method_group | config_name | seed | status | final_step | final_success | best_peak_success | best_peak_step | drop_final_from_peak | eval_csv | command_txt |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
@@ -19,10 +36,25 @@ Main value is `best_peak_success`; final and drop are diagnostics.
 
 ## visual-scene-play
 
-- covered_tasks: 5/5
-- best_peak_mean: 0.324
+- completed_tasks: 5/5
+- all_evidence_tasks: 5/5
+- completed_best_peak_mean: 0.324
+- all_evidence_best_peak_mean: 0.324
 - target: 0.45
 - meets_target: False
+- row_status: `complete_below_threshold`
+
+### Completed Cells
+
+| domain | task | method_group | config_name | seed | status | final_step | final_success | best_peak_success | best_peak_step | drop_final_from_peak | eval_csv | command_txt |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| visual-scene-play | task1 | v6 | R2 | 2 | completed_300k | 300000 | 1.0 | 1.0 | 200000 | 0.0 | /root/autodl-tmp/sb-value-flows-runs/visual_bigtable_4090d_v6/exp/stageA_visual-scene-play_visual-scene-play-singletask-task1-v0_R2_flow_residual_disagree_std_lam0p001_seed2_300000/stageA_visual-scene-play_visual-scene-play-singletask-task1-v0_R2_flow_residual_disagree_std_lam0p001_seed2_300000/sd002_20260610_161757/eval.csv |  |
+| visual-scene-play | task2 | v8p1 | R2_stable_strong | 2 | completed_500k | 500000 | 0.1 | 0.12 | 350000 | -0.01999999999999999 | /root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/exp/scene_task2_R2stableStrong_peak500k_seed2/scene_task2_R2stableStrong_peak500k_seed2/sd002_20260624_153858/eval.csv | /root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/logs/scene_task2_R2stableStrong_peak500k_seed2/command.txt |
+| visual-scene-play | task3 | v8p1 | R2_stable_strong | 2 | completed_500k | 500000 | 0.36 | 0.4 | 350000 | -0.040000000000000036 | /root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/exp/scene_task3_R2stableStrong_peak500k_seed2/scene_task3_R2stableStrong_peak500k_seed2/sd002_20260624_153858/eval.csv | /root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/logs/scene_task3_R2stableStrong_peak500k_seed2/command.txt |
+| visual-scene-play | task4 | v6 | R2 | 2 | completed_300k | 300000 | 0.1 | 0.1 | 300000 | 0.0 | /root/autodl-tmp/sb-value-flows-runs/visual_bigtable_4090d_v6/exp/stageA_visual-scene-play_visual-scene-play-singletask-task4-v0_R2_flow_residual_disagree_std_lam0p001_seed2_300000/stageA_visual-scene-play_visual-scene-play-singletask-task4-v0_R2_flow_residual_disagree_std_lam0p001_seed2_300000/sd002_20260610_202011/eval.csv |  |
+| visual-scene-play | task5 | v8p1 | R2_stable_strong | 2 | completed_500k | 500000 | 0.0 | 0.0 | 1 | 0.0 | /root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/exp/visual-scene-play_task5_R2stableStrong_peak500k_seed2_20260625_161143/visual-scene-play_task5_R2stableStrong_peak500k_seed2_20260625_161143/sd002_20260625_161149/eval.csv | /root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/logs/visual-scene-play_task5_R2stableStrong_peak500k_seed2_20260625_161143/command.txt |
+
+### All Evidence Cells
 
 | domain | task | method_group | config_name | seed | status | final_step | final_success | best_peak_success | best_peak_step | drop_final_from_peak | eval_csv | command_txt |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
@@ -34,10 +66,25 @@ Main value is `best_peak_success`; final and drop are diagnostics.
 
 ## visual-puzzle-3x3-play
 
-- covered_tasks: 5/5
-- best_peak_mean: 0.18
+- completed_tasks: 2/5
+- all_evidence_tasks: 5/5
+- completed_best_peak_mean: 0.02
+- all_evidence_best_peak_mean: 0.18
 - target: 0.25
 - meets_target: False
+- row_status: `partial_screening_coverage`
+
+### Completed Cells
+
+| domain | task | method_group | config_name | seed | status | final_step | final_success | best_peak_success | best_peak_step | drop_final_from_peak | eval_csv | command_txt |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| visual-puzzle-3x3-play | task1 |  |  |  | missing |  |  |  |  |  |  |  |
+| visual-puzzle-3x3-play | task2 |  |  |  | missing |  |  |  |  |  |  |  |
+| visual-puzzle-3x3-play | task3 |  |  |  | missing |  |  |  |  |  |  |  |
+| visual-puzzle-3x3-play | task4 | v8p1 | R2_stable_strong | 2 | completed_500k | 500000 | 0.0 | 0.02 | 350000 | -0.02 | /root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/exp/visual-puzzle-3x3-play_task4_R2stableStrong_peak500k_seed2_20260626_150900/visual-puzzle-3x3-play_task4_R2stableStrong_peak500k_seed2_20260626_150900/sd002_20260626_150907/eval.csv | /root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/logs/visual-puzzle-3x3-play_task4_R2stableStrong_peak500k_seed2_20260626_150900/command.txt |
+| visual-puzzle-3x3-play | task5 | v8p1 | R2_stable_strong | 2 | completed_500k | 500000 | 0.0 | 0.02 | 350000 | -0.02 | /root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/exp/visual-puzzle-3x3-play_task5_R2stableStrong_peak500k_seed2_20260626_150900/visual-puzzle-3x3-play_task5_R2stableStrong_peak500k_seed2_20260626_150900/sd002_20260626_150906/eval.csv | /root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/logs/visual-puzzle-3x3-play_task5_R2stableStrong_peak500k_seed2_20260626_150900/command.txt |
+
+### All Evidence Cells
 
 | domain | task | method_group | config_name | seed | status | final_step | final_success | best_peak_success | best_peak_step | drop_final_from_peak | eval_csv | command_txt |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
@@ -49,30 +96,60 @@ Main value is `best_peak_success`; final and drop are diagnostics.
 
 ## visual-cube-double-play
 
-- covered_tasks: 5/5
-- best_peak_mean: 0.16
+- completed_tasks: 5/5
+- all_evidence_tasks: 5/5
+- completed_best_peak_mean: 0.16
+- all_evidence_best_peak_mean: 0.16
 - target: 0.15
 - meets_target: True
+- row_status: `complete_threshold_met`
+
+### Completed Cells
 
 | domain | task | method_group | config_name | seed | status | final_step | final_success | best_peak_success | best_peak_step | drop_final_from_peak | eval_csv | command_txt |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
 | visual-cube-double-play | task1 | v6 | A1 | 2 | completed_300k | 300000 | 0.3 | 0.3 | 300000 | 0.0 | /root/autodl-tmp/sb-value-flows-runs/visual_bigtable_4090d_v6/exp/stageA_visual-cube-double-play_visual-cube-double-play-singletask-task1-v0_A1_action_std_lam0p001_seed2_300000/stageA_visual-cube-double-play_visual-cube-double-play-singletask-task1-v0_A1_action_std_lam0p001_seed2_300000/sd002_20260610_094036/eval.csv |  |
-| visual-cube-double-play | task2 | v6 | R2 | 2 | smoke | 1000000 | 0.0 | 0.0 | 1 | 0.0 | /root/autodl-tmp/sb-value-flows-runs/visual_bigtable_4090d_v6/exp/stageB_visual-cube-double-play_visual-cube-double-play-singletask-task2-v0_R2_flow_residual_disagree_std_lam0p001_seed2_1000000/stageB_visual-cube-double-play_visual-cube-double-play-singletask-task2-v0_R2_flow_residual_disagree_std_lam0p001_seed2_1000000/sd002_20260611_120804/eval.csv |  |
-| visual-cube-double-play | task3 | v6 | R2 | 2 | smoke | 1000000 | 0.1 | 0.1 | 300000 | 0.0 | /root/autodl-tmp/sb-value-flows-runs/visual_bigtable_4090d_v6/exp/stageB_visual-cube-double-play_visual-cube-double-play-singletask-task3-v0_R2_flow_residual_disagree_std_lam0p001_seed2_1000000/stageB_visual-cube-double-play_visual-cube-double-play-singletask-task3-v0_R2_flow_residual_disagree_std_lam0p001_seed2_1000000/sd002_20260611_120804/eval.csv |  |
+| visual-cube-double-play | task2 | v6 | R2 | 2 | completed_1m | 1000000 | 0.0 | 0.0 | 1 | 0.0 | /root/autodl-tmp/sb-value-flows-runs/visual_bigtable_4090d_v6/exp/stageB_visual-cube-double-play_visual-cube-double-play-singletask-task2-v0_R2_flow_residual_disagree_std_lam0p001_seed2_1000000/stageB_visual-cube-double-play_visual-cube-double-play-singletask-task2-v0_R2_flow_residual_disagree_std_lam0p001_seed2_1000000/sd002_20260611_120804/eval.csv |  |
+| visual-cube-double-play | task3 | v6 | R2 | 2 | completed_1m | 1000000 | 0.1 | 0.1 | 300000 | 0.0 | /root/autodl-tmp/sb-value-flows-runs/visual_bigtable_4090d_v6/exp/stageB_visual-cube-double-play_visual-cube-double-play-singletask-task3-v0_R2_flow_residual_disagree_std_lam0p001_seed2_1000000/stageB_visual-cube-double-play_visual-cube-double-play-singletask-task3-v0_R2_flow_residual_disagree_std_lam0p001_seed2_1000000/sd002_20260611_120804/eval.csv |  |
 | visual-cube-double-play | task4 | v6 | A1 | 2 | completed_300k | 300000 | 0.0 | 0.1 | 250000 | -0.1 | /root/autodl-tmp/sb-value-flows-runs/visual_bigtable_4090d_v6/exp/stageA_visual-cube-double-play_visual-cube-double-play-singletask-task4-v0_A1_action_std_lam0p001_seed2_300000/stageA_visual-cube-double-play_visual-cube-double-play-singletask-task4-v0_A1_action_std_lam0p001_seed2_300000/sd002_20260610_133949/eval.csv |  |
-| visual-cube-double-play | task5 | v6 | R2 | 2 | smoke | 1000000 | 0.0 | 0.3 | 650000 | -0.3 | /root/autodl-tmp/sb-value-flows-runs/visual_bigtable_4090d_v6/exp/stageB_visual-cube-double-play_visual-cube-double-play-singletask-task5-v0_R2_flow_residual_disagree_std_lam0p001_seed2_1000000/stageB_visual-cube-double-play_visual-cube-double-play-singletask-task5-v0_R2_flow_residual_disagree_std_lam0p001_seed2_1000000/sd002_20260611_162718/eval.csv |  |
+| visual-cube-double-play | task5 | v6 | R2 | 2 | completed_1m | 1000000 | 0.0 | 0.3 | 650000 | -0.3 | /root/autodl-tmp/sb-value-flows-runs/visual_bigtable_4090d_v6/exp/stageB_visual-cube-double-play_visual-cube-double-play-singletask-task5-v0_R2_flow_residual_disagree_std_lam0p001_seed2_1000000/stageB_visual-cube-double-play_visual-cube-double-play-singletask-task5-v0_R2_flow_residual_disagree_std_lam0p001_seed2_1000000/sd002_20260611_162718/eval.csv |  |
+
+### All Evidence Cells
+
+| domain | task | method_group | config_name | seed | status | final_step | final_success | best_peak_success | best_peak_step | drop_final_from_peak | eval_csv | command_txt |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| visual-cube-double-play | task1 | v6 | A1 | 2 | completed_300k | 300000 | 0.3 | 0.3 | 300000 | 0.0 | /root/autodl-tmp/sb-value-flows-runs/visual_bigtable_4090d_v6/exp/stageA_visual-cube-double-play_visual-cube-double-play-singletask-task1-v0_A1_action_std_lam0p001_seed2_300000/stageA_visual-cube-double-play_visual-cube-double-play-singletask-task1-v0_A1_action_std_lam0p001_seed2_300000/sd002_20260610_094036/eval.csv |  |
+| visual-cube-double-play | task2 | v6 | R2 | 2 | completed_1m | 1000000 | 0.0 | 0.0 | 1 | 0.0 | /root/autodl-tmp/sb-value-flows-runs/visual_bigtable_4090d_v6/exp/stageB_visual-cube-double-play_visual-cube-double-play-singletask-task2-v0_R2_flow_residual_disagree_std_lam0p001_seed2_1000000/stageB_visual-cube-double-play_visual-cube-double-play-singletask-task2-v0_R2_flow_residual_disagree_std_lam0p001_seed2_1000000/sd002_20260611_120804/eval.csv |  |
+| visual-cube-double-play | task3 | v6 | R2 | 2 | completed_1m | 1000000 | 0.1 | 0.1 | 300000 | 0.0 | /root/autodl-tmp/sb-value-flows-runs/visual_bigtable_4090d_v6/exp/stageB_visual-cube-double-play_visual-cube-double-play-singletask-task3-v0_R2_flow_residual_disagree_std_lam0p001_seed2_1000000/stageB_visual-cube-double-play_visual-cube-double-play-singletask-task3-v0_R2_flow_residual_disagree_std_lam0p001_seed2_1000000/sd002_20260611_120804/eval.csv |  |
+| visual-cube-double-play | task4 | v6 | A1 | 2 | completed_300k | 300000 | 0.0 | 0.1 | 250000 | -0.1 | /root/autodl-tmp/sb-value-flows-runs/visual_bigtable_4090d_v6/exp/stageA_visual-cube-double-play_visual-cube-double-play-singletask-task4-v0_A1_action_std_lam0p001_seed2_300000/stageA_visual-cube-double-play_visual-cube-double-play-singletask-task4-v0_A1_action_std_lam0p001_seed2_300000/sd002_20260610_133949/eval.csv |  |
+| visual-cube-double-play | task5 | v6 | R2 | 2 | completed_1m | 1000000 | 0.0 | 0.3 | 650000 | -0.3 | /root/autodl-tmp/sb-value-flows-runs/visual_bigtable_4090d_v6/exp/stageB_visual-cube-double-play_visual-cube-double-play-singletask-task5-v0_R2_flow_residual_disagree_std_lam0p001_seed2_1000000/stageB_visual-cube-double-play_visual-cube-double-play-singletask-task5-v0_R2_flow_residual_disagree_std_lam0p001_seed2_1000000/sd002_20260611_162718/eval.csv |  |
 
 ## visual-antmaze-teleport-navigate
 
-- covered_tasks: 5/5
-- best_peak_mean: 0.364
+- completed_tasks: 5/5
+- all_evidence_tasks: 5/5
+- completed_best_peak_mean: 0.36
+- all_evidence_best_peak_mean: 0.364
 - target: 0.15
 - meets_target: True
+- row_status: `complete_threshold_met`
+
+### Completed Cells
+
+| domain | task | method_group | config_name | seed | status | final_step | final_success | best_peak_success | best_peak_step | drop_final_from_peak | eval_csv | command_txt |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| visual-antmaze-teleport-navigate | task1 | v6 | R2 | 2 | completed_300k | 300000 | 0.0 | 0.4 | 100000 | -0.4 | /root/autodl-tmp/sb-value-flows-runs/visual_bigtable_4090d_v6/exp/stageA_visual-antmaze-teleport-navigate_visual-antmaze-teleport-navigate-singletask-task1-v0_R2_flow_residual_disagree_std_lam0p001_seed2_300000/stageA_visual-antmaze-teleport-navigate_visual-antmaze-teleport-navigate-singletask-task1-v0_R2_flow_residual_disagree_std_lam0p001_seed2_300000/sd002_20260610_025112/eval.csv |  |
+| visual-antmaze-teleport-navigate | task2 | v6 | R2 | 2 | completed_300k | 300000 | 0.0 | 0.4 | 250000 | -0.4 | /root/autodl-tmp/sb-value-flows-runs/visual_bigtable_4090d_v6/exp/stageA_visual-antmaze-teleport-navigate_visual-antmaze-teleport-navigate-singletask-task2-v0_R2_flow_residual_disagree_std_lam0p001_seed2_300000/stageA_visual-antmaze-teleport-navigate_visual-antmaze-teleport-navigate-singletask-task2-v0_R2_flow_residual_disagree_std_lam0p001_seed2_300000/sd002_20260610_041317/eval.csv |  |
+| visual-antmaze-teleport-navigate | task3 | v6 | A1 | 2 | completed_300k | 300000 | 0.3 | 0.3 | 300000 | 0.0 | /root/autodl-tmp/sb-value-flows-runs/visual_bigtable_4090d_v6/exp/stageA_visual-antmaze-teleport-navigate_visual-antmaze-teleport-navigate-singletask-task3-v0_A1_action_std_lam0p001_seed2_300000/stageA_visual-antmaze-teleport-navigate_visual-antmaze-teleport-navigate-singletask-task3-v0_A1_action_std_lam0p001_seed2_300000/sd002_20260610_053423/eval.csv |  |
+| visual-antmaze-teleport-navigate | task4 | v6 | R2 | 2 | completed_1m | 1000000 | 0.3 | 0.5 | 750000 | -0.2 | /root/autodl-tmp/sb-value-flows-runs/visual_bigtable_4090d_v6/exp/stageB_visual-antmaze-teleport-navigate_visual-antmaze-teleport-navigate-singletask-task4-v0_R2_flow_residual_disagree_std_lam0p001_seed2_1000000/stageB_visual-antmaze-teleport-navigate_visual-antmaze-teleport-navigate-singletask-task4-v0_R2_flow_residual_disagree_std_lam0p001_seed2_1000000/sd002_20260611_032534/eval.csv |  |
+| visual-antmaze-teleport-navigate | task5 | v6 | R2 | 2 | completed_300k | 300000 | 0.1 | 0.2 | 150000 | -0.1 | /root/autodl-tmp/sb-value-flows-runs/visual_bigtable_4090d_v6/exp/stageA_visual-antmaze-teleport-navigate_visual-antmaze-teleport-navigate-singletask-task5-v0_R2_flow_residual_disagree_std_lam0p001_seed2_300000/stageA_visual-antmaze-teleport-navigate_visual-antmaze-teleport-navigate-singletask-task5-v0_R2_flow_residual_disagree_std_lam0p001_seed2_300000/sd002_20260610_081831/eval.csv |  |
+
+### All Evidence Cells
 
 | domain | task | method_group | config_name | seed | status | final_step | final_success | best_peak_success | best_peak_step | drop_final_from_peak | eval_csv | command_txt |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
 | visual-antmaze-teleport-navigate | task1 | v6 | R2 | 2 | completed_300k | 300000 | 0.0 | 0.4 | 100000 | -0.4 | /root/autodl-tmp/sb-value-flows-runs/visual_bigtable_4090d_v6/exp/stageA_visual-antmaze-teleport-navigate_visual-antmaze-teleport-navigate-singletask-task1-v0_R2_flow_residual_disagree_std_lam0p001_seed2_300000/stageA_visual-antmaze-teleport-navigate_visual-antmaze-teleport-navigate-singletask-task1-v0_R2_flow_residual_disagree_std_lam0p001_seed2_300000/sd002_20260610_025112/eval.csv |  |
 | visual-antmaze-teleport-navigate | task2 | v6 | R2 | 2 | completed_300k | 300000 | 0.0 | 0.4 | 250000 | -0.4 | /root/autodl-tmp/sb-value-flows-runs/visual_bigtable_4090d_v6/exp/stageA_visual-antmaze-teleport-navigate_visual-antmaze-teleport-navigate-singletask-task2-v0_R2_flow_residual_disagree_std_lam0p001_seed2_300000/stageA_visual-antmaze-teleport-navigate_visual-antmaze-teleport-navigate-singletask-task2-v0_R2_flow_residual_disagree_std_lam0p001_seed2_300000/sd002_20260610_041317/eval.csv |  |
 | visual-antmaze-teleport-navigate | task3 | v7 | A1 | 2 | partial | 400000 | 0.3 | 0.32 | 100000 | -0.020000000000000018 | /root/autodl-tmp/sb-value-flows-runs/visual_matched_4090d_v7/exp/domain_visual-antmaze-teleport-navigate_visual-antmaze-teleport-navigate-singletask-task3-v0_A1_action_std_lam0p001_seed2_1m_paper_like_b256_s16_f10/domain_visual-antmaze-teleport-navigate_visual-antmaze-teleport-navigate-singletask-task3-v0_A1_action_std_lam0p001_seed2_1m_paper_like_b256_s16_f10/sd002_20260615_170130/eval.csv |  |
-| visual-antmaze-teleport-navigate | task4 | v6 | R2 | 2 | smoke | 1000000 | 0.3 | 0.5 | 750000 | -0.2 | /root/autodl-tmp/sb-value-flows-runs/visual_bigtable_4090d_v6/exp/stageB_visual-antmaze-teleport-navigate_visual-antmaze-teleport-navigate-singletask-task4-v0_R2_flow_residual_disagree_std_lam0p001_seed2_1000000/stageB_visual-antmaze-teleport-navigate_visual-antmaze-teleport-navigate-singletask-task4-v0_R2_flow_residual_disagree_std_lam0p001_seed2_1000000/sd002_20260611_032534/eval.csv |  |
+| visual-antmaze-teleport-navigate | task4 | v6 | R2 | 2 | completed_1m | 1000000 | 0.3 | 0.5 | 750000 | -0.2 | /root/autodl-tmp/sb-value-flows-runs/visual_bigtable_4090d_v6/exp/stageB_visual-antmaze-teleport-navigate_visual-antmaze-teleport-navigate-singletask-task4-v0_R2_flow_residual_disagree_std_lam0p001_seed2_1000000/stageB_visual-antmaze-teleport-navigate_visual-antmaze-teleport-navigate-singletask-task4-v0_R2_flow_residual_disagree_std_lam0p001_seed2_1000000/sd002_20260611_032534/eval.csv |  |
 | visual-antmaze-teleport-navigate | task5 | v6 | R2 | 2 | completed_300k | 300000 | 0.1 | 0.2 | 150000 | -0.1 | /root/autodl-tmp/sb-value-flows-runs/visual_bigtable_4090d_v6/exp/stageA_visual-antmaze-teleport-navigate_visual-antmaze-teleport-navigate-singletask-task5-v0_R2_flow_residual_disagree_std_lam0p001_seed2_300000/stageA_visual-antmaze-teleport-navigate_visual-antmaze-teleport-navigate-singletask-task5-v0_R2_flow_residual_disagree_std_lam0p001_seed2_300000/sd002_20260610_081831/eval.csv |  |

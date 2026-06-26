@@ -26,6 +26,7 @@ COLS = [
     'final_success', 'best_peak_success', 'best_peak_step', 'drop_final_from_peak',
     'eval_csv', 'command_txt',
 ]
+COMPLETE_STATUSES = {'completed_300k', 'completed_500k', 'completed_1m'}
 
 
 def fnum(value: str | None) -> float:
@@ -42,7 +43,11 @@ def read_rows() -> list[dict[str, str]]:
         return list(csv.DictReader(f))
 
 
-def select_best(rows: list[dict[str, str]]) -> dict[tuple[str, str], dict[str, str] | None]:
+def select_best(
+    rows: list[dict[str, str]],
+    *,
+    completed_only: bool = False,
+) -> dict[tuple[str, str], dict[str, str] | None]:
     out = {}
     for domain in DOMAINS:
         for task in TASKS:
@@ -52,6 +57,8 @@ def select_best(rows: list[dict[str, str]]) -> dict[tuple[str, str], dict[str, s
                 and r.get('task_id') == task
                 and not math.isnan(fnum(r.get('best_peak_success')))
             ]
+            if completed_only:
+                candidates = [r for r in candidates if r.get('status') in COMPLETE_STATUSES]
             candidates.sort(
                 key=lambda r: (
                     fnum(r.get('best_peak_success')),
@@ -108,35 +115,109 @@ def md_table(records: list[dict[str, str]], cols: list[str]) -> str:
 def main() -> None:
     REPORTS.mkdir(exist_ok=True)
     rows = read_rows()
-    selected = select_best(rows)
-    records = [cell_record(domain, task, selected[(domain, task)]) for domain in DOMAINS for task in TASKS]
+    selected_all = select_best(rows)
+    selected_completed = select_best(rows, completed_only=True)
+    records_all = [
+        cell_record(domain, task, selected_all[(domain, task)])
+        for domain in DOMAINS
+        for task in TASKS
+    ]
+    records_completed = [
+        cell_record(domain, task, selected_completed[(domain, task)])
+        for domain in DOMAINS
+        for task in TASKS
+    ]
 
-    matrix_lines = ['# Visual All-Domains Coverage Matrix', '', 'Main value is `best_peak_success`; final and drop are diagnostics.', '']
+    matrix_lines = [
+        '# Visual All-Domains Coverage Matrix',
+        '',
+        'Main value is `best_peak_success`; final and drop are diagnostics.',
+        'Completed coverage counts only `completed_300k`, `completed_500k`, and `completed_1m` rows.',
+        'Partial rows are retained separately as screening/recovery evidence and are not mixed into completed final results.',
+        '',
+    ]
     summary_records = []
     for domain in DOMAINS:
-        domain_records = [r for r in records if r['domain'] == domain]
-        vals = [fnum(r.get('best_peak_success')) for r in domain_records if not math.isnan(fnum(r.get('best_peak_success')))]
-        mean = sum(vals) / len(vals) if vals else math.nan
+        domain_all = [r for r in records_all if r['domain'] == domain]
+        domain_completed = [r for r in records_completed if r['domain'] == domain]
+        vals_all = [fnum(r.get('best_peak_success')) for r in domain_all if not math.isnan(fnum(r.get('best_peak_success')))]
+        vals_completed = [
+            fnum(r.get('best_peak_success'))
+            for r in domain_completed
+            if not math.isnan(fnum(r.get('best_peak_success')))
+        ]
+        mean_all = sum(vals_all) / len(vals_all) if vals_all else math.nan
+        mean_completed = sum(vals_completed) / len(vals_completed) if vals_completed else math.nan
         target = THRESHOLDS.get(domain, '')
-        covered = len(vals)
-        meets = bool(target != '' and covered == 5 and not math.isnan(mean) and mean >= float(target))
+        covered_all = len(vals_all)
+        covered_completed = len(vals_completed)
+        meets = bool(target != '' and covered_completed == 5 and not math.isnan(mean_completed) and mean_completed >= float(target))
+        if target == '':
+            row_status = 'reference_row'
+        elif covered_completed == 5 and meets:
+            row_status = 'complete_threshold_met'
+        elif covered_completed == 5:
+            row_status = 'complete_below_threshold'
+        elif covered_all == 5:
+            row_status = 'partial_screening_coverage'
+        elif covered_all > 0:
+            row_status = 'incomplete_partial'
+        else:
+            row_status = 'no_data'
         summary_records.append({
             'domain': domain,
-            'covered_tasks': str(covered),
-            'best_peak_mean': '' if math.isnan(mean) else f'{mean:.6g}',
+            'completed_tasks': str(covered_completed),
+            'all_evidence_tasks': str(covered_all),
+            'completed_best_peak_mean': '' if math.isnan(mean_completed) else f'{mean_completed:.6g}',
+            'all_evidence_best_peak_mean': '' if math.isnan(mean_all) else f'{mean_all:.6g}',
             'target': str(target),
             'meets_target': str(meets),
+            'row_status': row_status,
         })
-        matrix_lines += [f'## {domain}', '', f'- covered_tasks: {covered}/5', f'- best_peak_mean: {"" if math.isnan(mean) else f"{mean:.6g}"}', f'- target: {target}', f'- meets_target: {meets}', '']
-        matrix_lines.append(md_table(domain_records, COLS))
+        matrix_lines += [
+            f'## {domain}',
+            '',
+            f'- completed_tasks: {covered_completed}/5',
+            f'- all_evidence_tasks: {covered_all}/5',
+            f'- completed_best_peak_mean: {"" if math.isnan(mean_completed) else f"{mean_completed:.6g}"}',
+            f'- all_evidence_best_peak_mean: {"" if math.isnan(mean_all) else f"{mean_all:.6g}"}',
+            f'- target: {target}',
+            f'- meets_target: {meets}',
+            f'- row_status: `{row_status}`',
+            '',
+            '### Completed Cells',
+            '',
+        ]
+        matrix_lines.append(md_table(domain_completed, COLS))
+        matrix_lines += ['', '### All Evidence Cells', '']
+        matrix_lines.append(md_table(domain_all, COLS))
         matrix_lines.append('')
 
-    main_lines = ['# Visual Main Table Peak Summary', '', 'Best-Eval / Peak Success table selected from all discovered visual runs.', '']
-    main_lines.append(md_table(summary_records, ['domain', 'covered_tasks', 'best_peak_mean', 'target', 'meets_target']))
+    main_lines = [
+        '# Visual Main Table Peak Summary',
+        '',
+        'Best-Eval / Peak Success table selected from all discovered visual runs.',
+        'Completed coverage excludes partial/screening rows; those rows are shown separately as recovery evidence.',
+        '',
+    ]
+    main_lines.append(md_table(summary_records, [
+        'domain',
+        'completed_tasks',
+        'all_evidence_tasks',
+        'completed_best_peak_mean',
+        'all_evidence_best_peak_mean',
+        'target',
+        'meets_target',
+        'row_status',
+    ]))
     main_lines.append('')
-    main_lines.append('## Selected Cells')
+    main_lines.append('## Completed Selected Cells')
     main_lines.append('')
-    main_lines.append(md_table(records, COLS))
+    main_lines.append(md_table(records_completed, COLS))
+    main_lines.append('')
+    main_lines.append('## All-Evidence Selected Cells')
+    main_lines.append('')
+    main_lines.append(md_table(records_all, COLS))
     main_lines.append('')
 
     (REPORTS / 'visual_all_domains_coverage_matrix.md').write_text('\n'.join(matrix_lines))

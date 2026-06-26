@@ -104,7 +104,7 @@ def infer_method(path: Path, config: str):
 
 def infer_target(path: Path, final_step: int):
     s=str(path).lower()
-    if 'smoke' in s or '_1000' in s: return 1000
+    if 'smoke' in s or re.search(r'(?<!\d)1000(?!\d)', s): return 1000
     if '500000' in s or '500k' in s or 'peak500' in s: return 500000
     if '300000' in s or '300k' in s or 'stagea' in s: return 300000
     if '1000000' in s or '1m' in s or 'matched' in s or 'stageb' in s or 'v7' in s or 'v8' in s: return 1000000
