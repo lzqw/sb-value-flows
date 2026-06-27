@@ -29,6 +29,7 @@ PRIORITY = [
     ('visual-antmaze-teleport-navigate', 0.15),
 ]
 TASKS = [f'task{i}' for i in range(1, 6)]
+COMPLETE_STATUSES = {'completed_300k', 'completed_500k', 'completed_1m'}
 
 COMMON_FLAGS = [
     '--agent=agents/pm_value_flows.py',
@@ -124,6 +125,29 @@ def selected_cells(rows: list[dict[str, str]]) -> dict[tuple[str, str], dict[str
         for task in TASKS:
             candidates = [r for r in rows if r.get('visual_domain') == domain and r.get('task_id') == task and not math.isnan(fnum(r.get('best_peak_success')))]
             candidates.sort(key=lambda r: (fnum(r.get('best_peak_success')), fnum(r.get('final_success')), fnum(r.get('final_step'))), reverse=True)
+            out[(domain, task)] = candidates[0] if candidates else None
+    return out
+
+
+def selected_completed_cells(rows: list[dict[str, str]]) -> dict[tuple[str, str], dict[str, str] | None]:
+    out = {}
+    for domain, _target in PRIORITY:
+        for task in TASKS:
+            candidates = [
+                r for r in rows
+                if r.get('visual_domain') == domain
+                and r.get('task_id') == task
+                and r.get('status') in COMPLETE_STATUSES
+                and not math.isnan(fnum(r.get('best_peak_success')))
+            ]
+            candidates.sort(
+                key=lambda r: (
+                    fnum(r.get('best_peak_success')),
+                    fnum(r.get('final_success')),
+                    fnum(r.get('final_step')),
+                ),
+                reverse=True,
+            )
             out[(domain, task)] = candidates[0] if candidates else None
     return out
 
@@ -246,34 +270,46 @@ def launch(domain: str, task: str, gpu: int) -> None:
 
 
 def choose_jobs(rows: list[dict[str, str]], active: set[str], slots: int) -> list[tuple[str, str]]:
-    cells = selected_cells(rows)
+    all_cells = selected_cells(rows)
+    completed_cells = selected_completed_cells(rows)
     chosen: list[tuple[str, str]] = []
     for domain, target in PRIORITY:
-        vals = []
+        completed_vals = []
+        all_vals = []
         for task in TASKS:
-            row = cells[(domain, task)]
-            if row is not None and not math.isnan(fnum(row.get('best_peak_success'))):
-                vals.append(fnum(row.get('best_peak_success')))
-        mean = sum(vals) / len(vals) if vals else math.nan
-        meets = len(vals) == 5 and not math.isnan(mean) and mean >= target
-        log(f'ROW {domain}: covered={len(vals)}/5 mean={mean if not math.isnan(mean) else "nan"} target={target} meets={meets}')
-        # Current objective prioritizes finishing 5-task coverage across domains.
-        # Once all tasks in a row have a usable peak, move to the next domain even
-        # if the row is below target; the peak gap remains visible in reports.
-        if len(vals) == 5:
+            completed = completed_cells[(domain, task)]
+            if completed is not None and not math.isnan(fnum(completed.get('best_peak_success'))):
+                completed_vals.append(fnum(completed.get('best_peak_success')))
+            all_row = all_cells[(domain, task)]
+            if all_row is not None and not math.isnan(fnum(all_row.get('best_peak_success'))):
+                all_vals.append(fnum(all_row.get('best_peak_success')))
+        completed_mean = sum(completed_vals) / len(completed_vals) if completed_vals else math.nan
+        all_mean = sum(all_vals) / len(all_vals) if all_vals else math.nan
+        meets = len(completed_vals) == 5 and not math.isnan(completed_mean) and completed_mean >= target
+        log(
+            f'ROW {domain}: completed={len(completed_vals)}/5 '
+            f'completed_mean={completed_mean if not math.isnan(completed_mean) else "nan"} '
+            f'all_evidence={len(all_vals)}/5 '
+            f'all_mean={all_mean if not math.isnan(all_mean) else "nan"} '
+            f'target={target} meets={meets}'
+        )
+        if meets:
             continue
         candidates = []
         for task in TASKS:
             env = f'{domain}-singletask-{task}-v0'
             if env in active:
                 continue
-            row = cells[(domain, task)]
+            completed = completed_cells[(domain, task)]
+            all_row = all_cells[(domain, task)]
             attempted = 1 if has_peak_sweep_attempt(rows, domain, task) else 0
-            peak = fnum(row.get('best_peak_success')) if row else math.nan
-            if row is None or math.isnan(peak):
-                candidates.append((0, attempted, -1.0, task))
-            elif peak < target:
-                candidates.append((1, attempted, peak, task))
+            completed_peak = fnum(completed.get('best_peak_success')) if completed else math.nan
+            evidence_peak = fnum(all_row.get('best_peak_success')) if all_row else math.nan
+            priority_peak = evidence_peak if not math.isnan(evidence_peak) else -1.0
+            if completed is None or math.isnan(completed_peak):
+                candidates.append((0, attempted, priority_peak, task))
+            elif completed_peak < target:
+                candidates.append((1, attempted, completed_peak, task))
         candidates.sort(key=lambda x: (x[0], x[1], x[2]))
         for _kind, _attempted, _peak, task in candidates:
             chosen.append((domain, task))
