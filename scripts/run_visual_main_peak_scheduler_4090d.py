@@ -213,10 +213,38 @@ def safe_name(text: str) -> str:
     return re.sub(r'[^A-Za-z0-9_.-]+', '_', text)
 
 
-def build_command(domain: str, task: str, gpu: int) -> tuple[str, list[str], Path, Path]:
+def row_peak_seed(row: dict[str, str]) -> int | None:
+    seed_text = row.get('seed', '')
+    try:
+        if seed_text != '':
+            return int(float(seed_text))
+    except Exception:
+        pass
+    for key in ('root_path', 'eval_csv', 'command_txt'):
+        m = re.search(r'seed(\d+)', row.get(key, ''))
+        if m:
+            return int(m.group(1))
+    return None
+
+
+def next_peak_seed(rows: list[dict[str, str]], domain: str, task: str) -> int:
+    marker = '/visual_main_peak_coverage_4090d/'
+    seeds = []
+    for row in rows:
+        if row.get('visual_domain') != domain or row.get('task_id') != task:
+            continue
+        if marker not in row.get('root_path', '') and marker not in row.get('eval_csv', ''):
+            continue
+        seed = row_peak_seed(row)
+        if seed is not None:
+            seeds.append(seed)
+    return max(seeds) + 1 if seeds else 2
+
+
+def build_command(domain: str, task: str, seed: int, gpu: int) -> tuple[str, list[str], Path, Path]:
     env_name = f'{domain}-singletask-{task}-v0'
     stamp = time.strftime('%Y%m%d_%H%M%S')
-    run_name = safe_name(f'{domain}_{task}_R2stableStrong_peak500k_seed2_{stamp}')
+    run_name = safe_name(f'{domain}_{task}_R2stableStrong_peak500k_seed{seed}_{stamp}')
     run_dir = EXP_DIR / run_name
     log_dir = LOG_DIR / run_name
     ckpt_dir = RUN_BASE / 'checkpoints' / run_name
@@ -225,7 +253,7 @@ def build_command(domain: str, task: str, gpu: int) -> tuple[str, list[str], Pat
         f'--env_name={env_name}',
         f'--save_dir={run_dir}',
         f'--wandb_run_group={run_name}',
-        '--seed=2',
+        f'--seed={seed}',
         '--offline_steps=500000',
         '--online_steps=0',
         '--eval_interval=50000',
@@ -239,9 +267,9 @@ def build_command(domain: str, task: str, gpu: int) -> tuple[str, list[str], Pat
     return run_name, cmd, run_dir, log_dir
 
 
-def launch(domain: str, task: str, gpu: int) -> None:
+def launch(domain: str, task: str, seed: int, gpu: int) -> None:
     ensure_data_links(domain)
-    run_name, cmd, run_dir, log_dir = build_command(domain, task, gpu)
+    run_name, cmd, run_dir, log_dir = build_command(domain, task, seed, gpu)
     run_dir.mkdir(parents=True, exist_ok=True)
     log_dir.mkdir(parents=True, exist_ok=True)
     env = os.environ.copy()
@@ -262,17 +290,17 @@ def launch(domain: str, task: str, gpu: int) -> None:
     command_text = ' '.join(shlex.quote(x) for x in cmd) + '\n'
     (log_dir / 'command.txt').write_text(command_text)
     (run_dir / 'command.txt').write_text(command_text)
-    (log_dir / 'reason.txt').write_text(f'auto scheduled peak sweep for {domain} {task}\n')
+    (log_dir / 'reason.txt').write_text(f'auto scheduled peak sweep for {domain} {task} seed={seed}\n')
     log_file = (log_dir / 'formal.log').open('w')
     proc = subprocess.Popen(cmd, cwd=REPO, env=env, stdout=log_file, stderr=subprocess.STDOUT)
     (log_dir / 'formal.pid').write_text(str(proc.pid) + '\n')
-    log(f'LAUNCHED {run_name} domain={domain} task={task} gpu={gpu} pid={proc.pid}')
+    log(f'LAUNCHED {run_name} domain={domain} task={task} seed={seed} gpu={gpu} pid={proc.pid}')
 
 
-def choose_jobs(rows: list[dict[str, str]], active: set[str], slots: int) -> list[tuple[str, str]]:
+def choose_jobs(rows: list[dict[str, str]], active: set[str], slots: int) -> list[tuple[str, str, int]]:
     all_cells = selected_cells(rows)
     completed_cells = selected_completed_cells(rows)
-    chosen: list[tuple[str, str]] = []
+    chosen: list[tuple[str, str, int]] = []
     for domain, target in PRIORITY:
         completed_vals = []
         all_vals = []
@@ -312,7 +340,7 @@ def choose_jobs(rows: list[dict[str, str]], active: set[str], slots: int) -> lis
                 candidates.append((1, attempted, completed_peak, task))
         candidates.sort(key=lambda x: (x[0], x[1], x[2]))
         for _kind, _attempted, _peak, task in candidates:
-            chosen.append((domain, task))
+            chosen.append((domain, task, next_peak_seed(rows, domain, task)))
             if len(chosen) >= slots:
                 return chosen
         return chosen
@@ -332,8 +360,8 @@ def main() -> int:
     if not jobs:
         log('no jobs selected')
         return 0
-    for gpu, (domain, task) in zip(gpus, jobs):
-        launch(domain, task, gpu)
+    for gpu, (domain, task, seed) in zip(gpus, jobs):
+        launch(domain, task, seed, gpu)
     return 0
 
 
