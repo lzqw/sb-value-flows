@@ -1,32 +1,39 @@
 # Visual Main Peak Coverage Recovery Status - 2x4090D
 
-Updated: 2026-06-27T06:54:33+08:00
+Updated: 2026-06-27T14:16:59
 
 ## Remote State
 
 - Host: `autodl-container-d45f429eca-cabc109d`
 - Repo: `/root/sb-value-flows`
 - Branch: `results/visual-main-table-peak-coverage-4090d`
-- HEAD: `a5f7731`
-- Active tmux sessions: none
+- HEAD/origin divergence after fetch: `0 0`
+- Active tmux sessions: tmux unavailable
 - Active screen sessions: none
-- Disk: `/root` 98% used, `/root/autodl-tmp` 99% used with about 889 MiB free
-- GPUs: both 4090D GPUs are occupied at 100% utilization
 
-## Active Runs
+### Disk
 
-Two visual-scene 500k peak-sweep runs are active, one per GPU. No new launch is safe until at least one GPU is free.
+```text
+Filesystem      Size  Used Avail Use% Mounted on
+overlay          30G   16G   15G  52% /
+/dev/md0         50G   33G   18G  66% /root/autodl-tmp
+```
 
-| domain | task | config | seed | planned_steps | latest_train_step | latest_eval_step | latest_eval_success | run_dir | action |
-|---|---|---|---:|---:|---:|---:|---:|---|---|
-| visual-scene-play | task2 | R2stableStrong_peak500k | 3 | 500000 | 50000 | 50000 | 0.0 | `/root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/exp/visual-scene-play_task2_R2stableStrong_peak500k_seed3_20260627_044706` | newly launched before this check; continue |
-| visual-scene-play | task5 | R2stableStrong_peak500k | 3 | 500000 | 75000 | 50000 | 0.0 | `/root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/exp/visual-scene-play_task5_R2stableStrong_peak500k_seed3_20260627_043301` | newly launched before this check; continue |
+### GPU
 
-Both runs were recovered as live `main.py` processes after reconnecting. They are not attached to tmux/screen but remain active as process trees under `conda run`.
+```text
+0, 22605 MiB, 24564 MiB, 100 %
+1, 22077 MiB, 24564 MiB, 100 %
+```
 
-## Current Main-Table Row Status
+## Active Protected Runs
 
-Latest regenerated report: `reports/visual_main_table_peak_summary.md`.
+| env | latest_train_step | latest_eval_step | latest_eval_success | best_peak_success | best_peak_step | run_dir | action |
+|---|---:|---:|---:|---:|---:|---|---|
+| visual-scene-play-singletask-task5-v0 | 350000 | 350000 | 0.0 | 0.0 | 1 | `/root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/exp/visual-scene-play_task5_R2stableStrong_peak500k_seed3_20260627_043301` | continue; both GPUs busy |
+| visual-scene-play-singletask-task2-v0 | 325000 | 300000 | 0.0 | 0.08 | 150000 | `/root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/exp/visual-scene-play_task2_R2stableStrong_peak500k_seed3_20260627_044706` | continue; both GPUs busy |
+
+## Current Non-Medium Row Status
 
 | row | completed_tasks | all_evidence_tasks | completed_best_peak_mean | all_evidence_best_peak_mean | target | status |
 |---|---:|---:|---:|---:|---:|---|
@@ -35,13 +42,52 @@ Latest regenerated report: `reports/visual_main_table_peak_summary.md`.
 | visual-cube-double-play | 5 | 5 | 0.16 | 0.16 | 0.15 | complete_threshold_met |
 | visual-antmaze-teleport-navigate | 5 | 5 | 0.36 | 0.364 | 0.15 | complete_threshold_met |
 
-The scene row is still the priority row because it has five completed cells but remains below the required `best_peak_mean >= 0.45`. The active task2/task5 seed3 runs are the current attempt to improve that row.
+## Cell Classification
+
+### visual-scene-play
+
+| task | completed_status | completed_peak | completed_step | all_evidence_status | all_evidence_peak | all_evidence_step | action |
+|---|---|---:|---:|---|---:|---:|---|
+| task1 | completed_300k | 1.0 | 300000 | completed_300k | 1.0 | 300000 | row below threshold; revisit after active reruns finish |
+| task2 | completed_500k | 0.12 | 500000 | completed_500k | 0.12 | 500000 | active seed3 500k rerun protected |
+| task3 | completed_500k | 0.4 | 500000 | completed_500k | 0.4 | 500000 | row below threshold; revisit after active reruns finish |
+| task4 | completed_300k | 0.1 | 300000 | completed_300k | 0.1 | 300000 | row below threshold; revisit after active reruns finish |
+| task5 | completed_500k | 0.0 | 500000 | completed_500k | 0.0 | 500000 | active seed3 500k rerun protected |
+
+### visual-puzzle-3x3-play
+
+| task | completed_status | completed_peak | completed_step | all_evidence_status | all_evidence_peak | all_evidence_step | action |
+|---|---|---:|---:|---|---:|---:|---|
+| task1 |  |  |  | partial | 0.86 | 300000 | needs clean/resumed 300k/500k completion after GPU frees |
+| task2 |  |  |  | partial | 0.0 | 200000 | needs clean/resumed 300k/500k completion after GPU frees |
+| task3 |  |  |  | partial | 0.0 | 200000 | needs clean/resumed 300k/500k completion after GPU frees |
+| task4 | completed_500k | 0.02 | 500000 | completed_500k | 0.02 | 500000 | covered |
+| task5 | completed_500k | 0.02 | 500000 | completed_500k | 0.02 | 500000 | covered |
+
+### visual-cube-double-play
+
+| task | completed_status | completed_peak | completed_step | all_evidence_status | all_evidence_peak | all_evidence_step | action |
+|---|---|---:|---:|---|---:|---:|---|
+| task1 | completed_300k | 0.3 | 300000 | completed_300k | 0.3 | 300000 | do not rerun |
+| task2 | completed_1m | 0.0 | 1000000 | completed_1m | 0.0 | 1000000 | do not rerun |
+| task3 | completed_1m | 0.1 | 1000000 | completed_1m | 0.1 | 1000000 | do not rerun |
+| task4 | completed_300k | 0.1 | 300000 | completed_300k | 0.1 | 300000 | do not rerun |
+| task5 | completed_1m | 0.3 | 1000000 | completed_1m | 0.3 | 1000000 | do not rerun |
+
+### visual-antmaze-teleport-navigate
+
+| task | completed_status | completed_peak | completed_step | all_evidence_status | all_evidence_peak | all_evidence_step | action |
+|---|---|---:|---:|---|---:|---:|---|
+| task1 | completed_300k | 0.4 | 300000 | completed_300k | 0.4 | 300000 | do not rerun |
+| task2 | completed_300k | 0.4 | 300000 | completed_300k | 0.4 | 300000 | do not rerun |
+| task3 | completed_300k | 0.3 | 300000 | partial | 0.32 | 400000 | do not rerun |
+| task4 | completed_1m | 0.5 | 1000000 | completed_1m | 0.5 | 1000000 | do not rerun |
+| task5 | completed_300k | 0.2 | 300000 | completed_300k | 0.2 | 300000 | do not rerun |
 
 ## Reporting State
 
-The following lightweight outputs were regenerated from all discovered visual runs and pushed in commit `a5f7731`:
+Regenerated from all discovered runs before launching anything:
 
-- `results/audit_all_visual_runs_4090d.csv`
 - `results/audit_visual_best_peak_table.csv`
 - `results/audit_visual_final_table.csv`
 - `results/audit_visual_v7_v8_v8p1_comparison.csv`
@@ -51,15 +97,6 @@ The following lightweight outputs were regenerated from all discovered visual ru
 - `reports/visual_all_domains_coverage_matrix.md`
 - `reports/figures/visual_curves/*.svg`
 
-The report generator now separates completed coverage from partial/screening evidence, so partial runs are not mixed into completed final results.
-
 ## Next Action
 
-When the two active scene runs finish:
-
-1. Refresh discovery lists under `/tmp/visual_audit`.
-2. Regenerate all audit CSVs, markdown reports, and SVG curves.
-3. Commit and push only lightweight outputs.
-4. If `visual-scene-play` still remains below threshold, launch the next safe scene peak-sweep cells. Otherwise move to `visual-puzzle-3x3-play`, prioritizing completion of task1/task2/task3 to 500k or clean reruns if resume is unsafe.
-
-Do not launch more runs while both GPUs are occupied. Do not delete old runs or raw checkpoints as part of the reporting commit.
+No new launch is safe while both 4090D GPUs are occupied. When one current scene run finishes, rerun `python3 scripts/run_visual_main_peak_scheduler_4090d.py`; it should keep work to 300k/500k peak-sweep jobs and prioritize scene until the threshold is met, then puzzle task1/task2/task3 completion.
