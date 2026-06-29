@@ -72,8 +72,8 @@
 <circle cx="80.0" cy="400.0" r="6" fill="#9467bd" stroke="black"/>
 <rect x="455.0" y="395.0" width="10" height="10" fill="#9467bd" stroke="black"/>
 <line x1="80" y1="610" x2="105" y2="610" stroke="#9467bd" stroke-width="2"/><text x="112" y="614" font-family="Arial" font-size="11">v8p1 / R2_stable_strong / seed6 best=0@1 final=0</text>
-<polyline points="80.0,400.0 118.0,400.0 156.0,400.0 194.0,400.0 232.0,400.0 270.0,400.0 308.0,400.0 346.0,400.0 384.0,400.0 422.0,400.0" fill="none" stroke="#ff7f0e" stroke-width="2"/>
+<polyline points="80.0,400.0 118.0,400.0 156.0,400.0 194.0,400.0 232.0,400.0 270.0,400.0 308.0,400.0 346.0,400.0 384.0,400.0 422.0,400.0 460.0,400.0" fill="none" stroke="#ff7f0e" stroke-width="2"/>
 <circle cx="80.0" cy="400.0" r="6" fill="#ff7f0e" stroke="black"/>
-<rect x="417.0" y="395.0" width="10" height="10" fill="#ff7f0e" stroke="black"/>
+<rect x="455.0" y="395.0" width="10" height="10" fill="#ff7f0e" stroke="black"/>
 <line x1="80" y1="625" x2="105" y2="625" stroke="#ff7f0e" stroke-width="2"/><text x="112" y="629" font-family="Arial" font-size="11">v8p1 / R2_stable_strong / seed7 best=0@1 final=0</text>
 </svg>
