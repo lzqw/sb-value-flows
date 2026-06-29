@@ -1,6 +1,6 @@
 # 4090D Visual Experiment Audit
 
-Generated: 2026-06-29T12:34:05
+Generated: 2026-06-30T01:09:37
 
 ## Scope and Semantics
 
@@ -12,31 +12,31 @@ Generated: 2026-06-29T12:34:05
 ## Runtime State
 
 ```text
-   825    805  1-04:01:49 Sl   /root/miniconda3/bin/python /root/miniconda3/bin/tensorboard --host 0.0.0.0 --port 6007 --logdir /root/tf-logs
-   828    805  1-04:01:49 S    /root/miniconda3/bin/python /root/miniconda3/bin/jupyter-lab --allow-root --config=/init/jupyter/jupyter_config.py
-   905    825  1-04:01:49 Sl   /root/miniconda3/lib/python3.12/site-packages/tensorboard_data_server/bin/server --logdir=/root/tf-logs --reload=5 --samples-per-plugin= --port=0 --port-file=/tmp/tensorboard_data_server_cabcf7if/port --die-after-stdin --error-file=/tmp/tensorboard_data_server_cabcf7if/startup_error
- 54479      1    03:25:09 S    bash /root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/watchdog_4090d_continuation.sh 0 288 300
- 59801      1       50:03 S    /root/miniconda3/bin/python /root/miniconda3/bin/conda run -n value-flows python main.py --env_name=visual-scene-play-singletask-task4-v0 --save_dir=/root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/exp/visual-scene-play_task4_R2stableStrong_peak500k_seed6_20260629_114403 --wandb_run_group=visual-scene-play_task4_R2stableStrong_peak500k_seed6_20260629_114403 --seed=6 --offline_steps=500000 --online_steps=0 --eval_interval=50000 --eval_episodes=50 --log_interval=25000 --save_interval=999999999 --enable_wandb=0 --agent=agents/pm_value_flows.py --agent.encoder=impala_small --agent.batch_size=256 --agent.num_samples=16 --agent.num_flow_steps=10 --agent.pm_minimal_sb=true --agent.pm_weight_type=field_kernel_norm --agent.pm_num_continuations=4 --agent.pm_field_kernel_norm_temp=0.3 --agent.pm_field_kernel_min_scale=1e-6 --agent.pm_actor_energy_coef=0.0 --agent.pm_actor_disagree_coef=0.0 --agent.pm_log_sb_diagnostics=true --agent.pm_sb_reliability_score=flow_residual_disagree --agent.pm_sb_lambda=0.001 --agent.pm_sb_reliability_normalize=std --agent.pm_sb_flow_residual_eps=0.05 --agent.pm_sb_disagree_beta=0.5 --agent.pm_sb_disagree_umax=3.0 --agent.pm_sb_value_preserving=false --agent.visual_stable_mode=true --agent.save_eval_checkpoints=false --agent.visual_freeze_encoder_after_step=300000 --agent.visual_actor_lr_decay_after_step=300000 --agent.visual_actor_lr_decay_mult=0.09 --agent.visual_critic_lr_decay_after_step=300000 --agent.visual_critic_lr_decay_mult=0.25 --agent.visual_second_lr_decay_after_step=600000 --agent.visual_second_actor_lr_decay_mult=0.3333333333 --agent.visual_second_critic_lr_decay_mult=0.4 --agent.actor_ema_anchor_start_step=300000 --agent.actor_ema_anchor_coef=0.02 --agent.actor_ema_tau=0.995 --agent.pm_sb_weight_uniform_mix=0.10 --agent.pm_sb_weight_logit_clip=3.0 --agent.pm_sb_weight_max=0.5 --agent.checkpoint_dir=/root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/checkpoints/visual-scene-play_task4_R2stableStrong_peak500k_seed6_20260629_114403
- 59803  59801       50:02 S    /usr/bin/bash /root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/tmp/tmpzx3krjwe
- 59811  59803       50:01 Rl   python main.py --env_name=visual-scene-play-singletask-task4-v0 --save_dir=/root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/exp/visual-scene-play_task4_R2stableStrong_peak500k_seed6_20260629_114403 --wandb_run_group=visual-scene-play_task4_R2stableStrong_peak500k_seed6_20260629_114403 --seed=6 --offline_steps=500000 --online_steps=0 --eval_interval=50000 --eval_episodes=50 --log_interval=25000 --save_interval=999999999 --enable_wandb=0 --agent=agents/pm_value_flows.py --agent.encoder=impala_small --agent.batch_size=256 --agent.num_samples=16 --agent.num_flow_steps=10 --agent.pm_minimal_sb=true --agent.pm_weight_type=field_kernel_norm --agent.pm_num_continuations=4 --agent.pm_field_kernel_norm_temp=0.3 --agent.pm_field_kernel_min_scale=1e-6 --agent.pm_actor_energy_coef=0.0 --agent.pm_actor_disagree_coef=0.0 --agent.pm_log_sb_diagnostics=true --agent.pm_sb_reliability_score=flow_residual_disagree --agent.pm_sb_lambda=0.001 --agent.pm_sb_reliability_normalize=std --agent.pm_sb_flow_residual_eps=0.05 --agent.pm_sb_disagree_beta=0.5 --agent.pm_sb_disagree_umax=3.0 --agent.pm_sb_value_preserving=false --agent.visual_stable_mode=true --agent.save_eval_checkpoints=false --agent.visual_freeze_encoder_after_step=300000 --agent.visual_actor_lr_decay_after_step=300000 --agent.visual_actor_lr_decay_mult=0.09 --agent.visual_critic_lr_decay_after_step=300000 --agent.visual_critic_lr_decay_mult=0.25 --agent.visual_second_lr_decay_after_step=600000 --agent.visual_second_actor_lr_decay_mult=0.3333333333 --agent.visual_second_critic_lr_decay_mult=0.4 --agent.actor_ema_anchor_start_step=300000 --agent.actor_ema_anchor_coef=0.02 --agent.actor_ema_tau=0.995 --agent.pm_sb_weight_uniform_mix=0.10 --agent.pm_sb_weight_logit_clip=3.0 --agent.pm_sb_weight_max=0.5 --agent.checkpoint_dir=/root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/checkpoints/visual-scene-play_task4_R2stableStrong_peak500k_seed6_20260629_114403
- 63352  54479       00:01 S    python3 scripts/run_visual_main_peak_scheduler_4090d.py
- 63363  63352       00:01 S    python3 scripts/audit_all_visual_experiments_4090d.py
+   825    805  1-16:37:20 Sl   /root/miniconda3/bin/python /root/miniconda3/bin/tensorboard --host 0.0.0.0 --port 6007 --logdir /root/tf-logs
+   828    805  1-16:37:20 S    /root/miniconda3/bin/python /root/miniconda3/bin/jupyter-lab --allow-root --config=/init/jupyter/jupyter_config.py
+   905    825  1-16:37:20 Sl   /root/miniconda3/lib/python3.12/site-packages/tensorboard_data_server/bin/server --logdir=/root/tf-logs --reload=5 --samples-per-plugin= --port=0 --port-file=/tmp/tensorboard_data_server_cabcf7if/port --die-after-stdin --error-file=/tmp/tensorboard_data_server_cabcf7if/startup_error
+ 54479      1    16:00:40 S    bash /root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/watchdog_4090d_continuation.sh 0 288 300
+ 63380      1    12:35:31 S    /root/miniconda3/bin/python /root/miniconda3/bin/conda run -n value-flows python main.py --env_name=visual-scene-play-singletask-task5-v0 --save_dir=/root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/exp/visual-scene-play_task5_R2stableStrong_peak500k_seed7_20260629_123406 --wandb_run_group=visual-scene-play_task5_R2stableStrong_peak500k_seed7_20260629_123406 --seed=7 --offline_steps=500000 --online_steps=0 --eval_interval=50000 --eval_episodes=50 --log_interval=25000 --save_interval=999999999 --enable_wandb=0 --agent=agents/pm_value_flows.py --agent.encoder=impala_small --agent.batch_size=256 --agent.num_samples=16 --agent.num_flow_steps=10 --agent.pm_minimal_sb=true --agent.pm_weight_type=field_kernel_norm --agent.pm_num_continuations=4 --agent.pm_field_kernel_norm_temp=0.3 --agent.pm_field_kernel_min_scale=1e-6 --agent.pm_actor_energy_coef=0.0 --agent.pm_actor_disagree_coef=0.0 --agent.pm_log_sb_diagnostics=true --agent.pm_sb_reliability_score=flow_residual_disagree --agent.pm_sb_lambda=0.001 --agent.pm_sb_reliability_normalize=std --agent.pm_sb_flow_residual_eps=0.05 --agent.pm_sb_disagree_beta=0.5 --agent.pm_sb_disagree_umax=3.0 --agent.pm_sb_value_preserving=false --agent.visual_stable_mode=true --agent.save_eval_checkpoints=false --agent.visual_freeze_encoder_after_step=300000 --agent.visual_actor_lr_decay_after_step=300000 --agent.visual_actor_lr_decay_mult=0.09 --agent.visual_critic_lr_decay_after_step=300000 --agent.visual_critic_lr_decay_mult=0.25 --agent.visual_second_lr_decay_after_step=600000 --agent.visual_second_actor_lr_decay_mult=0.3333333333 --agent.visual_second_critic_lr_decay_mult=0.4 --agent.actor_ema_anchor_start_step=300000 --agent.actor_ema_anchor_coef=0.02 --agent.actor_ema_tau=0.995 --agent.pm_sb_weight_uniform_mix=0.10 --agent.pm_sb_weight_logit_clip=3.0 --agent.pm_sb_weight_max=0.5 --agent.checkpoint_dir=/root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/checkpoints/visual-scene-play_task5_R2stableStrong_peak500k_seed7_20260629_123406
+ 63382  63380    12:35:31 S    /usr/bin/bash /root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/tmp/tmp6714e1wf
+ 63390  63382    12:35:29 Rl   python main.py --env_name=visual-scene-play-singletask-task5-v0 --save_dir=/root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/exp/visual-scene-play_task5_R2stableStrong_peak500k_seed7_20260629_123406 --wandb_run_group=visual-scene-play_task5_R2stableStrong_peak500k_seed7_20260629_123406 --seed=7 --offline_steps=500000 --online_steps=0 --eval_interval=50000 --eval_episodes=50 --log_interval=25000 --save_interval=999999999 --enable_wandb=0 --agent=agents/pm_value_flows.py --agent.encoder=impala_small --agent.batch_size=256 --agent.num_samples=16 --agent.num_flow_steps=10 --agent.pm_minimal_sb=true --agent.pm_weight_type=field_kernel_norm --agent.pm_num_continuations=4 --agent.pm_field_kernel_norm_temp=0.3 --agent.pm_field_kernel_min_scale=1e-6 --agent.pm_actor_energy_coef=0.0 --agent.pm_actor_disagree_coef=0.0 --agent.pm_log_sb_diagnostics=true --agent.pm_sb_reliability_score=flow_residual_disagree --agent.pm_sb_lambda=0.001 --agent.pm_sb_reliability_normalize=std --agent.pm_sb_flow_residual_eps=0.05 --agent.pm_sb_disagree_beta=0.5 --agent.pm_sb_disagree_umax=3.0 --agent.pm_sb_value_preserving=false --agent.visual_stable_mode=true --agent.save_eval_checkpoints=false --agent.visual_freeze_encoder_after_step=300000 --agent.visual_actor_lr_decay_after_step=300000 --agent.visual_actor_lr_decay_mult=0.09 --agent.visual_critic_lr_decay_after_step=300000 --agent.visual_critic_lr_decay_mult=0.25 --agent.visual_second_lr_decay_after_step=600000 --agent.visual_second_actor_lr_decay_mult=0.3333333333 --agent.visual_second_critic_lr_decay_mult=0.4 --agent.actor_ema_anchor_start_step=300000 --agent.actor_ema_anchor_coef=0.02 --agent.actor_ema_tau=0.995 --agent.pm_sb_weight_uniform_mix=0.10 --agent.pm_sb_weight_logit_clip=3.0 --agent.pm_sb_weight_max=0.5 --agent.checkpoint_dir=/root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/checkpoints/visual-scene-play_task5_R2stableStrong_peak500k_seed7_20260629_123406
+ 90480  54479       00:00 S    python3 scripts/run_visual_main_peak_scheduler_4090d.py
+ 90491  90480       00:00 S    python3 scripts/audit_all_visual_experiments_4090d.py
 ```
 
 ## GPU
 
 ```text
-0, 265, 0
-1, 22077, 100
+0, 22341, 100
+1, 1, 0
 ```
 
 ## Counts
 
-- candidate_files: 603
-- eval_csv: 274
-- train_csv: 277
-- command_txt: 52
-- parsed_visual_runs: 100
+- candidate_files: 607
+- eval_csv: 275
+- train_csv: 278
+- command_txt: 54
+- parsed_visual_runs: 101
 
 ## Existing Lightweight Result Files
 
@@ -69,7 +69,7 @@ Generated: 2026-06-29T12:34:05
 | v8 | completed_1m | 1 |
 | v8 | smoke | 2 |
 | v8p1 | completed_1m | 7 |
-| v8p1 | completed_500k | 12 |
+| v8p1 | completed_500k | 13 |
 | v8p1 | partial | 10 |
 | v8p1 | smoke | 1 |
 
