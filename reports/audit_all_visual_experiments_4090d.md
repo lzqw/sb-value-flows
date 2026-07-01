@@ -1,6 +1,6 @@
 # 4090D Visual Experiment Audit
 
-Generated: 2026-06-30T21:25:28
+Generated: 2026-07-01T09:57:58
 
 ## Scope and Semantics
 
@@ -12,11 +12,11 @@ Generated: 2026-06-30T21:25:28
 ## Runtime State
 
 ```text
-   825    805       04:37 Sl   /root/miniconda3/bin/python /root/miniconda3/bin/tensorboard --host 0.0.0.0 --port 6007 --logdir /root/tf-logs
-   826    805       04:37 S    /root/miniconda3/bin/python /root/miniconda3/bin/jupyter-lab --allow-root --config=/init/jupyter/jupyter_config.py
-   899    825       04:36 Sl   /root/miniconda3/lib/python3.12/site-packages/tensorboard_data_server/bin/server --logdir=/root/tf-logs --reload=5 --samples-per-plugin= --port=0 --port-file=/tmp/tensorboard_data_server_i7bawxq5/port --die-after-stdin --error-file=/tmp/tensorboard_data_server_i7bawxq5/startup_error
-  1628   1617       00:01 Ss   python3 scripts/run_visual_main_peak_scheduler_4090d.py
-  1649   1628       00:00 S    python3 scripts/audit_all_visual_experiments_4090d.py
+   826    805       28:43 S    /root/miniconda3/bin/python /root/miniconda3/bin/jupyter-lab --allow-root --config=/init/jupyter/jupyter_config.py
+   827    805       28:43 Sl   /root/miniconda3/bin/python /root/miniconda3/bin/tensorboard --host 0.0.0.0 --port 6007 --logdir /root/tf-logs
+   903    827       28:43 Sl   /root/miniconda3/lib/python3.12/site-packages/tensorboard_data_server/bin/server --logdir=/root/tf-logs --reload=5 --samples-per-plugin= --port=0 --port-file=/tmp/tensorboard_data_server_fyx5ai3d/port --die-after-stdin --error-file=/tmp/tensorboard_data_server_fyx5ai3d/startup_error
+  2493   2482       00:00 Ss   python3 scripts/run_visual_main_peak_scheduler_4090d.py
+  2504   2493       00:00 S    python3 scripts/audit_all_visual_experiments_4090d.py
 ```
 
 ## GPU
@@ -28,11 +28,11 @@ Generated: 2026-06-30T21:25:28
 
 ## Counts
 
-- candidate_files: 623
-- eval_csv: 279
-- train_csv: 282
-- command_txt: 62
-- parsed_visual_runs: 105
+- candidate_files: 631
+- eval_csv: 281
+- train_csv: 284
+- command_txt: 66
+- parsed_visual_runs: 107
 
 ## Existing Lightweight Result Files
 
@@ -66,7 +66,7 @@ Generated: 2026-06-30T21:25:28
 | v8 | smoke | 2 |
 | v8p1 | completed_1m | 7 |
 | v8p1 | completed_500k | 16 |
-| v8p1 | partial | 11 |
+| v8p1 | partial | 13 |
 | v8p1 | smoke | 1 |
 
 ## Medium Final Table
