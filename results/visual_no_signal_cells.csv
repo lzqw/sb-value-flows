@@ -1,0 +1,2 @@
+visual_domain,task_id,label,attempts,completed_500k_attempts,best_peak_success,best_peak_step,best_seed,best_run,rationale
+visual-scene-play,task5,no_signal,13,8,0,1,11,/root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/exp/visual-scene-play_task5_R2stableStrong_peak500k_seed11_20260701_095758/visual-scene-play_task5_R2stableStrong_peak500k_seed11_20260701_095758,Repeated 500k peak sweeps stayed at zero success.

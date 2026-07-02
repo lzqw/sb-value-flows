@@ -30,6 +30,23 @@ PRIORITY = [
 ]
 TASKS = [f'task{i}' for i in range(1, 6)]
 COMPLETE_STATUSES = {'completed_300k', 'completed_500k', 'completed_1m'}
+PEAK_MARKER = '/visual_main_peak_coverage_4090d/'
+NO_SIGNAL_RULES = {
+    ('visual-scene-play', 'task5'): {
+        'min_attempts': 8,
+        'max_best': 0.0,
+        'label': 'no_signal',
+        'rationale': 'Repeated 500k peak sweeps stayed at zero success.',
+    },
+    ('visual-scene-play', 'task2'): {
+        'min_attempts': 6,
+        'max_best': 0.18,
+        'label': 'low_ceiling',
+        'rationale': 'Repeated 500k/partial peak sweeps did not exceed the existing 0.18 best peak.',
+    },
+}
+NO_SIGNAL_CSV = REPO / 'results' / 'visual_no_signal_cells.csv'
+NO_SIGNAL_REPORT = REPO / 'reports' / 'visual_no_signal_cells.md'
 
 COMMON_FLAGS = [
     '--agent=agents/pm_value_flows.py',
@@ -111,6 +128,10 @@ def fnum(x: str | None) -> float:
         return math.nan
 
 
+def is_peak_coverage_row(row: dict[str, str]) -> bool:
+    return PEAK_MARKER in row.get('root_path', '') or PEAK_MARKER in row.get('eval_csv', '')
+
+
 def read_audit() -> list[dict[str, str]]:
     path = REPO / 'results/audit_all_visual_runs_4090d.csv'
     if not path.exists():
@@ -153,13 +174,112 @@ def selected_completed_cells(rows: list[dict[str, str]]) -> dict[tuple[str, str]
 
 
 def has_peak_sweep_attempt(rows: list[dict[str, str]], domain: str, task: str) -> bool:
-    marker = '/visual_main_peak_coverage_4090d/'
     for row in rows:
         if row.get('visual_domain') != domain or row.get('task_id') != task:
             continue
-        if marker in row.get('root_path', '') or marker in row.get('eval_csv', ''):
+        if is_peak_coverage_row(row):
             return True
     return False
+
+
+def peak_attempt_rows(rows: list[dict[str, str]], domain: str, task: str) -> list[dict[str, str]]:
+    out = []
+    for row in rows:
+        if row.get('visual_domain') != domain or row.get('task_id') != task:
+            continue
+        if not is_peak_coverage_row(row):
+            continue
+        if math.isnan(fnum(row.get('best_peak_success'))):
+            continue
+        out.append(row)
+    return out
+
+
+def documented_no_signal_cells(rows: list[dict[str, str]]) -> dict[tuple[str, str], dict[str, str]]:
+    documented: dict[tuple[str, str], dict[str, str]] = {}
+    for cell, rule in NO_SIGNAL_RULES.items():
+        domain, task = cell
+        attempts = peak_attempt_rows(rows, domain, task)
+        if len(attempts) < int(rule['min_attempts']):
+            continue
+        best_row = max(
+            attempts,
+            key=lambda r: (
+                fnum(r.get('best_peak_success')),
+                fnum(r.get('final_success')),
+                fnum(r.get('final_step')),
+            ),
+        )
+        best = fnum(best_row.get('best_peak_success'))
+        if math.isnan(best) or best > float(rule['max_best']):
+            continue
+        completed_500k = sum(1 for r in attempts if r.get('status') == 'completed_500k')
+        documented[cell] = {
+            'visual_domain': domain,
+            'task_id': task,
+            'label': str(rule['label']),
+            'attempts': str(len(attempts)),
+            'completed_500k_attempts': str(completed_500k),
+            'best_peak_success': f'{best:g}',
+            'best_peak_step': best_row.get('best_peak_step', ''),
+            'best_seed': str(row_peak_seed(best_row) or ''),
+            'best_run': best_row.get('root_path', ''),
+            'rationale': str(rule['rationale']),
+        }
+    return documented
+
+
+def write_no_signal_report(rows: list[dict[str, str]]) -> set[str]:
+    documented = documented_no_signal_cells(rows)
+    NO_SIGNAL_CSV.parent.mkdir(parents=True, exist_ok=True)
+    NO_SIGNAL_REPORT.parent.mkdir(parents=True, exist_ok=True)
+    fields = [
+        'visual_domain',
+        'task_id',
+        'label',
+        'attempts',
+        'completed_500k_attempts',
+        'best_peak_success',
+        'best_peak_step',
+        'best_seed',
+        'best_run',
+        'rationale',
+    ]
+    with NO_SIGNAL_CSV.open('w', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=fields)
+        writer.writeheader()
+        for row in sorted(documented.values(), key=lambda r: (r['visual_domain'], r['task_id'])):
+            writer.writerow(row)
+    lines = [
+        '# Visual No-Signal / Low-Ceiling Cells',
+        '',
+        'These cells are documented so the peak-coverage scheduler can move to the next priority row instead of repeating a row indefinitely.',
+        '',
+    ]
+    if documented:
+        lines += [
+            '| visual_domain | task_id | label | attempts | completed_500k_attempts | best_peak_success | best_peak_step | best_seed | rationale |',
+            '| --- | --- | --- | --- | --- | --- | --- | --- | --- |',
+        ]
+        for row in sorted(documented.values(), key=lambda r: (r['visual_domain'], r['task_id'])):
+            lines.append(
+                '| {visual_domain} | {task_id} | {label} | {attempts} | {completed_500k_attempts} | '
+                '{best_peak_success} | {best_peak_step} | {best_seed} | {rationale} |'.format(**row)
+            )
+    else:
+        lines.append('_No cells currently meet the documentation thresholds._')
+    lines.append('')
+    NO_SIGNAL_REPORT.write_text('\n'.join(lines))
+    return {f'{d}:{t}' for d, t in documented}
+
+
+def documented_plateau_rows(rows: list[dict[str, str]]) -> set[str]:
+    documented = documented_no_signal_cells(rows)
+    plateau = set()
+    scene_cells = {('visual-scene-play', 'task2'), ('visual-scene-play', 'task5')}
+    if scene_cells.issubset(documented):
+        plateau.add('visual-scene-play')
+    return plateau
 
 
 def active_envs() -> set[str]:
@@ -228,12 +348,11 @@ def row_peak_seed(row: dict[str, str]) -> int | None:
 
 
 def next_peak_seed(rows: list[dict[str, str]], domain: str, task: str) -> int:
-    marker = '/visual_main_peak_coverage_4090d/'
     seeds = []
     for row in rows:
         if row.get('visual_domain') != domain or row.get('task_id') != task:
             continue
-        if marker not in row.get('root_path', '') and marker not in row.get('eval_csv', ''):
+        if not is_peak_coverage_row(row):
             continue
         seed = row_peak_seed(row)
         if seed is not None:
@@ -300,6 +419,7 @@ def launch(domain: str, task: str, seed: int, gpu: int) -> None:
 def choose_jobs(rows: list[dict[str, str]], active: set[str], slots: int) -> list[tuple[str, str, int]]:
     all_cells = selected_cells(rows)
     completed_cells = selected_completed_cells(rows)
+    plateau_rows = documented_plateau_rows(rows)
     chosen: list[tuple[str, str, int]] = []
     for domain, target in PRIORITY:
         completed_vals = []
@@ -322,6 +442,9 @@ def choose_jobs(rows: list[dict[str, str]], active: set[str], slots: int) -> lis
             f'target={target} meets={meets}'
         )
         if meets:
+            continue
+        if domain in plateau_rows:
+            log(f'ROW {domain}: documented_no_signal_or_low_ceiling=true action=advance_to_next_row')
             continue
         candidates = []
         for task in TASKS:
@@ -353,9 +476,12 @@ def main() -> int:
     active = active_envs()
     gpus = free_gpus()
     log(f'active_envs={sorted(active)} free_gpus={gpus}')
+    rows = read_audit()
+    documented = write_no_signal_report(rows)
+    if documented:
+        log(f'documented_no_signal_cells={sorted(documented)}')
     if not gpus:
         return 0
-    rows = read_audit()
     jobs = choose_jobs(rows, active, len(gpus))
     if not jobs:
         log('no jobs selected')
