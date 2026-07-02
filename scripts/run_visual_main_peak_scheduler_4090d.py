@@ -419,6 +419,7 @@ def launch(domain: str, task: str, seed: int, gpu: int) -> None:
 def choose_jobs(rows: list[dict[str, str]], active: set[str], slots: int) -> list[tuple[str, str, int]]:
     all_cells = selected_cells(rows)
     completed_cells = selected_completed_cells(rows)
+    documented_cells = documented_no_signal_cells(rows)
     plateau_rows = documented_plateau_rows(rows)
     chosen: list[tuple[str, str, int]] = []
     for domain, target in PRIORITY:
@@ -451,6 +452,9 @@ def choose_jobs(rows: list[dict[str, str]], active: set[str], slots: int) -> lis
             env = f'{domain}-singletask-{task}-v0'
             if env in active:
                 continue
+            if (domain, task) in documented_cells:
+                log(f'CELL {domain} {task}: documented_{documented_cells[(domain, task)]["label"]}=true action=skip_candidate')
+                continue
             completed = completed_cells[(domain, task)]
             all_row = all_cells[(domain, task)]
             attempted = 1 if has_peak_sweep_attempt(rows, domain, task) else 0
@@ -462,6 +466,9 @@ def choose_jobs(rows: list[dict[str, str]], active: set[str], slots: int) -> lis
             elif completed_peak < target:
                 candidates.append((1, attempted, completed_peak, task))
         candidates.sort(key=lambda x: (x[0], x[1], x[2]))
+        if not candidates and any(cell_domain == domain for cell_domain, _task in documented_cells):
+            log(f'ROW {domain}: no runnable candidates remain after documented cells action=advance_to_next_row')
+            continue
         for _kind, _attempted, _peak, task in candidates:
             chosen.append((domain, task, next_peak_seed(rows, domain, task)))
             if len(chosen) >= slots:
