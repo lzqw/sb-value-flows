@@ -1,6 +1,6 @@
 # 4090D Visual Experiment Audit
 
-Generated: 2026-07-04T19:49:12
+Generated: 2026-07-05T09:34:43
 
 ## Scope and Semantics
 
@@ -12,12 +12,12 @@ Generated: 2026-07-04T19:49:12
 ## Runtime State
 
 ```text
-   823    805       02:16 Sl   /root/miniconda3/bin/python /root/miniconda3/bin/tensorboard --host 0.0.0.0 --port 6007 --logdir /root/tf-logs
-   830    805       02:16 S    /root/miniconda3/bin/python /root/miniconda3/bin/jupyter-lab --allow-root --config=/init/jupyter/jupyter_config.py
-   886    823       02:16 Sl   /root/miniconda3/lib/python3.12/site-packages/tensorboard_data_server/bin/server --logdir=/root/tf-logs --reload=5 --samples-per-plugin= --port=0 --port-file=/tmp/tensorboard_data_server_kq781thr/port --die-after-stdin --error-file=/tmp/tensorboard_data_server_kq781thr/startup_error
-  1544   1542       00:01 S    bash /root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/watchdog_4090d_continuation.sh 0 288 300
-  1555   1544       00:01 S    python3 scripts/run_visual_main_peak_scheduler_4090d.py
-  1566   1555       00:01 S    python3 scripts/audit_all_visual_experiments_4090d.py
+   823    805    13:47:46 Sl   /root/miniconda3/bin/python /root/miniconda3/bin/tensorboard --host 0.0.0.0 --port 6007 --logdir /root/tf-logs
+   830    805    13:47:46 S    /root/miniconda3/bin/python /root/miniconda3/bin/jupyter-lab --allow-root --config=/init/jupyter/jupyter_config.py
+   886    823    13:47:46 Sl   /root/miniconda3/lib/python3.12/site-packages/tensorboard_data_server/bin/server --logdir=/root/tf-logs --reload=5 --samples-per-plugin= --port=0 --port-file=/tmp/tensorboard_data_server_kq781thr/port --die-after-stdin --error-file=/tmp/tensorboard_data_server_kq781thr/startup_error
+  1544      1    13:45:31 S    bash /root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/watchdog_4090d_continuation.sh 0 288 300
+ 50455   1544       00:00 S    python3 scripts/run_visual_main_peak_scheduler_4090d.py
+ 50466  50455       00:00 S    python3 scripts/audit_all_visual_experiments_4090d.py
 ```
 
 ## GPU
@@ -28,11 +28,11 @@ Generated: 2026-07-04T19:49:12
 
 ## Counts
 
-- candidate_files: 683
-- eval_csv: 294
-- train_csv: 297
-- command_txt: 92
-- parsed_visual_runs: 120
+- candidate_files: 687
+- eval_csv: 295
+- train_csv: 298
+- command_txt: 94
+- parsed_visual_runs: 121
 
 ## Existing Lightweight Result Files
 
@@ -65,7 +65,7 @@ Generated: 2026-07-04T19:49:12
 | v8 | completed_1m | 1 |
 | v8 | smoke | 2 |
 | v8p1 | completed_1m | 7 |
-| v8p1 | completed_500k | 27 |
+| v8p1 | completed_500k | 28 |
 | v8p1 | partial | 15 |
 | v8p1 | smoke | 1 |
 
