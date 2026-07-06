@@ -66,10 +66,10 @@ Partial rows are retained separately as screening/recovery evidence and are not 
 
 ## visual-puzzle-3x3-play
 
-- completed_tasks: 3/5
+- completed_tasks: 4/5
 - all_evidence_tasks: 5/5
-- completed_best_peak_mean: 0.0133333
-- all_evidence_best_peak_mean: 0.18
+- completed_best_peak_mean: 0.015
+- all_evidence_best_peak_mean: 0.184
 - target: 0.25
 - meets_target: False
 - row_status: `partial_screening_coverage`
@@ -80,7 +80,7 @@ Partial rows are retained separately as screening/recovery evidence and are not 
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
 | visual-puzzle-3x3-play | task1 |  |  |  | missing |  |  |  |  |  |  |  |
 | visual-puzzle-3x3-play | task2 | v8p1 | R2_stable_strong | 3 | completed_500k | 500000 | 0.0 | 0.0 | 1 | 0.0 | /root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/exp/visual-puzzle-3x3-play_task2_R2stableStrong_peak500k_seed3_20260705_231957/visual-puzzle-3x3-play_task2_R2stableStrong_peak500k_seed3_20260705_231957/sd003_20260705_232003/eval.csv | /root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/logs/visual-puzzle-3x3-play_task2_R2stableStrong_peak500k_seed3_20260705_231957/command.txt |
-| visual-puzzle-3x3-play | task3 |  |  |  | missing |  |  |  |  |  |  |  |
+| visual-puzzle-3x3-play | task3 | v8p1 | R2_stable_strong | 3 | completed_500k | 500000 | 0.0 | 0.02 | 250000 | -0.02 | /root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/exp/visual-puzzle-3x3-play_task3_R2stableStrong_peak500k_seed3_20260706_125025/visual-puzzle-3x3-play_task3_R2stableStrong_peak500k_seed3_20260706_125025/sd003_20260706_125031/eval.csv | /root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/logs/visual-puzzle-3x3-play_task3_R2stableStrong_peak500k_seed3_20260706_125025/command.txt |
 | visual-puzzle-3x3-play | task4 | v8p1 | R2_stable_strong | 2 | completed_500k | 500000 | 0.0 | 0.02 | 350000 | -0.02 | /root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/exp/visual-puzzle-3x3-play_task4_R2stableStrong_peak500k_seed2_20260626_150900/visual-puzzle-3x3-play_task4_R2stableStrong_peak500k_seed2_20260626_150900/sd002_20260626_150907/eval.csv | /root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/logs/visual-puzzle-3x3-play_task4_R2stableStrong_peak500k_seed2_20260626_150900/command.txt |
 | visual-puzzle-3x3-play | task5 | v8p1 | R2_stable_strong | 2 | completed_500k | 500000 | 0.0 | 0.02 | 350000 | -0.02 | /root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/exp/visual-puzzle-3x3-play_task5_R2stableStrong_peak500k_seed2_20260626_150900/visual-puzzle-3x3-play_task5_R2stableStrong_peak500k_seed2_20260626_150900/sd002_20260626_150906/eval.csv | /root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/logs/visual-puzzle-3x3-play_task5_R2stableStrong_peak500k_seed2_20260626_150900/command.txt |
 
@@ -90,7 +90,7 @@ Partial rows are retained separately as screening/recovery evidence and are not 
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
 | visual-puzzle-3x3-play | task1 | v8p1 | R2_stable_strong | 2 | partial | 300000 | 0.82 | 0.86 | 250000 | -0.040000000000000036 | /root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/exp/visual-puzzle-3x3-play_task1_R2stableStrong_peak500k_seed2_20260625_191840/visual-puzzle-3x3-play_task1_R2stableStrong_peak500k_seed2_20260625_191840/sd002_20260625_191846/eval.csv | /root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/logs/visual-puzzle-3x3-play_task1_R2stableStrong_peak500k_seed2_20260625_191840/command.txt |
 | visual-puzzle-3x3-play | task2 | v8p1 | R2_stable_strong | 3 | completed_500k | 500000 | 0.0 | 0.0 | 1 | 0.0 | /root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/exp/visual-puzzle-3x3-play_task2_R2stableStrong_peak500k_seed3_20260705_231957/visual-puzzle-3x3-play_task2_R2stableStrong_peak500k_seed3_20260705_231957/sd003_20260705_232003/eval.csv | /root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/logs/visual-puzzle-3x3-play_task2_R2stableStrong_peak500k_seed3_20260705_231957/command.txt |
-| visual-puzzle-3x3-play | task3 | v8p1 | R2_stable_strong | 2 | partial | 200000 | 0.0 | 0.0 | 1 | 0.0 | /root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/exp/visual-puzzle-3x3-play_task3_R2stableStrong_peak500k_seed2_20260626_093336/visual-puzzle-3x3-play_task3_R2stableStrong_peak500k_seed2_20260626_093336/sd002_20260626_093342/eval.csv | /root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/logs/visual-puzzle-3x3-play_task3_R2stableStrong_peak500k_seed2_20260626_093336/command.txt |
+| visual-puzzle-3x3-play | task3 | v8p1 | R2_stable_strong | 3 | completed_500k | 500000 | 0.0 | 0.02 | 250000 | -0.02 | /root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/exp/visual-puzzle-3x3-play_task3_R2stableStrong_peak500k_seed3_20260706_125025/visual-puzzle-3x3-play_task3_R2stableStrong_peak500k_seed3_20260706_125025/sd003_20260706_125031/eval.csv | /root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/logs/visual-puzzle-3x3-play_task3_R2stableStrong_peak500k_seed3_20260706_125025/command.txt |
 | visual-puzzle-3x3-play | task4 | v8p1 | R2_stable_strong | 2 | completed_500k | 500000 | 0.0 | 0.02 | 350000 | -0.02 | /root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/exp/visual-puzzle-3x3-play_task4_R2stableStrong_peak500k_seed2_20260626_150900/visual-puzzle-3x3-play_task4_R2stableStrong_peak500k_seed2_20260626_150900/sd002_20260626_150907/eval.csv | /root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/logs/visual-puzzle-3x3-play_task4_R2stableStrong_peak500k_seed2_20260626_150900/command.txt |
 | visual-puzzle-3x3-play | task5 | v8p1 | R2_stable_strong | 2 | completed_500k | 500000 | 0.0 | 0.02 | 350000 | -0.02 | /root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/exp/visual-puzzle-3x3-play_task5_R2stableStrong_peak500k_seed2_20260626_150900/visual-puzzle-3x3-play_task5_R2stableStrong_peak500k_seed2_20260626_150900/sd002_20260626_150906/eval.csv | /root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/logs/visual-puzzle-3x3-play_task5_R2stableStrong_peak500k_seed2_20260626_150900/command.txt |
 
