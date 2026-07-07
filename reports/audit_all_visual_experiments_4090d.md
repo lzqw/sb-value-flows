@@ -1,6 +1,6 @@
 # 4090D Visual Experiment Audit
 
-Generated: 2026-07-07T02:25:22
+Generated: 2026-07-07T15:40:06
 
 ## Scope and Semantics
 
@@ -12,11 +12,11 @@ Generated: 2026-07-07T02:25:22
 ## Runtime State
 
 ```text
-   823    805  2-06:38:25 Sl   /root/miniconda3/bin/python /root/miniconda3/bin/tensorboard --host 0.0.0.0 --port 6007 --logdir /root/tf-logs
-   830    805  2-06:38:25 S    /root/miniconda3/bin/python /root/miniconda3/bin/jupyter-lab --allow-root --config=/init/jupyter/jupyter_config.py
-   886    823  2-06:38:25 Sl   /root/miniconda3/lib/python3.12/site-packages/tensorboard_data_server/bin/server --logdir=/root/tf-logs --reload=5 --samples-per-plugin= --port=0 --port-file=/tmp/tensorboard_data_server_kq781thr/port --die-after-stdin --error-file=/tmp/tensorboard_data_server_kq781thr/startup_error
-199988 199982       00:00 S    python3 scripts/run_visual_main_peak_scheduler_4090d.py
-199999 199988       00:00 S    python3 scripts/audit_all_visual_experiments_4090d.py
+   823    805  2-19:53:10 Sl   /root/miniconda3/bin/python /root/miniconda3/bin/tensorboard --host 0.0.0.0 --port 6007 --logdir /root/tf-logs
+   830    805  2-19:53:10 S    /root/miniconda3/bin/python /root/miniconda3/bin/jupyter-lab --allow-root --config=/init/jupyter/jupyter_config.py
+   886    823  2-19:53:10 Sl   /root/miniconda3/lib/python3.12/site-packages/tensorboard_data_server/bin/server --logdir=/root/tf-logs --reload=5 --samples-per-plugin= --port=0 --port-file=/tmp/tensorboard_data_server_kq781thr/port --die-after-stdin --error-file=/tmp/tensorboard_data_server_kq781thr/startup_error
+231287 231282       00:01 S    python3 scripts/run_visual_main_peak_scheduler_4090d.py
+231298 231287       00:01 S    python3 scripts/audit_all_visual_experiments_4090d.py
 ```
 
 ## GPU
@@ -27,11 +27,11 @@ Generated: 2026-07-07T02:25:22
 
 ## Counts
 
-- candidate_files: 699
-- eval_csv: 298
-- train_csv: 301
-- command_txt: 100
-- parsed_visual_runs: 124
+- candidate_files: 703
+- eval_csv: 299
+- train_csv: 302
+- command_txt: 102
+- parsed_visual_runs: 125
 
 ## Existing Lightweight Result Files
 
@@ -64,7 +64,7 @@ Generated: 2026-07-07T02:25:22
 | v8 | completed_1m | 1 |
 | v8 | smoke | 2 |
 | v8p1 | completed_1m | 7 |
-| v8p1 | completed_500k | 31 |
+| v8p1 | completed_500k | 32 |
 | v8p1 | partial | 15 |
 | v8p1 | smoke | 1 |
 
@@ -112,6 +112,7 @@ Generated: 2026-07-07T02:25:22
 | visual-puzzle-3x3-play | task1 | v8p1 | R2_stable_strong | partial | 300000 | 0.82 | 0.86 | -0.040000000000000036 | /root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/exp/visual-puzzle-3x3-play_task1_R2stableStrong_peak500k_seed2_20260625_191840/visual-puzzle-3x3-play_task1_R2stableStrong_peak500k_seed2_20260625_191840/sd002_20260625_191846/eval.csv |
 | visual-scene-play | task1 | v6 | A1 | completed_300k | 300000 | 0.8 | 0.9 | -0.09999999999999998 | /root/autodl-tmp/sb-value-flows-runs/visual_bigtable_4090d_v6/exp/stageA_visual-scene-play_visual-scene-play-singletask-task1-v0_A1_action_std_lam0p001_seed2_300000/stageA_visual-scene-play_visual-scene-play-singletask-task1-v0_A1_action_std_lam0p001_seed2_300000/sd002_20260610_161756/eval.csv |
 | visual-antmaze-medium-navigate | task1 | v7 | R2 | partial | 200000 | 0.8 | 0.8 | 0.0 | /root/autodl-tmp/sb-value-flows-runs/visual_matched_4090d_v7/exp/domain_visual-antmaze-medium-navigate_visual-antmaze-medium-navigate-singletask-task1-v0_R2_flow_residual_disagree_std_lam0p001_seed2_1m_paper_like_b256_s16_f10/domain_visual-antmaze-medium-navigate_visual-antmaze-medium-navigate-singletask-task1-v0_R2_flow_residual_disagree_std_lam0p001_seed2_1m_paper_like_b256_s16_f10/sd002_20260611_205229/eval.csv |
+| visual-puzzle-3x3-play | task1 | v8p1 | R2_stable_strong | completed_500k | 500000 | 0.78 | 0.98 | -0.19999999999999996 | /root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/exp/visual-puzzle-3x3-play_task1_R2stableStrong_peak500k_seed3_20260707_022522/visual-puzzle-3x3-play_task1_R2stableStrong_peak500k_seed3_20260707_022522/sd003_20260707_022528/eval.csv |
 | visual-antmaze-medium-navigate | task2 | v6 | R2 | completed_300k | 300000 | 0.6 | 0.6 | 0.0 | /root/autodl-tmp/sb-value-flows-runs/visual_bigtable_4090d_v6/exp/stageA_visual-antmaze-medium-navigate_visual-antmaze-medium-navigate-singletask-task2-v0_R2_flow_residual_disagree_std_lam0p001_seed2_300000/stageA_visual-antmaze-medium-navigate_visual-antmaze-medium-navigate-singletask-task2-v0_R2_flow_residual_disagree_std_lam0p001_seed2_300000/sd002_20260609_212452/eval.csv |
 | visual-antmaze-medium-navigate | task1 | v8p1 | R2_stable_strong | partial | 700000 | 0.54 | 0.7 | -0.15999999999999992 | /root/autodl-tmp/sb-value-flows-runs/visual_stable_v8p1_4090d/exp/visual_stable_v8p1_task1_R2stableStrong_seed2/visual_stable_v8p1_task1_R2stableStrong_seed2/sd002_20260620_172541/eval.csv |
 | visual-antmaze-medium-navigate | task1 | v8p1 | R2_stable_strong | completed_1m | 1000000 | 0.52 | 0.62 | -0.09999999999999998 | /root/autodl-tmp/sb-value-flows-runs/visual_stable_v8p1_4090d/exp/visual_stable_v8p1_task1_R2stableStrong_seed2_resume700k_to_1m/visual_stable_v8p1_task1_R2stableStrong_seed2_resume700k_to_1m/sd002_20260621_144808/eval.csv |
@@ -127,13 +128,13 @@ Generated: 2026-07-07T02:25:22
 | visual-antmaze-medium-navigate | task1 | v6 | R2 | completed_300k | 300000 | 0.3 | 0.5 | -0.2 | /root/autodl-tmp/sb-value-flows-runs/visual_bigtable_4090d_v6/exp/stageA_visual-antmaze-medium-navigate_visual-antmaze-medium-navigate-singletask-task1-v0_R2_flow_residual_disagree_std_lam0p001_seed2_300000/stageA_visual-antmaze-medium-navigate_visual-antmaze-medium-navigate-singletask-task1-v0_R2_flow_residual_disagree_std_lam0p001_seed2_300000/sd002_20260609_200248/eval.csv |
 | visual-antmaze-medium-navigate | task4 | v6 | A1 | completed_300k | 300000 | 0.3 | 0.4 | -0.10000000000000003 | /root/autodl-tmp/sb-value-flows-runs/visual_bigtable_4090d_v6/exp/stageA_visual-antmaze-medium-navigate_visual-antmaze-medium-navigate-singletask-task4-v0_A1_action_std_lam0p001_seed2_300000/stageA_visual-antmaze-medium-navigate_visual-antmaze-medium-navigate-singletask-task4-v0_A1_action_std_lam0p001_seed2_300000/sd002_20260610_000702/eval.csv |
 | visual-antmaze-teleport-navigate | task3 | v6 | A1 | completed_300k | 300000 | 0.3 | 0.3 | 0.0 | /root/autodl-tmp/sb-value-flows-runs/visual_bigtable_4090d_v6/exp/stageA_visual-antmaze-teleport-navigate_visual-antmaze-teleport-navigate-singletask-task3-v0_A1_action_std_lam0p001_seed2_300000/stageA_visual-antmaze-teleport-navigate_visual-antmaze-teleport-navigate-singletask-task3-v0_A1_action_std_lam0p001_seed2_300000/sd002_20260610_053423/eval.csv |
-| visual-antmaze-teleport-navigate | task4 | v6 | R2 | completed_1m | 1000000 | 0.3 | 0.5 | -0.2 | /root/autodl-tmp/sb-value-flows-runs/visual_bigtable_4090d_v6/exp/stageB_visual-antmaze-teleport-navigate_visual-antmaze-teleport-navigate-singletask-task4-v0_R2_flow_residual_disagree_std_lam0p001_seed2_1000000/stageB_visual-antmaze-teleport-navigate_visual-antmaze-teleport-navigate-singletask-task4-v0_R2_flow_residual_disagree_std_lam0p001_seed2_1000000/sd002_20260611_032534/eval.csv |
 
 ## Top Best-Peak Runs
 
 | visual_domain | task_id | method_group | config_name | status | final_step | final_success | best_peak_success | best_peak_step | drop_final_from_peak | eval_csv |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | visual-scene-play | task1 | v6 | R2 | completed_300k | 300000 | 1.0 | 1.0 | 200000 | 0.0 | /root/autodl-tmp/sb-value-flows-runs/visual_bigtable_4090d_v6/exp/stageA_visual-scene-play_visual-scene-play-singletask-task1-v0_R2_flow_residual_disagree_std_lam0p001_seed2_300000/stageA_visual-scene-play_visual-scene-play-singletask-task1-v0_R2_flow_residual_disagree_std_lam0p001_seed2_300000/sd002_20260610_161757/eval.csv |
+| visual-puzzle-3x3-play | task1 | v8p1 | R2_stable_strong | completed_500k | 500000 | 0.78 | 0.98 | 200000 | -0.19999999999999996 | /root/autodl-tmp/sb-value-flows-runs/visual_main_peak_coverage_4090d/exp/visual-puzzle-3x3-play_task1_R2stableStrong_peak500k_seed3_20260707_022522/visual-puzzle-3x3-play_task1_R2stableStrong_peak500k_seed3_20260707_022522/sd003_20260707_022528/eval.csv |
 | visual-scene-play | task1 | v6 | A1 | completed_300k | 300000 | 0.8 | 0.9 | 200000 | -0.09999999999999998 | /root/autodl-tmp/sb-value-flows-runs/visual_bigtable_4090d_v6/exp/stageA_visual-scene-play_visual-scene-play-singletask-task1-v0_A1_action_std_lam0p001_seed2_300000/stageA_visual-scene-play_visual-scene-play-singletask-task1-v0_A1_action_std_lam0p001_seed2_300000/sd002_20260610_161756/eval.csv |
 | visual-antmaze-medium-navigate | task4 | v7 | R2 | completed_1m | 1000000 | 0.4 | 0.86 | 100000 | -0.45999999999999996 | /root/autodl-tmp/sb-value-flows-runs/visual_matched_4090d_v7/exp/domain_visual-antmaze-medium-navigate_visual-antmaze-medium-navigate-singletask-task4-v0_R2_flow_residual_disagree_std_lam0p001_seed2_1m_paper_like_b256_s16_f10/domain_visual-antmaze-medium-navigate_visual-antmaze-medium-navigate-singletask-task4-v0_R2_flow_residual_disagree_std_lam0p001_seed2_1m_paper_like_b256_s16_f10/sd002_20260613_115731/eval.csv |
 | visual-antmaze-medium-navigate | task4 | v8p1 | R2_retention_repair | completed_1m | 1000000 | 0.5 | 0.86 | 100000 | -0.36 | /root/autodl-tmp/sb-value-flows-runs/visual_stable_v8p1_repair_4090d/exp/visual_stable_v8p1_task4_R2retentionRepair_seed2/visual_stable_v8p1_task4_R2retentionRepair_seed2/sd002_20260623_093626/eval.csv |
@@ -152,4 +153,3 @@ Generated: 2026-07-07T02:25:22
 | visual-antmaze-medium-navigate | task1 | v8p1 | R2_stable_strong | completed_1m | 1000000 | 0.52 | 0.62 | 800000 | -0.09999999999999998 | /root/autodl-tmp/sb-value-flows-runs/visual_stable_v8p1_4090d/exp/visual_stable_v8p1_task1_R2stableStrong_seed2_resume700k_to_1m/visual_stable_v8p1_task1_R2stableStrong_seed2_resume700k_to_1m/sd002_20260621_144808/eval.csv |
 | visual-antmaze-medium-navigate | task1 | v6 | A1 | completed_300k | 300000 | 0.2 | 0.6 | 200000 | -0.39999999999999997 | /root/autodl-tmp/sb-value-flows-runs/visual_bigtable_4090d_v6/exp/stageA_visual-antmaze-medium-navigate_visual-antmaze-medium-navigate-singletask-task1-v0_A1_action_std_lam0p001_seed2_300000/stageA_visual-antmaze-medium-navigate_visual-antmaze-medium-navigate-singletask-task1-v0_A1_action_std_lam0p001_seed2_300000/sd002_20260609_200247/eval.csv |
 | visual-antmaze-medium-navigate | task2 | v6 | R2 | completed_300k | 300000 | 0.6 | 0.6 | 300000 | 0.0 | /root/autodl-tmp/sb-value-flows-runs/visual_bigtable_4090d_v6/exp/stageA_visual-antmaze-medium-navigate_visual-antmaze-medium-navigate-singletask-task2-v0_R2_flow_residual_disagree_std_lam0p001_seed2_300000/stageA_visual-antmaze-medium-navigate_visual-antmaze-medium-navigate-singletask-task2-v0_R2_flow_residual_disagree_std_lam0p001_seed2_300000/sd002_20260609_212452/eval.csv |
-| visual-antmaze-medium-navigate | task4 | v6 | R2 | completed_300k | 300000 | 0.2 | 0.6 | 250000 | -0.39999999999999997 | /root/autodl-tmp/sb-value-flows-runs/visual_bigtable_4090d_v6/exp/stageA_visual-antmaze-medium-navigate_visual-antmaze-medium-navigate-singletask-task4-v0_R2_flow_residual_disagree_std_lam0p001_seed2_300000/stageA_visual-antmaze-medium-navigate_visual-antmaze-medium-navigate-singletask-task4-v0_R2_flow_residual_disagree_std_lam0p001_seed2_300000/sd002_20260610_000702/eval.csv |
