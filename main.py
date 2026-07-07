@@ -2,6 +2,7 @@ import os
 
 import json
 import random
+import sys
 import time
 
 import jax
@@ -43,6 +44,13 @@ flags.DEFINE_integer('video_frame_skip', 3, 'Frame skip for videos.')
 flags.DEFINE_float('p_aug', None, 'Probability of applying image augmentation.')
 flags.DEFINE_integer('frame_stack', None, 'Number of frames to stack.')
 flags.DEFINE_integer('balanced_sampling', 0, 'Whether to use balanced sampling for online fine-tuning.')
+flags.DEFINE_float(
+    'online_sample_ratio',
+    None,
+    'Fraction of each balanced online fine-tuning batch sampled from the online replay buffer. '
+    'If unset, balanced_sampling uses the historical half-online/half-offline behavior.',
+)
+flags.DEFINE_bool('eval_at_step0', False, 'Evaluate the initialized/restored agent before any training step.')
 
 config_flags.DEFINE_config_file('agent', 'agents/value_flows.py', lock_config=False)
 
@@ -61,6 +69,8 @@ def main(_):
     flag_dict = get_flag_dict()
     with open(os.path.join(FLAGS.save_dir, 'flags.json'), 'w') as f:
         json.dump(flag_dict, f)
+    with open(os.path.join(FLAGS.save_dir, 'command.txt'), 'w') as f:
+        f.write(' '.join(sys.argv) + '\n')
 
     # Make environment and datasets.
     config = FLAGS.agent
@@ -112,6 +122,17 @@ def main(_):
     # Restore agent.
     if FLAGS.restore_path is not None:
         agent = restore_agent(agent, FLAGS.restore_path, FLAGS.restore_epoch)
+    with open(os.path.join(FLAGS.save_dir, 'checkpoint_metadata.json'), 'w') as f:
+        json.dump(
+            dict(
+                restore_path=FLAGS.restore_path,
+                restore_epoch=FLAGS.restore_epoch,
+                save_interval=FLAGS.save_interval,
+                save_eval_checkpoints=bool(config.get('save_eval_checkpoints', False)),
+            ),
+            f,
+            indent=2,
+        )
 
     # Train agent.
     train_logger = CsvLogger(os.path.join(FLAGS.save_dir, 'train.csv'))
@@ -120,6 +141,50 @@ def main(_):
     last_time = time.time()
     best_eval_success = None
     best_eval_step = None
+    last_eval_success = None
+
+    def run_eval(step, online_phase=False):
+        nonlocal best_eval_success, best_eval_step, last_eval_success
+        eval_metrics = {}
+        if online_phase and config['agent_name'] in ['value_flows', 'pm_value_flows']:
+            eval_kwargs = dict(policy_extraction='rpg')
+        else:
+            eval_kwargs = dict()
+        eval_info, _, renders = evaluate(
+            agent=agent,
+            env=eval_env,
+            num_eval_episodes=FLAGS.eval_episodes,
+            num_video_episodes=FLAGS.video_episodes,
+            video_frame_skip=FLAGS.video_frame_skip,
+            **eval_kwargs,
+        )
+        for k, v in eval_info.items():
+            eval_metrics[f'evaluation/{k}'] = v
+        if 'success' in eval_info:
+            eval_success = float(eval_info['success'])
+            last_eval_success = eval_success
+            improved = best_eval_success is None or eval_success > best_eval_success
+            if improved:
+                best_eval_success = eval_success
+                best_eval_step = step
+            eval_metrics['evaluation/best_success_so_far'] = best_eval_success
+            eval_metrics['evaluation/best_step'] = best_eval_step
+            eval_metrics['evaluation/drop_from_best'] = eval_success - best_eval_success
+            if config.get('save_eval_checkpoints', False):
+                save_agent(agent, FLAGS.save_dir, f'eval_{step}')
+                if improved:
+                    save_agent(agent, FLAGS.save_dir, 'best_eval')
+
+        if FLAGS.video_episodes > 0:
+            video = get_wandb_video(renders=renders)
+            eval_metrics['video'] = video
+
+        if FLAGS.enable_wandb:
+            wandb.log(eval_metrics, step=step)
+        eval_logger.log(eval_metrics, step=step)
+
+    if FLAGS.eval_at_step0:
+        run_eval(0, online_phase=FLAGS.online_steps > 0)
     
     rng = jax.random.PRNGKey(FLAGS.seed)
     expl_metrics = dict()
@@ -170,10 +235,20 @@ def main(_):
                 expl_metrics = {f'exploration/{k}': np.mean(v) for k, v in flatten(info).items()}
 
             if FLAGS.balanced_sampling:
-                # Half-and-half sampling from the training dataset and the replay buffer.
-                dataset_batch = train_dataset.sample(config['batch_size'] // 2)
-                replay_batch = replay_buffer.sample(config['batch_size'] // 2)
-                batch = {k: np.concatenate([dataset_batch[k], replay_batch[k]], axis=0) for k in dataset_batch}
+                # Configurable sampling from the offline dataset and online replay buffer.
+                online_ratio = 0.5 if FLAGS.online_sample_ratio is None else FLAGS.online_sample_ratio
+                assert 0.0 <= online_ratio <= 1.0
+                online_batch_size = int(round(config['batch_size'] * online_ratio))
+                offline_batch_size = config['batch_size'] - online_batch_size
+                batches = []
+                if offline_batch_size > 0:
+                    batches.append(train_dataset.sample(offline_batch_size))
+                if online_batch_size > 0:
+                    batches.append(replay_buffer.sample(online_batch_size))
+                if len(batches) == 1:
+                    batch = batches[0]
+                else:
+                    batch = {k: np.concatenate([b[k] for b in batches], axis=0) for k in batches[0]}
             else:
                 batch = replay_buffer.sample(config['batch_size'])
 
@@ -199,42 +274,7 @@ def main(_):
 
         # Evaluate agent.
         if FLAGS.eval_interval != 0 and (i == 1 or i % FLAGS.eval_interval == 0):
-            eval_metrics = {}
-            if i > FLAGS.offline_steps and config['agent_name'] in ['value_flows', 'pm_value_flows']:
-                eval_kwargs = dict(policy_extraction='rpg')
-            else:
-                eval_kwargs = dict()
-            eval_info, _, renders = evaluate(
-                agent=agent,
-                env=eval_env,
-                num_eval_episodes=FLAGS.eval_episodes,
-                num_video_episodes=FLAGS.video_episodes,
-                video_frame_skip=FLAGS.video_frame_skip,
-                **eval_kwargs,
-            )
-            for k, v in eval_info.items():
-                eval_metrics[f'evaluation/{k}'] = v
-            if 'success' in eval_info:
-                eval_success = float(eval_info['success'])
-                improved = best_eval_success is None or eval_success > best_eval_success
-                if improved:
-                    best_eval_success = eval_success
-                    best_eval_step = i
-                eval_metrics['evaluation/best_success_so_far'] = best_eval_success
-                eval_metrics['evaluation/best_step'] = best_eval_step
-                eval_metrics['evaluation/drop_from_best'] = eval_success - best_eval_success
-                if config.get('save_eval_checkpoints', False):
-                    save_agent(agent, FLAGS.save_dir, f'eval_{i}')
-                    if improved:
-                        save_agent(agent, FLAGS.save_dir, 'best_eval')
-
-            if FLAGS.video_episodes > 0:
-                video = get_wandb_video(renders=renders)
-                eval_metrics['video'] = video
-
-            if FLAGS.enable_wandb:
-                wandb.log(eval_metrics, step=i)
-            eval_logger.log(eval_metrics, step=i)
+            run_eval(i, online_phase=i > FLAGS.offline_steps)
 
         # Save agent.
         if i % FLAGS.save_interval == 0:
@@ -245,6 +285,25 @@ def main(_):
 
     train_logger.close()
     eval_logger.close()
+    with open(os.path.join(FLAGS.save_dir, 'summary.json'), 'w') as f:
+        json.dump(
+            dict(
+                env_name=FLAGS.env_name,
+                seed=FLAGS.seed,
+                offline_steps=FLAGS.offline_steps,
+                online_steps=FLAGS.online_steps,
+                final_step=FLAGS.offline_steps + FLAGS.online_steps,
+                final_success=last_eval_success,
+                best_peak_success=best_eval_success,
+                best_peak_step=best_eval_step,
+                drop=None if last_eval_success is None or best_eval_success is None else last_eval_success - best_eval_success,
+                restore_path=FLAGS.restore_path,
+                restore_epoch=FLAGS.restore_epoch,
+                save_dir=FLAGS.save_dir,
+            ),
+            f,
+            indent=2,
+        )
 
 
 if __name__ == '__main__':
