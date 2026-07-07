@@ -457,19 +457,19 @@ def choose_jobs(rows: list[dict[str, str]], active: set[str], slots: int) -> lis
                 continue
             completed = completed_cells[(domain, task)]
             all_row = all_cells[(domain, task)]
-            attempted = 1 if has_peak_sweep_attempt(rows, domain, task) else 0
+            attempt_count = len(peak_attempt_rows(rows, domain, task))
             completed_peak = fnum(completed.get('best_peak_success')) if completed else math.nan
             evidence_peak = fnum(all_row.get('best_peak_success')) if all_row else math.nan
             priority_peak = evidence_peak if not math.isnan(evidence_peak) else -1.0
             if completed is None or math.isnan(completed_peak):
-                candidates.append((0, attempted, priority_peak, task))
+                candidates.append((0, attempt_count, priority_peak, task))
             elif completed_peak < target:
-                candidates.append((1, attempted, completed_peak, task))
+                candidates.append((1, attempt_count, completed_peak, task))
         candidates.sort(key=lambda x: (x[0], x[1], x[2]))
         if not candidates and any(cell_domain == domain for cell_domain, _task in documented_cells):
             log(f'ROW {domain}: no runnable candidates remain after documented cells action=advance_to_next_row')
             continue
-        for _kind, _attempted, _peak, task in candidates:
+        for _kind, _attempt_count, _peak, task in candidates:
             chosen.append((domain, task, next_peak_seed(rows, domain, task)))
             if len(chosen) >= slots:
                 return chosen
