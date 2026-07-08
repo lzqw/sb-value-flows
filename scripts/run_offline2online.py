@@ -120,7 +120,7 @@ METHODS = {
 }
 
 STAGE_STEPS = {"smoke": 50_000, "screen": 500_000, "final": 1_000_000}
-FINAL_SCENARIOS = ("cube-double", "puzzle-4x4", "scene")
+DEFAULT_FINAL_SCENARIOS = ("cube-double", "puzzle-4x4", "scene")
 FINAL_METHODS = ("ours", "value_flows", "fql")
 FINAL_SEEDS = (2, 3)
 
@@ -236,11 +236,25 @@ def config_flags(method: Method, scenario: Scenario, args: argparse.Namespace) -
             f"--agent.pm_field_kernel_norm_temp={args.tau_post}",
             f"--agent.pm_sb_lambda={args.pm_sb_lambda}",
         ]
+    if args.lr is not None:
+        flags.append(f"--agent.lr={args.lr}")
+    for flag in args.agent_flag:
+        prefix = "--agent." if not flag.startswith("--agent.") else ""
+        flags.append(f"{prefix}{flag}")
     return flags
 
 
 def run_name(stage: str, scenario: Scenario, method: Method, seed: int, config_name: str) -> str:
     return f"o2o_{stage}_{scenario.key}_{method.key}_{config_name}_seed{seed}"
+
+
+def final_scenario_keys(args: argparse.Namespace) -> tuple[str, ...]:
+    raw = getattr(args, "final_scenarios", "") or ",".join(DEFAULT_FINAL_SCENARIOS)
+    keys = tuple(k.strip() for k in raw.split(",") if k.strip())
+    unknown = [k for k in keys if k not in SCENARIOS]
+    if unknown:
+        raise SystemExit(f"Unknown final scenario(s): {unknown}")
+    return keys
 
 
 def build_command(args: argparse.Namespace, scenario: Scenario, method: Method, seed: int) -> tuple[list[str], Path]:
@@ -271,6 +285,10 @@ def build_command(args: argparse.Namespace, scenario: Scenario, method: Method, 
         "--balanced_sampling=1",
         f"--online_sample_ratio={args.online_sample_ratio}",
     ]
+    if args.policy_extraction:
+        cmd.append(f"--policy_extraction={args.policy_extraction}")
+    if args.restore_params_only:
+        cmd.append("--restore_params_only=true")
     if restore:
         cmd += [f"--restore_path={restore[0]}", f"--restore_epoch={restore[1]}"]
     cmd += config_flags(method, scenario, args)
@@ -465,9 +483,10 @@ def run_status(stage: str, final_step: int, target_online_steps: int, target_off
     return "partial"
 
 
-def collect(_: argparse.Namespace) -> list[dict[str, str]]:
+def collect(args: argparse.Namespace) -> list[dict[str, str]]:
     ensure_dirs()
     rows: list[dict[str, str]] = []
+    final_scenarios = set(final_scenario_keys(args))
     for eval_csv in sorted(SAVE_ROOT.rglob("eval.csv")):
         run_dir = eval_csv.parent
         root = eval_csv.parents[2] if len(eval_csv.parents) > 2 else run_dir
@@ -513,7 +532,7 @@ def collect(_: argparse.Namespace) -> list[dict[str, str]]:
     final_seed_sets: dict[tuple[str, str], set[str]] = {}
     for row in rows:
         if (
-            row["scenario"] in FINAL_SCENARIOS
+            row["scenario"] in final_scenarios
             and row["method"] in FINAL_METHODS
             and row["seed"] in {str(s) for s in FINAL_SEEDS}
             and row["status"] == "completed_1m"
@@ -739,15 +758,15 @@ def plot(args: argparse.Namespace) -> None:
     curve_rows: list[dict[str, str]]
     with CURVE_CSV.open(newline="") as f:
         curve_rows = [r for r in csv.DictReader(f) if r.get("used_in_final_figure") == "True"]
-    save_curve_figure(plt, np, curve_rows, "offline2online_selected3")
+    save_curve_figure(plt, np, curve_rows, "offline2online_selected3", final_scenario_keys(args))
     print(FIG_DIR / "offline2online_selected3.png")
 
 
-def select_progress_runs(rows: list[dict[str, str]]) -> set[str]:
+def select_progress_runs(rows: list[dict[str, str]], scenario_keys: tuple[str, ...] = DEFAULT_FINAL_SCENARIOS) -> set[str]:
     stage_rank = {"final": 3, "screening": 2, "smoke": 1}
     selected: dict[tuple[str, str, str], dict[str, str]] = {}
     for row in rows:
-        if row["scenario"] not in FINAL_SCENARIOS or row["method"] not in FINAL_METHODS:
+        if row["scenario"] not in scenario_keys or row["method"] not in FINAL_METHODS:
             continue
         if row["run_stage"] == "pretrain" or row["status"] not in {"partial", "completed", "completed_1m"}:
             continue
@@ -775,15 +794,17 @@ def plot_progress(args: argparse.Namespace) -> None:
         import numpy as np
     except Exception as exc:
         raise SystemExit(f"matplotlib/numpy unavailable: {exc}")
-    selected_run_dirs = select_progress_runs(rows)
+    selected_run_dirs = select_progress_runs(rows, final_scenario_keys(args))
     with CURVE_CSV.open(newline="") as f:
         curve_rows = [r for r in csv.DictReader(f) if r.get("run_dir") in selected_run_dirs]
-    save_curve_figure(plt, np, curve_rows, "offline2online_progress_current")
+    save_curve_figure(plt, np, curve_rows, "offline2online_progress_current", final_scenario_keys(args))
     print(FIG_DIR / "offline2online_progress_current.png")
 
 
-def save_curve_figure(plt, np, curve_rows: list[dict[str, str]], stem: str) -> None:
-    scenarios = [SCENARIOS[k] for k in FINAL_SCENARIOS]
+def save_curve_figure(
+    plt, np, curve_rows: list[dict[str, str]], stem: str, scenario_keys: tuple[str, ...] = DEFAULT_FINAL_SCENARIOS
+) -> None:
+    scenarios = [SCENARIOS[k] for k in scenario_keys]
     methods = [METHODS[k] for k in FINAL_METHODS]
     fig, axes = plt.subplots(1, len(scenarios), figsize=(12, 3.4), sharey=True)
     colors = {"ours": "#1f77b4", "value_flows": "#2ca02c", "fql": "#d62728", "iql": "#9467bd"}
@@ -844,7 +865,7 @@ def save_curve_figure(plt, np, curve_rows: list[dict[str, str]], stem: str) -> N
 def status(args: argparse.Namespace) -> None:
     rows = collect(args)
     stage_rank = {"final": 3, "screening": 2, "smoke": 1}
-    for scenario_key in FINAL_SCENARIOS:
+    for scenario_key in final_scenario_keys(args):
         for method_key in FINAL_METHODS:
             for seed in FINAL_SEEDS:
                 found = [
@@ -880,7 +901,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--pm_sb_lambda", type=float, default=1e-3)
     parser.add_argument("--tau_post", type=float, default=0.3)
     parser.add_argument("--pm_weight_type", default="field_kernel_norm")
+    parser.add_argument("--lr", type=float, default=None)
+    parser.add_argument("--agent_flag", action="append", default=[], help="Additional key=value flag passed as --agent.key=value.")
+    parser.add_argument("--policy_extraction", choices=["rs", "rpg"], default=None)
+    parser.add_argument("--restore_params_only", action="store_true")
     parser.add_argument("--config_name", default="default")
+    parser.add_argument("--final_scenarios", default=",".join(DEFAULT_FINAL_SCENARIOS))
     parser.add_argument("--dry_run", action="store_true")
     parser.add_argument("--force", action="store_true")
     args = parser.parse_args()

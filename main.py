@@ -16,7 +16,7 @@ from agents import agents
 from envs.env_utils import make_env_and_datasets
 from utils.datasets import Dataset, ReplayBuffer
 from utils.evaluation import evaluate, flatten
-from utils.flax_utils import restore_agent, save_agent
+from utils.flax_utils import restore_agent, restore_agent_params_only, save_agent
 from utils.log_utils import CsvLogger, get_exp_name, get_flag_dict, get_wandb_video, setup_wandb
 
 FLAGS = flags.FLAGS
@@ -29,6 +29,7 @@ flags.DEFINE_string('env_name', 'antmaze-large-navigate-v0', 'Environment (datas
 flags.DEFINE_string('save_dir', 'exp/', 'Save directory.')
 flags.DEFINE_string('restore_path', None, 'Restore path.')
 flags.DEFINE_integer('restore_epoch', None, 'Restore epoch.')
+flags.DEFINE_bool('restore_params_only', False, 'Restore network parameters while reinitializing optimizer state.')
 
 flags.DEFINE_integer('offline_steps', 1000000, 'Number of offline steps.')
 flags.DEFINE_integer('online_steps', 0, 'Number of online steps.')
@@ -51,6 +52,11 @@ flags.DEFINE_float(
     'If unset, balanced_sampling uses the historical half-online/half-offline behavior.',
 )
 flags.DEFINE_bool('eval_at_step0', False, 'Evaluate the initialized/restored agent before any training step.')
+flags.DEFINE_string(
+    'policy_extraction',
+    None,
+    'Optional policy extraction override passed to flow agents during evaluation and online exploration.',
+)
 
 config_flags.DEFINE_config_file('agent', 'agents/value_flows.py', lock_config=False)
 
@@ -121,12 +127,16 @@ def main(_):
 
     # Restore agent.
     if FLAGS.restore_path is not None:
-        agent = restore_agent(agent, FLAGS.restore_path, FLAGS.restore_epoch)
+        if FLAGS.restore_params_only:
+            agent = restore_agent_params_only(agent, FLAGS.restore_path, FLAGS.restore_epoch)
+        else:
+            agent = restore_agent(agent, FLAGS.restore_path, FLAGS.restore_epoch)
     with open(os.path.join(FLAGS.save_dir, 'checkpoint_metadata.json'), 'w') as f:
         json.dump(
             dict(
                 restore_path=FLAGS.restore_path,
                 restore_epoch=FLAGS.restore_epoch,
+                restore_params_only=FLAGS.restore_params_only,
                 save_interval=FLAGS.save_interval,
                 save_eval_checkpoints=bool(config.get('save_eval_checkpoints', False)),
             ),
@@ -143,13 +153,18 @@ def main(_):
     best_eval_step = None
     last_eval_success = None
 
+    def default_policy_extraction(online_phase):
+        if FLAGS.policy_extraction:
+            return FLAGS.policy_extraction
+        if online_phase and config['agent_name'] in ['value_flows', 'pm_value_flows']:
+            return 'rpg'
+        return None
+
     def run_eval(step, online_phase=False):
         nonlocal best_eval_success, best_eval_step, last_eval_success
         eval_metrics = {}
-        if online_phase and config['agent_name'] in ['value_flows', 'pm_value_flows']:
-            eval_kwargs = dict(policy_extraction='rpg')
-        else:
-            eval_kwargs = dict()
+        policy_extraction = default_policy_extraction(online_phase)
+        eval_kwargs = dict(policy_extraction=policy_extraction) if policy_extraction else dict()
         eval_info, _, renders = evaluate(
             agent=agent,
             env=eval_env,
@@ -204,8 +219,11 @@ def main(_):
             if done:
                 obs, _ = env.reset()
             
-            if config['agent_name'] in ['value_flows', 'pm_value_flows']:
-                action = agent.sample_actions(observations=obs, temperature=1, seed=expl_rng, policy_extraction='rpg')
+            policy_extraction = default_policy_extraction(online_phase=True)
+            if policy_extraction:
+                action = agent.sample_actions(
+                    observations=obs, temperature=1, seed=expl_rng, policy_extraction=policy_extraction
+                )
             else:
                 action = agent.sample_actions(observations=obs, temperature=1, seed=expl_rng)
             action = np.array(action)

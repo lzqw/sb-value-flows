@@ -200,3 +200,23 @@ def restore_agent(agent, restore_path, restore_epoch):
     print(f'Restored from {restore_path}')
 
     return agent
+
+
+def restore_agent_params_only(agent, restore_path, restore_epoch):
+    """Restore network parameters while keeping the newly initialized optimizer state."""
+    candidates = glob.glob(restore_path)
+
+    assert len(candidates) == 1, f'Found {len(candidates)} candidates: {candidates}'
+
+    restore_path = candidates[0] + f'/params_{restore_epoch}.pkl'
+
+    with open(restore_path, 'rb') as f:
+        load_dict = pickle.load(f)
+
+    agent_state = flax.serialization.to_state_dict(agent)
+    agent_state['network']['params'] = load_dict['agent']['network']['params']
+    agent = flax.serialization.from_state_dict(agent, agent_state)
+
+    print(f'Restored params only from {restore_path}')
+
+    return agent
