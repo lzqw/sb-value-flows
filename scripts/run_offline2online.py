@@ -147,10 +147,10 @@ TUNING_FIELDS = [
 FIELDS = [
     "scenario",
     "panel",
-    "env",
+    "env_name",
     "method",
     "method_label",
-    "config_name",
+    "config",
     "seed",
     "online_steps",
     "final_step",
@@ -162,7 +162,8 @@ FIELDS = [
     "run_dir",
     "eval_csv",
     "train_csv",
-    "command_txt",
+    "command_path",
+    "config_path",
     "checkpoint_source",
     "used_in_final_figure",
     "run_stage",
@@ -436,9 +437,17 @@ def metadata_from_run_dir(run_dir: Path) -> dict[str, str]:
         "seed": str(data.get("seed", "")),
         "offline_steps": str(data.get("offline_steps", "")),
         "online_steps": str(data.get("online_steps", "")),
+        "eval_episodes": str(data.get("eval_episodes", "") or ""),
         "restore_path": str(data.get("restore_path", "") or ""),
         "restore_epoch": str(data.get("restore_epoch", "") or ""),
     }
+
+
+def scale_success(value: str) -> str:
+    try:
+        return str(float(value) * 100.0)
+    except Exception:
+        return ""
 
 
 def method_from_agent(agent_name: str) -> Method | None:
@@ -506,22 +515,24 @@ def collect(args: argparse.Namespace) -> list[dict[str, str]]:
         row = {
             "scenario": scenario.key if scenario else "",
             "panel": scenario.panel if scenario else "",
-            "env": meta.get("env", ""),
+            "env_name": meta.get("env", ""),
             "method": method.key if method else meta.get("method_agent", ""),
             "method_label": method.label if method else meta.get("method_agent", ""),
-            "config_name": config_name,
+            "config": config_name,
             "seed": meta.get("seed", ""),
             "online_steps": meta.get("online_steps", ""),
+            "eval_episodes": meta.get("eval_episodes", ""),
             "final_step": summary.get("final_step", ""),
             "status": status,
-            "final_success": summary.get("final_success", ""),
-            "best_peak_success": summary.get("best_peak_success", ""),
+            "final_success": scale_success(summary.get("final_success", "")),
+            "best_peak_success": scale_success(summary.get("best_peak_success", "")),
             "best_peak_step": summary.get("best_peak_step", ""),
-            "drop": summary.get("drop", ""),
+            "drop": scale_success(summary.get("drop", "")),
             "run_dir": str(run_dir),
             "eval_csv": str(eval_csv),
             "train_csv": str(run_dir / "train.csv"),
-            "command_txt": str(run_dir / "command.txt"),
+            "command_path": str(run_dir / "command.txt"),
+            "config_path": str(run_dir / "flags.json") if (run_dir / "flags.json").exists() else "",
             "checkpoint_source": meta.get("restore_path", ""),
             "used_in_final_figure": "False",
             "run_stage": stage,
@@ -562,12 +573,13 @@ def collect(args: argparse.Namespace) -> list[dict[str, str]]:
                 {
                     "scenario": row["scenario"],
                     "panel": row["panel"],
-                    "env": row["env"],
+                    "env_name": row["env_name"],
                     "method": row["method"],
                     "method_label": row["method_label"],
                     "seed": row["seed"],
-                    "step": erow.get("step", ""),
-                    "success": erow.get("evaluation/success", ""),
+                    "online_step": erow.get("step", ""),
+                    "success_rate": scale_success(erow.get("evaluation/success", "")),
+                    "eval_episodes": meta_by_run_dir.get(run_dir, {}).get("eval_episodes", ""),
                     "run_dir": run_dir,
                     "used_in_final_figure": used_by_run_dir.get(run_dir, "False"),
                 }
@@ -575,7 +587,19 @@ def collect(args: argparse.Namespace) -> list[dict[str, str]]:
     write_csv(RESULTS_CSV, FIELDS, rows)
     write_csv(
         CURVE_CSV,
-        ["scenario", "panel", "env", "method", "method_label", "seed", "step", "success", "run_dir", "used_in_final_figure"],
+        [
+            "scenario",
+            "panel",
+            "env_name",
+            "method",
+            "method_label",
+            "seed",
+            "online_step",
+            "success_rate",
+            "eval_episodes",
+            "run_dir",
+            "used_in_final_figure",
+        ],
         curve_rows,
     )
     write_reports(rows)
@@ -667,7 +691,7 @@ def write_reports(rows: list[dict[str, str]]) -> None:
     inventory_fields = [
         "scenario",
         "method",
-        "config_name",
+        "config",
         "seed",
         "run_stage",
         "status",
@@ -811,7 +835,7 @@ def save_curve_figure(
     max_step = 1000
     for row in curve_rows:
         try:
-            max_step = max(max_step, int(float(row["step"])))
+            max_step = max(max_step, int(float(row.get("online_step") or row.get("step") or 0)))
         except Exception:
             continue
     x_max = max_step / 1000.0
@@ -828,8 +852,8 @@ def save_curve_figure(
                 if row["scenario"] != scenario.key or row["method"] != method.key:
                     continue
                 try:
-                    step = int(float(row["step"]))
-                    success = float(row["success"]) * 100.0
+                    step = int(float(row.get("online_step") or row.get("step") or 0))
+                    success = float(row.get("success_rate") or 0.0)
                 except Exception:
                     continue
                 grouped.setdefault(step, []).append(success)

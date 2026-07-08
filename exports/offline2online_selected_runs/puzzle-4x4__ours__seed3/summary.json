@@ -1,0 +1,14 @@
+{
+  "env_name": "puzzle-4x4-play-singletask-task3-v0",
+  "seed": 3,
+  "offline_steps": 0,
+  "online_steps": 1000000,
+  "final_step": 1000000,
+  "final_success": 0.0,
+  "best_peak_success": 0.0,
+  "best_peak_step": 0,
+  "drop": 0.0,
+  "restore_path": "/root/autodl-tmp/sb-value-flows-runs/offline2online_single4090/exp/o2o_pretrain_puzzle-4x4_ours_ckpt500k_lam1e-3_tau0p3_seed3/o2o_pretrain_puzzle-4x4_ours_ckpt500k_lam1e-3_tau0p3_seed3/sd003_20260706_031946",
+  "restore_epoch": 500000,
+  "save_dir": "/root/autodl-tmp/sb-value-flows-runs/offline2online_single4090/exp/o2o_final_puzzle-4x4_ours_final1m_r1p0_lam1e-3_tau0p3_seed3/o2o_final_puzzle-4x4_ours_final1m_r1p0_lam1e-3_tau0p3_seed3/sd003_20260706_052452"
+}
