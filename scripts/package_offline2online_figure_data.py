@@ -148,8 +148,14 @@ def write_zip(paths: list[Path]) -> None:
     if ZIP_PATH.exists():
         ZIP_PATH.unlink()
     with zipfile.ZipFile(ZIP_PATH, "w", compression=zipfile.ZIP_DEFLATED) as zf:
-        for path in paths:
-            zf.write(path, path.relative_to(REPO))
+        for path in sorted(paths, key=lambda p: p.relative_to(REPO).as_posix()):
+            arcname = path.relative_to(REPO).as_posix()
+            info = zipfile.ZipInfo(arcname)
+            info.date_time = (2026, 7, 8, 0, 0, 0)
+            info.compress_type = zipfile.ZIP_DEFLATED
+            info.external_attr = (0o644 & 0xFFFF) << 16
+            with path.open("rb") as f:
+                zf.writestr(info, f.read())
 
 
 def main() -> None:
